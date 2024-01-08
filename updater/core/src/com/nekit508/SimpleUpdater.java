@@ -1,5 +1,6 @@
 package com.nekit508;
 
+import arc.func.Func;
 import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Http;
@@ -31,32 +32,32 @@ public class SimpleUpdater {
     public static JsonValue extensionsList;
 
     /** Returns stream to file in current root **/
-    public static InputStream getRemoteFile(Files file) {
-        return getRemoteFile(rootPath, file.val());
+    public static <T> T getRemoteFile(Files file, Func<InputStream, T> func) {
+        return getRemoteFile(rootPath, file.val(), func);
     }
 
     /** Returns stream to file in current root **/
-    public static InputStream getRemoteFile(Files file, Object... format) {
-        return getRemoteFile(rootPath, file.val(format));
+    public static <T> T getRemoteFile(Files file, Func<InputStream, T> func, Object... format) {
+        return getRemoteFile(rootPath, file.val(format), func);
     }
 
     /** Returns stream to file in current root **/
-    public static InputStream getRemoteFile(String file) {
-        return getRemoteFile(rootPath, file);
+    public static <T> T getRemoteFile(String file, Func<InputStream, T> func) {
+        return getRemoteFile(rootPath, file, func);
     }
 
     /** Returns stream to file in branch in repo **/
-    public static InputStream getRemoteFile(String repo, String branch, String file) {
-        return getRemoteFile(repo + "/" + branch, file);
+    public static <T> T getRemoteFile(String repo, String branch, String file, Func<InputStream, T> func) {
+        return getRemoteFile(repo + "/" + branch, file, func);
     }
 
     /** Returns stream to file in specified root **/
-    public static InputStream getRemoteFile(String rootPath, String file) {
-        InputStream[] out = new InputStream[1];
+    public static <T> T getRemoteFile(String rootPath, String file, Func<InputStream, T> func) {
+        Object[] out = new Object[1];
         Http.get("https://raw.githubusercontent.com/%s/%s".formatted(rootPath, file)).block(r -> {
-            out[0] = r.getResultAsStream();
+            out[0] = func.get(r.getResultAsStream());
         });
-        return out[0];
+        return (T) out[0];
     }
 
     public static JsonValue parse(InputStream stream) {
@@ -67,8 +68,10 @@ public class SimpleUpdater {
         for (String arg : args) {
             if (arg.startsWith("-R"))
                 repo = arg.substring(2);
-            if (arg.startsWith("-B"))
-                repo = arg.substring(2);
+            else if (arg.startsWith("-B"))
+                branch = arg.substring(2);
+            else if (arg.startsWith("-debug"))
+                Log.level = Log.LogLevel.debug;
         }
         if (repo == null) {
             Log.err("The program arguments must contain -R{remoteRepoName}");
@@ -84,12 +87,12 @@ public class SimpleUpdater {
 
     public static void load() {
         // read remote info
-        remoteInfo = parse(getRemoteFile(repo, branch, ""));
+        remoteInfo = getRemoteFile(repo, branch, Files.remoteInfoFile.val(), s -> parse(s));
         version = Config.remoteInfoVersion.get(remoteInfo).asFloat(); // idk what to do with this (-_-(
         rootPath = Config.remoteInfoRoot.get(remoteInfo).asString();
 
         // extensions
-        extensionsList = parse(getRemoteFile(Files.remoteInfoFile));
+        extensionsList = getRemoteFile(Files.extensionsList, s -> parse(s));
         String[] extensionsDirs = Config.extensionsListList.get(extensionsList).asStringArray();
 
         // create extensions list
@@ -98,20 +101,40 @@ public class SimpleUpdater {
         for (String extensionDir : extensionsDirs) {
             Extension extension = new Extension(extensionDir);
 
-            extension.parse(parse(getRemoteFile(Files.extensionInfo, extensionDir)));
+            extension.parse(getRemoteFile(Files.extensionInfo, s -> parse(s), extensionDir));
+            extensions.add(extension);
         }
 
-        // handle dependencies and create loading queue
+        // create extensions queue
         Seq<Extension> loadingQueue = new Seq<>();
 
         for (Extension extension : extensions) {
-            loadingQueue.add(extension);
+            if (!loadingQueue.contains(extension))
+                loadingQueue.add(extension);
 
             for (String dependency : extension.dependencies) {
                 Extension dep = extensions.find(e -> e.name.equals(dependency));
+
                 if (dep == null)
                     Log.err("Missing dependency @ for extension @.", dependency, extension.name);
+
+                if (!loadingQueue.contains(dep))
+                    loadingQueue.insert(loadingQueue.indexOf(extension), dep);
             }
         }
+
+        Log.debug("loading queue: @", loadingQueue);
+
+        // init extensions
+        for (Extension extension : loadingQueue)
+            extension.init();
+
+        // load extensions
+        for (Extension extension : loadingQueue)
+            extension.load();
+
+        // start extensions
+        for (Extension extension : loadingQueue)
+            extension.start();
     }
 }

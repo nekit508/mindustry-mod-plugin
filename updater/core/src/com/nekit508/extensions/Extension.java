@@ -1,5 +1,7 @@
 package com.nekit508.extensions;
 
+import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.serialization.JsonValue;
 import com.nekit508.SimpleUpdater;
 import com.nekit508.config.Config;
@@ -47,11 +49,10 @@ public class Extension {
 
     public void init() {
         if (type == ExtensionType.lua) {
-            mainScript= globals.load(new InputStreamReader(
-                    SimpleUpdater.getRemoteFile(Files.extensionMain, extensionRoot, main)), main);
+            mainScript = SimpleUpdater.getRemoteFile(Files.extensionMain,
+                    s -> globals.load(new InputStreamReader(s), main), extensionRoot, main);
 
-            LuaValue init = mainScript.method("init");
-            init.call();
+            mainScript.method("init");
         } else if (type == ExtensionType.java) {
 
         }
@@ -59,7 +60,7 @@ public class Extension {
 
     public void load() {
         if (type == ExtensionType.lua) {
-            mainScript.method("load").call();
+            mainScript.method("load");
         } else if (type == ExtensionType.java) {
 
         }
@@ -67,7 +68,7 @@ public class Extension {
 
     public void start() {
         if (type == ExtensionType.lua) {
-            mainScript.method("start").call();
+            mainScript.method("start");
         } else if (type == ExtensionType.java) {
 
         }

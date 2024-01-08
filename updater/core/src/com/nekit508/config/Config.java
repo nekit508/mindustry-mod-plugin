@@ -12,7 +12,7 @@ public enum Config {
     extensionsDirExtensionInfoType("type"),
     extensionsDirExtensionInfoMain("main"),
     extensionsDirExtensionInfoDependencies("dependencies"),
-    extensionsDirExtensionInfoName("type");
+    extensionsDirExtensionInfoName("name");
 
     public final String path;
 
