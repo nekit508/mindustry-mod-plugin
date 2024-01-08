@@ -52,6 +52,8 @@ public class Extension {
             mainScript = SimpleUpdater.getRemoteFile(Files.extensionMain,
                     s -> globals.load(new InputStreamReader(s), main), extensionRoot, main);
 
+            Log.info(mainScript.call());
+
             mainScript.method("init");
         } else if (type == ExtensionType.java) {
 

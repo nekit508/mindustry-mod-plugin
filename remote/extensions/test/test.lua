@@ -1,3 +1,5 @@
+print("Hello, world!")
+
 function init()
     print("init")
     --core = luajava.bindClass("com.nekit508.SimpleUpdater")

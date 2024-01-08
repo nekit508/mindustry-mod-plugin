@@ -2,3 +2,4 @@
 *.iml
 updater/local.properties
 build
+.gradle
