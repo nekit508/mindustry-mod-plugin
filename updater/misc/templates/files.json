@@ -1,0 +1,12 @@
+{
+    "jars": [
+        {
+            "path": ".updater/jars/update.jar"
+        }
+    ],
+    "static": [
+        {
+            "path": "build.gradle"
+        }
+    ]
+}
