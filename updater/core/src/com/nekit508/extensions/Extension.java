@@ -12,6 +12,7 @@ import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaValue;
 import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.lib.jse.JsePlatform;
+import org.luaj.vm2.parser.LuaParser;
 
 import java.io.InputStreamReader;
 
@@ -51,10 +52,6 @@ public class Extension {
         if (type == ExtensionType.lua) {
             mainScript = SimpleUpdater.getRemoteFile(Files.extensionMain,
                     s -> globals.load(new InputStreamReader(s), main), extensionRoot, main);
-
-            Log.info(mainScript.call());
-
-            mainScript.method("init");
         } else if (type == ExtensionType.java) {
 
         }
@@ -62,7 +59,7 @@ public class Extension {
 
     public void load() {
         if (type == ExtensionType.lua) {
-            mainScript.method("load");
+            // nothing
         } else if (type == ExtensionType.java) {
 
         }
@@ -70,7 +67,7 @@ public class Extension {
 
     public void start() {
         if (type == ExtensionType.lua) {
-            mainScript.method("start");
+            mainScript.call();
         } else if (type == ExtensionType.java) {
 
         }
