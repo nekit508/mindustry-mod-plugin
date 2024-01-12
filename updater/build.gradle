@@ -51,6 +51,12 @@ subprojects.each { Project project ->
     project.sourceSets.main.java.srcDirs = ["src"]
     project.sourceSets.main.resources.srcDirs = ["res"]
 
+    project.ext {
+        getJarName = {
+            return "${project.group}-${project.name}.jar"
+        }
+    }
+
     project.repositories {
         mavenCentral()
         mavenLocal()
@@ -94,7 +100,7 @@ subprojects.each { Project project ->
     }
 
     project.tasks.jar {
-        archiveFileName = "simpleupdater-" + project.name
+        archiveFileName = project.ext.getJarName()
 
         duplicatesStrategy = DuplicatesStrategy.EXCLUDE
         from {

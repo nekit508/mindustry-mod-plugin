@@ -1,1 +1,2 @@
-include "core", "coreExtensoin"
+// TODO extensions
+include "core", "extensions"/*, "extensions:core"*/

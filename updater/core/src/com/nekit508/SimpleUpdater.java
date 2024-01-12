@@ -1,7 +1,6 @@
 package com.nekit508;
 
 import arc.func.Func;
-import arc.struct.Queue;
 import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.Log;
@@ -9,7 +8,9 @@ import arc.util.serialization.JsonReader;
 import arc.util.serialization.JsonValue;
 import com.nekit508.config.Config;
 import com.nekit508.config.Files;
+import com.nekit508.extensions.core.Core;
 import com.nekit508.extensions.Extension;
+import com.nekit508.extensions.ExtensionType;
 
 import java.io.InputStream;
 
@@ -58,6 +59,18 @@ public class SimpleUpdater {
             out[0] = func.get(r.getResultAsStream());
         });
         return (T) out[0];
+    }
+
+    public static JsonValue getRemoteJson(String file) {
+        return getRemoteFile(file, s -> parse(s));
+    }
+
+    public static JsonValue getRemoteJson(Files file) {
+        return getRemoteFile(file.val(), s -> parse(s));
+    }
+
+    public static JsonValue getRemoteJson(Files file, Object format) {
+        return getRemoteFile(file.val(format), s -> parse(s));
     }
 
     public static JsonValue parse(InputStream stream) {
@@ -124,6 +137,11 @@ public class SimpleUpdater {
         }
 
         Log.debug("loading queue: @", loadingQueue);
+
+        loadingQueue.add(new Extension("$no-root"){{
+            mainClass = new Core();
+            type = ExtensionType.java;
+        }});
 
         // init extensions
         for (Extension extension : loadingQueue)

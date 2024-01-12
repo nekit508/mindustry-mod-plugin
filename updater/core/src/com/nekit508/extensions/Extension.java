@@ -74,8 +74,11 @@ public class Extension {
     }
 
     public static abstract class ExtensionMain {
+        /** Initialise. **/
         public void init() {}
+        /** Load config here. **/
         public void load() {}
+        /** Files processing **/
         public void start() {}
     }
 }

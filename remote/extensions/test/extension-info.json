@@ -1,6 +1,0 @@
-{
-    "type": "lua",
-    "name": "test",
-    "dependencies": [],
-    "main": "test.lua"
-}

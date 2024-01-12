@@ -1,0 +1,25 @@
+{
+    "files-root": "files",
+    "one-time": [
+        "mod.json",
+        "dependencies.properties"
+    ],
+    "static": [
+        "settings.gradle",
+
+        "build.gradle",
+
+        "android/build.gradle",
+        "desktop/build.gradle",
+        "core/build.gradle",
+        "annotations/build.gradle"
+
+
+    ],
+    "local": [
+
+    ],
+    "map-config": [
+
+    ]
+}

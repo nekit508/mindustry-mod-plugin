@@ -1,0 +1,22 @@
+sourceSets.main.java.srcDirs = []
+sourceSets.main.resources.srcDirs = []
+
+subprojects.each { Project it ->
+    it.dependencies {
+        compileOnly project("core")
+    }
+
+    it.sourceSets.main.java.srcDirs = ["src"]
+    it.sourceSets.main.resources.srcDirs = ["res"]
+
+    it.tasks.withType(Jar) {
+
+    }
+
+    it.task("copyJar") {
+        copy {
+            from it.tasks.jar
+            into "extensions"
+        }
+    }
+}
