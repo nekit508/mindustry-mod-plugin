@@ -2,6 +2,7 @@ package com.nekit508.extensions.core;
 
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.serialization.JsonValue;
 import com.nekit508.SimpleUpdater;
 import com.nekit508.extensions.Extension;
@@ -41,9 +42,9 @@ public class Core extends Extension.ExtensionMain {
     @Override
     public void start() {
         super.start();
+
+        Log.info(files);
     }
-
-
 
     void loadFileType(String type) {
         putFile(type, files.get("type").asStringArray());
