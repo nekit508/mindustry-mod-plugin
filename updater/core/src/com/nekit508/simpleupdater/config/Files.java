@@ -1,4 +1,4 @@
-package com.nekit508.config;
+package com.nekit508.simpleupdater.config;
 
 import arc.util.Strings;
 

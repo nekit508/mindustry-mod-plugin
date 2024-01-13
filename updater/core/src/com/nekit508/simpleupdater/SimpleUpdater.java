@@ -1,16 +1,17 @@
-package com.nekit508;
+package com.nekit508.simpleupdater;
 
+import arc.files.Fi;
 import arc.func.Func;
 import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.serialization.JsonReader;
 import arc.util.serialization.JsonValue;
-import com.nekit508.config.Config;
-import com.nekit508.config.Files;
-import com.nekit508.extensions.core.Core;
-import com.nekit508.extensions.Extension;
-import com.nekit508.extensions.ExtensionType;
+import com.nekit508.simpleupdater.config.Config;
+import com.nekit508.simpleupdater.config.Files;
+import com.nekit508.simpleupdater.extensions.core.Core;
+import com.nekit508.simpleupdater.extensions.Extension;
+import com.nekit508.simpleupdater.extensions.ExtensionType;
 
 import java.io.InputStream;
 
@@ -22,7 +23,9 @@ public class SimpleUpdater {
     /** Global json reader. **/
     public static JsonReader jsonReader = new JsonReader();
     /** Path to the root where the files are actually located. **/
-    public static String rootPath;
+    public static String remoteRootPath;
+    /** Local directory, where program should save synchronised files. **/
+    public static String localRootPath;
 
     /** Remote data structure version. **/
     public static float version;
@@ -32,19 +35,22 @@ public class SimpleUpdater {
     /** extension/list.json root JsonValue **/
     public static JsonValue extensionsList;
 
+    /** Directory where files are stored. **/
+    public static String simpleUpdaterFiles = clampPath(".updater");
+
     /** Returns stream to file in current root **/
     public static <T> T getRemoteFile(Files file, Func<InputStream, T> func) {
-        return getRemoteFile(rootPath, file.val(), func);
+        return getRemoteFile(remoteRootPath, file.val(), func);
     }
 
     /** Returns stream to file in current root **/
     public static <T> T getRemoteFile(Files file, Func<InputStream, T> func, Object... format) {
-        return getRemoteFile(rootPath, file.val(format), func);
+        return getRemoteFile(remoteRootPath, file.val(format), func);
     }
 
     /** Returns stream to file in current root **/
     public static <T> T getRemoteFile(String file, Func<InputStream, T> func) {
-        return getRemoteFile(rootPath, file, func);
+        return getRemoteFile(remoteRootPath, file, func);
     }
 
     /** Returns stream to file in branch in repo **/
@@ -59,6 +65,10 @@ public class SimpleUpdater {
             out[0] = func.get(r.getResultAsStream());
         });
         return (T) out[0];
+    }
+
+    public static Fi getLocalFi(String file) {
+        return new Fi(localRootPath + file);
     }
 
     public static JsonValue getRemoteJson(String file) {
@@ -77,6 +87,13 @@ public class SimpleUpdater {
         return jsonReader.parse(stream);
     }
 
+    public static String clampPath(String path) {
+        path = path.replaceAll("\\|/", "/");
+        if (path.charAt(path.length()-1) != '/')
+            path += "/";
+        return path;
+    }
+
     public static void main(String[] args) {
         for (String arg : args) {
             if (arg.startsWith("-R"))
@@ -85,6 +102,8 @@ public class SimpleUpdater {
                 branch = arg.substring(2);
             else if (arg.startsWith("-debug"))
                 Log.level = Log.LogLevel.debug;
+            else if (arg.startsWith("-D"))
+                localRootPath = clampPath(arg.substring(2));
         }
         if (repo == null) {
             Log.err("The program arguments must contain -R{remoteRepoName}");
@@ -94,6 +113,8 @@ public class SimpleUpdater {
             Log.err("The program arguments must contain -B{remoteBranch}");
             return;
         }
+        if (localRootPath == null)
+            localRootPath = new Fi("local").absolutePath();
 
         load();
     }
@@ -102,7 +123,7 @@ public class SimpleUpdater {
         // read remote info
         remoteInfo = getRemoteFile(repo, branch, Files.remoteInfoFile.val(), s -> parse(s));
         version = Config.remoteInfoVersion.get(remoteInfo).asFloat(); // idk what to do with this (-_-(
-        rootPath = Config.remoteInfoRoot.get(remoteInfo).asString();
+        remoteRootPath = Config.remoteInfoRoot.get(remoteInfo).asString();
 
         // extensions
         extensionsList = getRemoteFile(Files.extensionsList, s -> parse(s));
@@ -136,12 +157,12 @@ public class SimpleUpdater {
             }
         }
 
-        Log.debug("loading queue: @", loadingQueue);
-
         loadingQueue.add(new Extension("$no-root"){{
             mainClass = new Core();
             type = ExtensionType.java;
         }});
+
+        Log.debug("loading queue: @", loadingQueue);
 
         // init extensions
         for (Extension extension : loadingQueue)

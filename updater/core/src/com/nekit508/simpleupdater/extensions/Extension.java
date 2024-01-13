@@ -1,18 +1,12 @@
-package com.nekit508.extensions;
+package com.nekit508.simpleupdater.extensions;
 
-import arc.struct.Seq;
-import arc.util.Log;
 import arc.util.serialization.JsonValue;
-import com.nekit508.SimpleUpdater;
-import com.nekit508.config.Config;
-import com.nekit508.config.Files;
+import com.nekit508.simpleupdater.SimpleUpdater;
+import com.nekit508.simpleupdater.config.Config;
+import com.nekit508.simpleupdater.config.Files;
 import org.luaj.vm2.Globals;
-import org.luaj.vm2.Lua;
-import org.luaj.vm2.LuaClosure;
 import org.luaj.vm2.LuaValue;
-import org.luaj.vm2.ast.Chunk;
 import org.luaj.vm2.lib.jse.JsePlatform;
-import org.luaj.vm2.parser.LuaParser;
 
 import java.io.InputStreamReader;
 
@@ -42,35 +36,41 @@ public class Extension {
         main = Config.extensionsDirExtensionInfoMain.get(value).asString();
 
         String t = Config.extensionsDirExtensionInfoType.get(value).asString();
-        if (t.equals("lua"))
+        if (t.equals("lua")) {
             type = ExtensionType.lua;
-        else if (t.equals("java"))
+
+            mainScript = SimpleUpdater.getRemoteFile(Files.extensionMain,
+                    s -> globals.load(new InputStreamReader(s), main), extensionRoot, main);
+        } else if (t.equals("java")) {
             type = ExtensionType.java;
+        }
+
     }
 
     public void init() {
-        if (type == ExtensionType.lua) {
-            mainScript = SimpleUpdater.getRemoteFile(Files.extensionMain,
-                    s -> globals.load(new InputStreamReader(s), main), extensionRoot, main);
-        } else if (type == ExtensionType.java) {
-
-        }
+        if (type == ExtensionType.lua)
+            mainScript.call();
+        else if (type == ExtensionType.java)
+            mainClass.init();
     }
 
     public void load() {
-        if (type == ExtensionType.lua) {
-            // nothing
-        } else if (type == ExtensionType.java) {
-
-        }
+        if (type == ExtensionType.lua)
+            mainScript.call();
+        else if (type == ExtensionType.java)
+            mainClass.load();
     }
 
     public void start() {
-        if (type == ExtensionType.lua) {
+        if (type == ExtensionType.lua)
             mainScript.call();
-        } else if (type == ExtensionType.java) {
+        else if (type == ExtensionType.java)
+            mainClass.start();
+    }
 
-        }
+    @Override
+    public String toString() {
+        return name;
     }
 
     public static abstract class ExtensionMain {

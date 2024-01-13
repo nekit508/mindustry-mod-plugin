@@ -2,7 +2,11 @@
     "files-root": "files",
     "one-time": [
         "mod.json",
-        "dependencies.properties"
+
+        "dependencies.properties",
+        "APA.properties",
+
+        ".gitignore"
     ],
     "static": [
         "settings.gradle",
@@ -12,12 +16,19 @@
         "android/build.gradle",
         "desktop/build.gradle",
         "core/build.gradle",
-        "annotations/build.gradle"
+        "annotations/build.gradle",
 
+        "gradle/wrapper/gradle-wrapper.jar",
+        "gradle/wrapper/gradle-wrapper.properties",
 
+        "version.properties",
+
+        "gradlew",
+        "gradlew.bat"
     ],
     "local": [
-
+        "local.properties",
+        "copy.properties"
     ],
     "map-config": [
 
