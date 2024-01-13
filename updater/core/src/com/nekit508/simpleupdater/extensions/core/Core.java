@@ -113,6 +113,8 @@ public class Core extends Extension.ExtensionMain {
         handleType("local");
         handleType("map-config");
         handleType("one-time");
+
+        Log.info(createFi("").findAll());
     }
 
     void handleType(String type) {
