@@ -94,6 +94,8 @@ public class Core extends Extension.ExtensionMain {
 
         filesRoot = SimpleUpdater.clampPath(files.getString("files-root", "files"));
 
+        Log.info(new Seq<String>(files.get("map-config").asStringArray()));
+
         // create files types map
         loadFileType("static");
         loadFileType("local");

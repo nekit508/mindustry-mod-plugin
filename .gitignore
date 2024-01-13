@@ -4,3 +4,4 @@ build
 .gradle
 
 localfiles/
+test-repo/
