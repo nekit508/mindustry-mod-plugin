@@ -13,6 +13,7 @@ import com.nekit508.simpleupdater.extensions.Extension;
 import com.nekit508.simpleupdater.extensions.core.events.CoreEvents;
 
 import java.io.InputStream;
+import java.util.Properties;
 
 public class Core extends Extension.ExtensionMain {
     public JsonValue files;
@@ -42,9 +43,30 @@ public class Core extends Extension.ExtensionMain {
         });
 
         handlers.put("map-config", (type, file) -> {
-            Fi fi = createFi(file);
+            try {
+                Properties properties = new Properties();
+                getRemoteFile(file, s -> {
+                    try {
+                        properties.load(s);
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
+                    return 0;
+                });
 
+                Fi fi = createFi(file);
 
+                if (fi.exists())
+                    properties.load(fi.reader());
+
+                StringBuilder str = new StringBuilder();
+                properties.forEach((key, value) -> {
+                    str.append(key.toString() + " = " + value.toString() + "\n");
+                });
+                fi.writeString(str.toString());
+            } catch (Exception e) {
+                Log.err(e);
+            }
         });
 
         handlers.put("one-time", (type, file) -> {

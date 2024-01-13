@@ -1,5 +1,6 @@
 {
     "files-root": "files",
+
     "one-time": [
         "mod.json",
 
@@ -8,6 +9,7 @@
 
         ".gitignore"
     ],
+
     "static": [
         "settings.gradle",
 
@@ -26,11 +28,13 @@
         "gradlew",
         "gradlew.bat"
     ],
+
     "local": [
         "local.properties",
         "copy.properties"
     ],
-    "map-config": [
 
+    "map-config": [
+        "gradle.properties"
     ]
 }
