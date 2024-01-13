@@ -48,6 +48,8 @@ ext {
 }
 
 subprojects.each { Project project ->
+    project.group = "nekit508-simpleupdater"
+
     project.sourceSets.main.java.srcDirs = ["src"]
     project.sourceSets.main.resources.srcDirs = ["res"]
 
