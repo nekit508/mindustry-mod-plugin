@@ -114,7 +114,7 @@ public class SimpleUpdater {
             return;
         }
         if (localRootPath == null)
-            localRootPath = new Fi("" + (Log.level == Log.LogLevel.debug ? "debug" : "")).absolutePath();
+            localRootPath = clampPath(new Fi("" + (Log.level == Log.LogLevel.debug ? "debug" : "")).absolutePath());
 
         load();
     }

@@ -17,7 +17,7 @@ import java.util.Properties;
 
 public class Core extends Extension.ExtensionMain {
     public JsonValue files;
-    public String filesRoot;
+    public String remoteFilesRoot;
 
     /**
      * Files key-value map, where key is file type, but value is file path. <br>
@@ -92,9 +92,9 @@ public class Core extends Extension.ExtensionMain {
     public void load() {
         files = SimpleUpdater.getRemoteJson("files.json");
 
-        filesRoot = SimpleUpdater.clampPath(files.getString("files-root", "files"));
+        remoteFilesRoot = SimpleUpdater.clampPath(files.getString("files-root", "files"));
 
-        Log.info(new Seq<String>(files.get("map-config").asStringArray()));
+        Log.info(new Seq<>(files.get("map-config").asStringArray()));
 
         // create files types map
         loadFileType("static");
@@ -113,8 +113,6 @@ public class Core extends Extension.ExtensionMain {
         handleType("local");
         handleType("map-config");
         handleType("one-time");
-
-        Log.info(createFi("").findAll());
     }
 
     void handleType(String type) {
@@ -137,15 +135,15 @@ public class Core extends Extension.ExtensionMain {
     }
 
     <T> T getRemoteFile(String file, Func<InputStream, T> func) {
-        return SimpleUpdater.getRemoteFile(filesRoot + file, func);
+        return SimpleUpdater.getRemoteFile(remoteFilesRoot + file, func);
     }
 
     Fi createFi(String file) {
-        return SimpleUpdater.getLocalFi(filesRoot + file);
+        return SimpleUpdater.getLocalFi(file);
     }
 
     Fi createLocalStoreFi(String file) {
-        return SimpleUpdater.getLocalFi(filesRoot + SimpleUpdater.simpleUpdaterFiles + file);
+        return SimpleUpdater.getLocalFi(SimpleUpdater.simpleUpdaterFiles + file);
     }
 
     void loadFileType(String type) {
