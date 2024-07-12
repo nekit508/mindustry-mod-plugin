@@ -1,7 +1,4 @@
-plugins {
-     //id "com.github.nekit508.mindustry-mod-plugin" version "1.0dev"
-}
-
+apply plugin: nekit508.MMPlugin
 apply plugin: "java"
 
 sourceSets.main.java.srcDirs = (["src"])

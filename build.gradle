@@ -1,35 +1,4 @@
-apply plugin: "groovy"
-apply plugin: "java"
-apply plugin: "maven-publish"
-apply plugin: "java-gradle-plugin"
-sourceSets.main.groovy.srcDirs = (["src"])
-
-group = "com.github.nekit508"
-version = "1.0dev"
-
-repositories {
-    mavenCentral()
-}
-
-gradlePlugin {
-    plugins{
-        MindustryModPlugin {
-            id = "${rootProject.group}.${rootProject.name}"
-            println id
-            implementationClass = "nekit508.MMPlugin"
-        }
-    }
-}
-
-publishing {
-    publications{
-        maven(MavenPublication)
-    }
-}
-dependencies {
-    compileOnly gradleApi()
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+allprojects.each { Project p ->
+    p.group = "com.github.nekit508"
+    p.version = "1.0dev"
 }

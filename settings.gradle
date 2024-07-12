@@ -9,4 +9,4 @@ pluginManagement {
 
 rootProject.name = "mindustry-mod-plugin"
 
-include "test"
+include "test", "plugin"
