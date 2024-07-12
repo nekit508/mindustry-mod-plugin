@@ -5,6 +5,7 @@ apply plugin: "java-gradle-plugin"
 sourceSets.main.groovy.srcDirs = (["src"])
 
 group = "com.nekit508"
+version = "1.0dev"
 
 repositories {
     mavenCentral()
