@@ -1,0 +1,34 @@
+apply plugin: 'groovy'
+apply plugin: 'java'
+apply plugin: 'maven-publish'
+apply plugin: 'java-gradle-plugin'
+sourceSets.main.groovy.srcDirs = (["src"])
+
+group = "com.nekit508"
+
+repositories {
+    mavenCentral()
+    maven{ url 'https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository' }
+}
+
+gradlePlugin {
+    plugins{
+        MindustryModPlugin {
+            id = "${rootProject.group}.${rootProject.name}"
+            implementationClass = "nekit508.MMPlugin"
+        }
+    }
+}
+
+publishing {
+    publications{
+        maven(MavenPublication)
+    }
+}
+dependencies {
+    compileOnly gradleApi()
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}

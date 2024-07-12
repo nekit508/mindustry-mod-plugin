@@ -1,0 +1,11 @@
+apply plugin: 'java'
+
+sourceSets.main.java.srcDirs = (["src"])
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
