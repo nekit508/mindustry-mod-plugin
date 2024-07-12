@@ -2,3 +2,4 @@ jdk:
   - openjdk20
 install:
   - chmod +x gradlew
+  - ./gradlew publishToMavenLocal
