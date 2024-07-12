@@ -7,6 +7,6 @@ pluginManagement {
     }
 }
 
-rootProject.name = "MindustryModPlugin"
+rootProject.name = "mindustry-mod-plugin"
 
 include "test"
