@@ -1,5 +1,5 @@
 plugins {
-    //id "com.nekit508.mindustry-mod-plugin" version "1.0dev"
+     //id "com.github.nekit508.mindustry-mod-plugin" version "1.0dev"
 }
 
 apply plugin: "java"
