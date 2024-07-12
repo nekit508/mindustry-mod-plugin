@@ -1,4 +1,5 @@
-apply plugin: 'java'
+apply plugin: "java"
+//apply plugin: "com.nekit508.MindustryModPlugin"
 
 sourceSets.main.java.srcDirs = (["src"])
 
@@ -6,6 +7,3 @@ repositories {
     mavenCentral()
 }
 
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
