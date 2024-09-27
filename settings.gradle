@@ -1,12 +1,9 @@
 pluginManagement {
     repositories {
-        gradlePluginPortal()
-        mavenLocal()
-        mavenCentral()
         maven { url "https://jitpack.io" }
     }
 }
 
 rootProject.name = "mindustry-mod-plugin"
 
-include "test", "plugin"
+include "test", "dummyPlugin"

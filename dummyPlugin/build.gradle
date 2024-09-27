@@ -10,16 +10,10 @@ repositories {
 
 gradlePlugin {
     plugins{
-        MindustryModPlugin {
+        NModPlugin {
             id = "${rootProject.group}.${rootProject.name}"
-            implementationClass = "nekit508.MMPlugin"
+            implementationClass = "nekit508.NMPlugin"
         }
-    }
-}
-
-publishing {
-    publications{
-        maven(MavenPublication)
     }
 }
 
@@ -29,4 +23,10 @@ dependencies {
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
+    from {
+        project.configurations.runtimeClasspath.collect {
+            it.isDirectory() ? it : project.zipTree(it)
+        }
+    }
 }

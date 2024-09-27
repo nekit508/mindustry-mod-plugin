@@ -1,0 +1,36 @@
+package nekit508.tasks
+
+import nekit508.NMPlugin
+import org.gradle.api.DefaultTask
+import org.gradle.api.file.CopySpec
+import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Provider
+import org.gradle.api.tasks.Input
+
+class CopyBuildReleaseTask extends DefaultTask {
+    ListProperty<File> copyPaths;
+
+    CopyBuildReleaseTask(NMPlugin ext) {
+        ObjectFactory objectFactory = getProject().getObjects()
+        dependsOn project.tasks.nmpBuildRelease
+
+        copyPaths = objectFactory.listProperty(File.class)
+
+        copyPaths.set project.extensions.local ? project.extensions.local.copy?.collect {String path -> new File(path)} : []
+
+        doLast {
+            copyPaths.get().each { p ->
+                project.copy { CopySpec spec ->
+                    spec.from project.tasks.nmpBuildRelease.archiveFile.get()
+                    spec.into p
+                }
+            }
+        }
+    }
+
+    @Input
+    Provider<List<File>> getCopyPaths() {
+        return copyPaths
+    }
+}

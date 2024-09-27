@@ -1,7 +1,17 @@
-apply plugin: nekit508.MMPlugin
+import nekit508.NMPlugin
+
+apply plugin: NMPlugin
 apply plugin: "java"
 
-sourceSets.main.java.srcDirs = (["src"])
+sourceSets.main.java.srcDirs = ["src"]
+
+mmp {
+    parseSettings()
+
+    configureCompileTask()
+
+    initTasks()
+}
 
 repositories {
     mavenCentral()
