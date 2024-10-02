@@ -24,7 +24,7 @@ class DexTask extends DefaultTask {
         ObjectFactory objectFactory = getProject().getObjects()
 
         dexFile = objectFactory.fileProperty()
-        dexFile.set ext.dexOutput
+        dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
 
         buildAndroid = objectFactory.property(Boolean.class)
         var use = project.extensions.local?.build?.useAndroid;

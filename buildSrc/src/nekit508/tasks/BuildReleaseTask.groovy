@@ -12,7 +12,7 @@ class BuildReleaseTask extends Jar {
         dependsOn project.tasks.nmpDex
         dependsOn project.tasks.nmpBuild
 
-        (archiveFile as RegularFileProperty).set ext.buildReleaseOutput
+        (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/$project.group-$project.name-${project.version}.jar")
 
         from {
             project.tasks.nmpDex.buildAndroid.get() ? [project.zipTree(project.tasks.nmpBuild.archiveFile.get()), project.zipTree(project.tasks.nmpDex.dexFile.get())] :

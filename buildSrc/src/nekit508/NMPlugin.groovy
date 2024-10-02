@@ -10,16 +10,12 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.gradle.api.file.RegularFile
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPlugin implements Plugin<Project> {
     Project project
 
     String mindutsryVersion = "v146"
-
-    Provider<RegularFile> buildOutput, dexOutput, buildReleaseOutput
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")
@@ -93,9 +89,5 @@ class NMPlugin implements Plugin<Project> {
         project = target
 
         target.extensions.nmp = this
-
-        buildOutput = project.layout.buildDirectory.file("libs/tmp/classes.jar")
-        dexOutput = project.layout.buildDirectory.file("libs/tmp/dex.jar")
-        buildReleaseOutput = project.layout.buildDirectory.file("libs/$project.group-$project.name-${project.version}.jar")
     }
 }
