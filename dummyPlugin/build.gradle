@@ -2,7 +2,8 @@ apply plugin: "groovy"
 apply plugin: "java"
 apply plugin: "maven-publish"
 apply plugin: "java-gradle-plugin"
-sourceSets.main.groovy.srcDirs = [".../buildSrc/src"]
+
+project.sourceSets.main.groovy.srcDirs = [project.layout.projectDirectory.dir("../buildSrc/src")]
 
 repositories {
     mavenCentral()
@@ -13,20 +14,12 @@ gradlePlugin {
         NModPlugin {
             id = "${rootProject.group}.${rootProject.name}"
             implementationClass = "nekit508.NMPlugin"
+
+            println "plugin id: $id"
         }
     }
 }
 
 dependencies {
     compileOnly gradleApi()
-}
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-
-    from {
-        project.configurations.runtimeClasspath.collect {
-            it.isDirectory() ? it : project.zipTree(it)
-        }
-    }
 }

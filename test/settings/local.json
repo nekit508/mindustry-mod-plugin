@@ -1,5 +1,8 @@
 {
-  "buildAndroid": true,
+  "build": {
+    "useAndroid": true,
+    "sdkRoot": "D:\\soft\\android-sdk"
+  },
   "copy": [
     "C:\\Users\\nekit508\\AppData\\Roaming\\Mindustry\\mods"
   ]

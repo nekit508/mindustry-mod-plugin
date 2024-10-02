@@ -4,20 +4,26 @@ import groovy.json.JsonSlurper
 import nekit508.tasks.BuildReleaseTask
 import nekit508.tasks.BuildTask
 import nekit508.tasks.CopyBuildReleaseTask
+import nekit508.tasks.DelegatorTask
 import nekit508.tasks.DexTask
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.file.RegularFile
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPlugin implements Plugin<Project> {
-    public Project project
+    Project project
+
+    String mindutsryVersion = "v146"
+
+    Provider<RegularFile> buildOutput, dexOutput, buildReleaseOutput
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")
-        var globalFile = project.file("settings/global.json")
         project.extensions.add "local", localFile.exists() ? new JsonSlurper().parse(localFile) : null
-        project.extensions.add "global", globalFile.exists() ? new JsonSlurper().parse(globalFile) : null
     }
 
     void configureCompileTask() {
@@ -51,16 +57,45 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void initTasks() {
-        project.getTasks().register "nmpBuild", BuildTask.class, this
-        project.getTasks().register "nmpDex", DexTask.class, this
-        project.getTasks().register "nmpBuildRelease", BuildReleaseTask.class, this
-        project.getTasks().register "nmpCopyBuildRelease", CopyBuildReleaseTask.class, this
+        project.tasks.create "nmpBuild", BuildTask.class, this
+        project.tasks.create "nmpDex", DexTask.class, this
+        project.tasks.create "nmpBuildRelease", BuildReleaseTask.class, this
+        project.tasks.create "nmpCopyBuildRelease", CopyBuildReleaseTask.class, this
+    }
+
+    /** Add tasks with old names. */
+    void enableLegacy() {
+        project.tasks.create "copyBuildRelease", DelegatorTask.class, project.tasks.nmpCopyBuildRelease
+        project.tasks.create "buildRelease", DelegatorTask.class, project.tasks.nmpBuildRelease
+    }
+
+    void modBaseDependencies() {
+        project.dependencies { DependencyHandler handler ->
+            handler.add("compileOnly", mindustryDependency())
+            handler.add("compileOnly", arcDependency())
+        }
+    }
+
+    String mindustryDependency(String module = "core") {
+        return dependency("com.github.Anuken.Mindustry", module, mindutsryVersion)
+    }
+
+    String arcDependency(String module = "arc-core") {
+        return dependency("com.github.Anuken.Arc", module, mindutsryVersion)
+    }
+
+    String dependency(String dep, String module, String version) {
+        return "$dep:$module:$version"
     }
 
     @Override
     void apply(Project target) {
         project = target
 
-        target.extensions.add "mmp", this
+        target.extensions.nmp = this
+
+        buildOutput = project.layout.buildDirectory.file("libs/tmp/classes.jar")
+        dexOutput = project.layout.buildDirectory.file("libs/tmp/dex.jar")
+        buildReleaseOutput = project.layout.buildDirectory.file("libs/$project.group-$project.name-${project.version}.jar")
     }
 }

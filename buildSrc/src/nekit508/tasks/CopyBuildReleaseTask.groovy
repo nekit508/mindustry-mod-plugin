@@ -8,16 +8,18 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 
-class CopyBuildReleaseTask extends DefaultTask {
-    ListProperty<File> copyPaths;
+import javax.inject.Inject
 
+class CopyBuildReleaseTask extends DefaultTask {
+    ListProperty<File> copyPaths
+
+    @Inject
     CopyBuildReleaseTask(NMPlugin ext) {
         ObjectFactory objectFactory = getProject().getObjects()
         dependsOn project.tasks.nmpBuildRelease
 
         copyPaths = objectFactory.listProperty(File.class)
-
-        copyPaths.set project.extensions.local ? project.extensions.local.copy?.collect {String path -> new File(path)} : []
+        copyPaths.set project.extensions.local?.copy?.collect {String path -> new File(path)} ?: []
 
         doLast {
             copyPaths.get().each { p ->
