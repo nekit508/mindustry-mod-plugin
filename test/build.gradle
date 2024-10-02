@@ -1,6 +1,4 @@
-plugins {
-    id "com.github.nekit508.mindustry-mod-plugin" version "1.0dev" apply true
-}
+import nekit508.NMPlugin
 
 project.repositories {
     mavenCentral()
@@ -10,8 +8,9 @@ project.repositories {
 }
 
 apply plugin: "java"
+apply plugin: NMPlugin
 
-project.sourceSets.main.java.srcDirs = ["src"]
+sourceSets.main.java.srcDirs = ["src"]
 
 nmp {
     mindutsryVersion = "v146"

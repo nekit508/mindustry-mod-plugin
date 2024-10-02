@@ -23,7 +23,7 @@ class NMPlugin implements Plugin<Project> {
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")
-        project.extensions.add "local", localFile.exists() ? new JsonSlurper().parse(localFile) : null
+        project.extensions.add "local", localFile.exists() ? new JsonSlurper().parse(localFile) : new HashMap<String, Object>()
     }
 
     void configureCompileTask() {
