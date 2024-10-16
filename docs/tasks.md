@@ -10,11 +10,11 @@
 ```json lines
 {
     "build": {
-        "useAndroid": boolean,
-        "sdkRoot": string
+        "useAndroid": "boolean",
+        "sdkRoot": "string"
     },
     "copy": [
-        string, string, string...
+        "string", "string", "string..."
     ]
 }
 ```
