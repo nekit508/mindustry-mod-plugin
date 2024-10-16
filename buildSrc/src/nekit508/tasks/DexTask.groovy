@@ -3,10 +3,12 @@ package nekit508.tasks
 import nekit508.NMPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.OutputFile
 
 import javax.inject.Inject
@@ -14,8 +16,8 @@ import javax.inject.Inject
 class DexTask extends DefaultTask {
     @OutputFile
     final RegularFileProperty dexFile
-    @Input
-    Provider<String> sdkRoot
+    @InputDirectory
+    DirectoryProperty sdkRoot
     @Input
     Provider<Boolean> buildAndroid
 
@@ -30,8 +32,8 @@ class DexTask extends DefaultTask {
         var use = project.extensions.local?.build?.useAndroid;
         buildAndroid.set use != null ? use : true
 
-        sdkRoot = objectFactory.property(String.class)
-        sdkRoot.set project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
+        sdkRoot = objectFactory.directoryProperty()
+        sdkRoot.set new File(project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT"))
 
         dependsOn project.tasks.nmpBuild
 

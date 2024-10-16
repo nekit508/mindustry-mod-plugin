@@ -5,12 +5,12 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.file.CopySpec
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 
 import javax.inject.Inject
 
 class CopyBuildReleaseTask extends DefaultTask {
+    @Input
     ListProperty<File> copyPaths
 
     @Inject
@@ -29,10 +29,5 @@ class CopyBuildReleaseTask extends DefaultTask {
                 }
             }
         }
-    }
-
-    @Input
-    Provider<List<File>> getCopyPaths() {
-        return copyPaths
     }
 }
