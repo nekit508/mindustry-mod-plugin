@@ -7,7 +7,7 @@
 
 Локальные настройки хранятся в файле `settings/local.json`.
 Его полная структура такова:
-```json5
+```json lines
 {
     "build": {
         "useAndroid": boolean,
