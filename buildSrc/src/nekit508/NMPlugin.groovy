@@ -53,16 +53,16 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void initTasks() {
-        project.tasks.create "nmpBuild", BuildTask.class, this
-        project.tasks.create "nmpDex", DexTask.class, this
-        project.tasks.create "nmpBuildRelease", BuildReleaseTask.class, this
-        project.tasks.create "nmpCopyBuildRelease", CopyBuildReleaseTask.class, this
+        project.tasks.register "nmpBuild", BuildTask.class, this
+        project.tasks.register "nmpDex", DexTask.class, this
+        project.tasks.register "nmpBuildRelease", BuildReleaseTask.class, this
+        project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask.class, this
     }
 
     /** Add tasks with old names. */
     void enableLegacy() {
-        project.tasks.create "copyBuildRelease", DelegatorTask.class, project.tasks.nmpCopyBuildRelease
-        project.tasks.create "buildRelease", DelegatorTask.class, project.tasks.nmpBuildRelease
+        project.tasks.register "copyBuildRelease", DelegatorTask.class, project.tasks.nmpCopyBuildRelease
+        project.tasks.register "buildRelease", DelegatorTask.class, project.tasks.nmpBuildRelease
     }
 
     void modBaseDependencies() {
