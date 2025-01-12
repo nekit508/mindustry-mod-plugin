@@ -12,15 +12,7 @@ apply plugin: NMPlugin
 
 sourceSets.main.java.srcDirs = ["src"]
 
-nmp {
-    mindutsryVersion = "v146"
-
-    parseSettings()
-    configureCompileTask()
-    initTasks()
-    enableLegacy()
-    modBaseDependencies()
-}
+nmp.genericInit("v146")
 
 repositories {
     mavenCentral()

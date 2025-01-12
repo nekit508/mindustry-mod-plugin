@@ -84,6 +84,16 @@ class NMPlugin implements Plugin<Project> {
         return "$dep:$module:$version"
     }
 
+    void genericInit(String mindustryVersion, boolean createLegacyTasks = false) {
+        this.mindutsryVersion = mindustryVersion
+
+        parseSettings()
+        configureCompileTask()
+        initTasks()
+        if (createLegacyTasks) enableLegacy()
+        modBaseDependencies()
+    }
+
     @Override
     void apply(Project target) {
         project = target
