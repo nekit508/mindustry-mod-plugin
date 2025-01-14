@@ -9,14 +9,17 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 
 import javax.inject.Inject
 
 class DexTask extends DefaultTask {
     @OutputFile
+    @Optional
     final RegularFileProperty dexFile
     @InputDirectory
+    @Optional
     final DirectoryProperty sdkRoot
     @Input
     Provider<Boolean> buildAndroid
@@ -33,14 +36,19 @@ class DexTask extends DefaultTask {
         buildAndroid.set use != null ? use : true
 
         sdkRoot = objectFactory.directoryProperty()
-        sdkRoot.set new File(project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: "")
+
+        var p = project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
+        if (p)
+            sdkRoot.set project.file(p)
+        else
+            sdkRoot.unset()
 
         dependsOn project.tasks.nmpBuild
 
         doLast {
             println "build android: " + buildAndroid.get()
             if (buildAndroid.get()) {
-                var sdkRoot = sdkRoot.asFile.getOrNull()
+                var sdkRoot = sdkRoot.getOrNull()?.asFile
                 if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found.")
 
                 var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
