@@ -28,20 +28,24 @@ class DexTask extends DefaultTask {
     DexTask(NMPlugin ext) {
         ObjectFactory objectFactory = getProject().getObjects()
 
+        logger.debug("$name: DexTask $name configuration")
+
         dexFile = objectFactory.fileProperty()
         dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
+        logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
         buildAndroid = objectFactory.property(Boolean.class)
-        var use = project.extensions.local?.build?.useAndroid;
+        var use = project.extensions.local?.build?.useAndroid
         buildAndroid.set use != null ? use : true
+        logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
         sdkRoot = objectFactory.directoryProperty()
-
         var p = project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
         if (p)
             sdkRoot.set project.file(p)
         else
             sdkRoot.unset()
+        logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()?.asFile?.absolutePath}")
 
         dependsOn project.tasks.nmpBuild
 
@@ -50,13 +54,19 @@ class DexTask extends DefaultTask {
         }
 
         doLast {
+            logger.debug("$name: d8 start preparing")
+
             var sdkRoot = sdkRoot.getOrNull()?.asFile
             if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found.")
+            logger.debug("$name: sdkRoot: $sdkRoot.absolutePath")
 
             var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
+            logger.debug("$name: platformRoot: $platformRoot.absolutePath")
 
             String d8Name = System.getenv("OS") == "Windows_NT" ? "d8.bat" : "d8"
+            logger.debug("$name: d8Name: $d8Name")
             var buildToolsRoot = new File(sdkRoot, "build-tools").listFiles().find { File file -> new File(file, d8Name).exists() }
+            logger.debug("$name: buildToolsRoot: $buildToolsRoot.absolutePath")
 
             if (!platformRoot || !buildToolsRoot)
                 throw new GradleException("" +
@@ -68,8 +78,12 @@ class DexTask extends DefaultTask {
                     + project.configurations.runtimeClasspath.asList()
                     + new File(platformRoot, "android.jar")).each { path -> dependencies += "--classpath $path.absolutePath " }
 
+            logger.debug("$name: dependencies: $dependencies")
+
+            logger.debug("$name: d8 start")
             ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
                     " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).waitForProcessOutput(System.out, System.err)
+            logger.debug("$name: d8 end")
         }
     }
 }
