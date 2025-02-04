@@ -45,30 +45,31 @@ class DexTask extends DefaultTask {
 
         dependsOn project.tasks.nmpBuild
 
+        onlyIf {
+            buildAndroid.get()
+        }
+
         doLast {
-            println "build android: " + buildAndroid.get()
-            if (buildAndroid.get()) {
-                var sdkRoot = sdkRoot.getOrNull()?.asFile
-                if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found.")
+            var sdkRoot = sdkRoot.getOrNull()?.asFile
+            if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found.")
 
-                var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
+            var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
 
-                String d8Name = System.getenv("OS") == "Windows_NT" ? "d8.bat" : "d8"
-                var buildToolsRoot = new File(sdkRoot, "build-tools").listFiles().find { File file -> new File(file, d8Name).exists() }
+            String d8Name = System.getenv("OS") == "Windows_NT" ? "d8.bat" : "d8"
+            var buildToolsRoot = new File(sdkRoot, "build-tools").listFiles().find { File file -> new File(file, d8Name).exists() }
 
-                if (!platformRoot || !buildToolsRoot)
-                    throw new GradleException("" +
-                            (!platformRoot ? "No android.jar found. Ensure that you have an Android platform installed." : "") +
-                            (!buildToolsRoot ? "No $d8Name found. Ensure that you have an Android build tools installed." : ""))
+            if (!platformRoot || !buildToolsRoot)
+                throw new GradleException("" +
+                        (!platformRoot ? "No android.jar found. Ensure that you have an Android platform installed." : "") +
+                        (!buildToolsRoot ? "No $d8Name found. Ensure that you have an Android build tools installed." : ""))
 
-                var dependencies = ""
-                (project.configurations.compileClasspath.asList()
-                        + project.configurations.runtimeClasspath.asList()
-                        + new File(platformRoot, "android.jar")).each { path -> dependencies += "--classpath $path.absolutePath " }
+            var dependencies = ""
+            (project.configurations.compileClasspath.asList()
+                    + project.configurations.runtimeClasspath.asList()
+                    + new File(platformRoot, "android.jar")).each { path -> dependencies += "--classpath $path.absolutePath " }
 
-                ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
-                        " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).waitForProcessOutput(System.out, System.err)
-            }
+            ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
+                    " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).waitForProcessOutput(System.out, System.err)
         }
     }
 }
