@@ -2,6 +2,3 @@
 *.iml
 build
 .gradle
-
-localfiles/
-test-repo/
