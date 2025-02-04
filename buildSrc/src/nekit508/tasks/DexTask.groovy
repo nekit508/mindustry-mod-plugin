@@ -5,7 +5,9 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.internal.provider.DefaultProvider
 import org.gradle.api.model.ObjectFactory
+import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputDirectory
@@ -18,11 +20,11 @@ class DexTask extends DefaultTask {
     @OutputFile
     @Optional
     final RegularFileProperty dexFile
-    @InputDirectory
-    @Optional
-    final DirectoryProperty sdkRoot
     @Input
-    Provider<Boolean> buildAndroid
+    @Optional
+    final Property<String> sdkRoot
+    @Input
+    final Property<Boolean> buildAndroid
 
     @Inject
     DexTask(NMPlugin ext) {
@@ -39,13 +41,13 @@ class DexTask extends DefaultTask {
         buildAndroid.set use != null ? use : true
         logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
-        sdkRoot = objectFactory.directoryProperty()
+        sdkRoot = objectFactory.property(String)
         var p = project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
         if (p)
-            sdkRoot.set project.file(p)
+            sdkRoot.set p
         else
             sdkRoot.unset()
-        logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()?.asFile?.absolutePath}")
+        logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()}")
 
         dependsOn project.tasks.nmpBuild
 
@@ -56,8 +58,9 @@ class DexTask extends DefaultTask {
         doLast {
             logger.debug("$name: d8 start preparing")
 
-            var sdkRoot = sdkRoot.getOrNull()?.asFile
-            if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found.")
+            var sdkRootPath = sdkRoot.getOrNull()
+            var sdkRoot = sdkRootPath != null ? project.file(sdkRootPath) : null
+            if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found. SDK root if set to $sdkRootPath")
             logger.debug("$name: sdkRoot: $sdkRoot.absolutePath")
 
             var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
