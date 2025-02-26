@@ -24,12 +24,8 @@ class NMPlugin implements Plugin<Project> {
 
     void configureCompileTask() {
         project.tasks.compileJava { JavaCompile task ->
-            task.targetCompatibility = JavaVersion.VERSION_1_8
-            task.sourceCompatibility = JavaVersion.VERSION_20
-
             task.options.encoding = "UTF-8"
             task.options.generatedSourceOutputDirectory.set project.file("gen")
-            task.options.compilerArgs += [ "-Xlint:none", "--release", "8"]
 
             task.options.forkOptions.jvmArgs += [
                     "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
