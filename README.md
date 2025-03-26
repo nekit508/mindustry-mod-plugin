@@ -1,5 +1,8 @@
 [![](https://jitpack.io/v/nekit508/mindustry-mod-plugin.svg)](https://jitpack.io/#nekit508/mindustry-mod-plugin)
 
+---
+# Tasks info
+
 `nmpBuild` - build desktop jar
 
 `nmpDex` - build dex jar (will be skipped if `local.build.useAndroind` == true)
