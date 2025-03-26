@@ -50,11 +50,11 @@ rootProject.name = "your-project-name"
   ]
 }
 ```
-build.useAndroid - будет ли собираться .dex файл
+build.useAndroid - whether .dex file be built
 
-build.sdkRoot - путь до корневой папки androidSDK (пример D:/soft/android-sdk)
+build.sdkRoot - androidSDK root path (example D:/soft/android-sdk)
 
-copy - список путей в которые будет скопирован итоговый .jar файл
+copy - paths where .jar file will be copied
 
 
 ### gradle.properties
