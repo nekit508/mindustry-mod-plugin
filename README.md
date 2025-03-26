@@ -1,5 +1,13 @@
 [![](https://jitpack.io/v/nekit508/mindustry-mod-plugin.svg)](https://jitpack.io/#nekit508/mindustry-mod-plugin)
 
+`nmpBuild` - build desktop jar
+
+`nmpDex` - build dex jar (will be skipped if `local.build.useAndroind` == true)
+
+`nmpBuildRelease` - build combined jar (desktop and android (if `local.build.useAndroind` == true))
+
+`nmpCopyBuildRelease` - build combined jar (desktop and android (if `local.build.useAndroind` == true)) and copy it in `local.copy`
+
 ---
 # Minimal setup
 ### build.gradle
@@ -50,11 +58,11 @@ rootProject.name = "your-project-name"
   ]
 }
 ```
-build.useAndroid - whether .dex file be built
+`build.useAndroid` - whether .dex file be built
 
-build.sdkRoot - androidSDK root path (example D:/soft/android-sdk)
+`build.sdkRoot` - androidSDK root path (example `D:/soft/android-sdk`)
 
-copy - paths where .jar file will be copied
+`copy` - paths where .jar file will be copied
 
 
 ### gradle.properties
