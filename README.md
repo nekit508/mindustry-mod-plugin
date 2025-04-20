@@ -1,7 +1,13 @@
 [![](https://jitpack.io/v/nekit508/mindustry-mod-plugin.svg)](https://jitpack.io/#nekit508/mindustry-mod-plugin)
 
+# Mindustry mod plugin
+
+Plugin for building mindustry mods.
+
+[My mod template based on this plugin](https://github.com/nekit508/mmp-template)
+
 ---
-# Tasks info
+## Tasks info
 
 `nmpBuild` - build desktop jar
 
@@ -11,88 +17,35 @@
 
 `nmpCopyBuildRelease` - build combined jar (desktop and android (if `local.build.useAndroind` == true)) and copy it in `local.copy`
 
+`nmpGenerateModInfo` - generate `mod.json` file
+
 ---
-# Minimal setup
-### build.gradle
-```groovy
-plugins{
-    id "java"
-    id "com.github.nekit508.mindustry-mod-plugin" version "$nmpVersion" apply true
-}
 
-project.repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
-    maven { url "https://www.jitpack.io" }
-}
+## Local settings
 
-group = "your.group.name"
-version = "0.0.0"
+`build.useAndroid` - whether .dex file be built (If you do not know what it means, set this parameter `false`)
 
-// optional
-sourceSets.main.java.srcDirs = ["src", "gen"]
-sourceSets.main.resources.srcDirs = ["res"]
+`build.sdkRoot` - androidSDK root path (example D:/soft/android-sdk)
 
-nmp.genericInit(mindustryVersion)
-```
+`copy` - list of paths where .jar file will be copied
 
-### settings.gradle
-```groovy
-pluginManagement {
-    repositories{
-        gradlePluginPortal()
-        maven{url 'https://jitpack.io'}
-    }
-}
+## Project settings
 
-rootProject.name = "your-project-name"
-```
+Task `nmpGenerateModInfo` supports all mod metadata fields and also allows you to add your own by storing it in `modMiscData`.
 
-### settings/local.json
-```json
-{
-  "build": {
-    "useAndroid": true,
-    "sdkRoot": "path/to/androindSdk/root"
-  },
-  "copy": [
-    "jar/copy/destination/path"
-  ]
-}
-```
-`build.useAndroid` - whether .dex file be built
+Plugin's main class (that can be referenced from `build.gradle` by `project.nmp`) also allows you to manually set up the following parameters:
+- `mindutsryVersion` - mindustry and arc version that will be used as dependencies (default `v146`)
+- `modName` - name of mod, affects output .jar name and `mod.json`
+- `modVersion` - name of mod, affects output .jar name, `mod.json` and `project.version`
+- `modGroup` - group of mod, affects output .jar name and `project.group`
+- `jabelVersion` - jabel version that will be used to compile mod (default `1.0.0`)
+- `generateModInfo` - wether `mod.json` be genarated (default `false`)
+- `sourceCompatibility` - source bytecode version (allows newer features) (default 20th java vesion)
 
-`build.sdkRoot` - androidSDK root path (example `D:/soft/android-sdk`)
+All these parameters can be set by the dictionary in the `nmp.setProps(Map<String, Object>)` method.
 
-`copy` - paths where .jar file will be copied
+--- Get project prepared
 
+After settings up paraments, you can finally prepare your project for modding by using `nmp.genericInit()` method after parameters adjustment code.
 
-### gradle.properties
-```ini
-mindustryVersion = v146
-arcVersion = v146
-# current plugin version
-nmpVersion = v0.1.1
-
-org.gradle.parallel = true
-
-org.gradle.jvmargs = \
--Dfile.encoding=UTF-8 \
---add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED \
---add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED \
---add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED
-
-# uncomment if u want to use kotlin
-kapt.include.compile.classpath = false
-kotlin.stdlib.default.dependency = false
-```
+This method will configure compilation settings, set up Jabel, create tasks and add midustry and arc dependencies.
