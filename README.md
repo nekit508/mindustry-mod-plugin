@@ -46,6 +46,6 @@ All these parameters can be set by the dictionary in the `nmp.setProps(Map<Strin
 --- 
 ## Get project prepared
 
-After settings up paraments, you can finally prepare your project for modding by using `nmp.genericInit()` method after parameters adjustment code.
+After setting up paraments, you can finally prepare your project for modding by using `nmp.genericInit()` method after parameters adjustment code.
 
 This method will configure compilation settings, set up Jabel, create tasks and add midustry and arc dependencies.
