@@ -20,7 +20,6 @@ Plugin for building mindustry mods.
 `nmpGenerateModInfo` - generate `mod.json` file
 
 ---
-
 ## Local settings
 
 `build.useAndroid` - whether .dex file be built (If you do not know what it means, set this parameter `false`)
@@ -44,7 +43,8 @@ Plugin's main class (that can be referenced from `build.gradle` by `project.nmp`
 
 All these parameters can be set by the dictionary in the `nmp.setProps(Map<String, Object>)` method.
 
---- Get project prepared
+--- 
+## Get project prepared
 
 After settings up paraments, you can finally prepare your project for modding by using `nmp.genericInit()` method after parameters adjustment code.
 
