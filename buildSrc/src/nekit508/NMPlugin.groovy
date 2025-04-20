@@ -1,13 +1,13 @@
 package nekit508
 
 import groovy.json.JsonSlurper
-import jdk.jpackage.internal.Log
 import nekit508.tasks.BuildReleaseTask
 import nekit508.tasks.BuildTask
 import nekit508.tasks.CopyBuildReleaseTask
 import nekit508.tasks.DelegatorTask
 import nekit508.tasks.DexTask
 import nekit508.tasks.GenerateModInfo
+import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -23,9 +23,11 @@ class NMPlugin implements Plugin<Project> {
     Project project
 
     @DataProp
-    String mindutsryVersion = "v146", modName, modVersion, modGroup
+    String mindutsryVersion = "v146", modName, modVersion, modGroup, jabelVersion = "1.0.0"
     @DataProp
     boolean generateModInfo = false
+    @DataProp
+    JavaVersion sourceCompatibility = JavaVersion.VERSION_20
 
     Map<String, Object> local = new LinkedHashMap<>()
 
@@ -56,9 +58,31 @@ class NMPlugin implements Plugin<Project> {
                     "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
             ]
 
+
+        }
+    }
+
+    void setupJabel() {
+        project.tasks.compileJava { JavaCompile task ->
+            task.sourceCompatibility = this.sourceCompatibility.majorVersion
+
+            task.options.compilerArgs = [
+                    "--release", "8",
+                    "--enable-preview",
+                    "-Xlint:-options"
+            ]
+
             task.doFirst {
                 project.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
+
+                task.options.compilerArgs = task.options.compilerArgs.findAll {
+                    it != "--enable-preview"
+                }
             }
+        }
+
+        project.dependencies { DependencyHandler handler ->
+            handler.add "annotationProcessor", "com.github.bsideup.jabel:jabel-javac-plugin:$jabelVersion"
         }
     }
 
@@ -119,6 +143,7 @@ class NMPlugin implements Plugin<Project> {
 
         parseSettings()
         configureCompileTask()
+        setupJabel()
         initTasks()
         if (createLegacyTasks) enableLegacy()
         modBaseDependencies()
