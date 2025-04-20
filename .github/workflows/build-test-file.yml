@@ -14,4 +14,4 @@ jobs:
       - name: Build test project
         run: |
           chmod +x gradlew
-          ./gradlew test:nmpCopyBuildRelease --stacktrace
+          ./gradlew modName:nmpCopyBuildRelease --stacktrace
