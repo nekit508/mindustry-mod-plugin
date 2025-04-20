@@ -9,6 +9,8 @@ import javax.inject.Inject
 class BuildReleaseTask extends Jar {
     @Inject
     BuildReleaseTask(NMPlugin ext) {
+        group = "nmp"
+
         dependsOn project.tasks.nmpDex
         dependsOn project.tasks.nmpBuild
 

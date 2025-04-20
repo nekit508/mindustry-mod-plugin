@@ -1,25 +1,39 @@
 package nekit508
 
 import groovy.json.JsonSlurper
+import jdk.jpackage.internal.Log
 import nekit508.tasks.BuildReleaseTask
 import nekit508.tasks.BuildTask
 import nekit508.tasks.CopyBuildReleaseTask
 import nekit508.tasks.DelegatorTask
 import nekit508.tasks.DexTask
-import org.gradle.api.JavaVersion
+import nekit508.tasks.GenerateModInfo
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.tasks.compile.JavaCompile
 
+import java.lang.annotation.ElementType
+import java.lang.annotation.Retention
+import java.lang.annotation.RetentionPolicy
+import java.lang.annotation.Target
+import java.lang.reflect.Field
+
 class NMPlugin implements Plugin<Project> {
     Project project
 
-    String mindutsryVersion = "v146"
+    @DataProp
+    String mindutsryVersion = "v146", modName, modVersion, modGroup
+    @DataProp
+    boolean generateModInfo = false
+
+    Map<String, Object> local = new LinkedHashMap<>()
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")
-        project.extensions.add "local", localFile.exists() ? new JsonSlurper().parse(localFile) : new HashMap<String, Object>()
+
+        if (localFile.exists())
+            local += new JsonSlurper().parse(localFile)
     }
 
     void configureCompileTask() {
@@ -49,22 +63,23 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void initTasks() {
-        project.tasks.register "nmpBuild", BuildTask.class, this
-        project.tasks.register "nmpDex", DexTask.class, this
-        project.tasks.register "nmpBuildRelease", BuildReleaseTask.class, this
-        project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask.class, this
+        project.tasks.register "nmpBuild", BuildTask, this
+        project.tasks.register "nmpDex", DexTask, this
+        project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
+        project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
+        project.tasks.register "nmpGenerateModInfo", GenerateModInfo, this
     }
 
     /** Add tasks with old names. */
     void enableLegacy() {
-        project.tasks.register "copyBuildRelease", DelegatorTask.class, project.tasks.nmpCopyBuildRelease
-        project.tasks.register "buildRelease", DelegatorTask.class, project.tasks.nmpBuildRelease
+        project.tasks.register "copyBuildRelease", DelegatorTask, project.tasks.nmpCopyBuildRelease
+        project.tasks.register "buildRelease", DelegatorTask, project.tasks.nmpBuildRelease
     }
 
     void modBaseDependencies() {
         project.dependencies { DependencyHandler handler ->
-            handler.add("compileOnly", mindustryDependency())
-            handler.add("compileOnly", arcDependency())
+            handler.add "compileOnly", mindustryDependency()
+            handler.add "compileOnly", arcDependency()
         }
     }
 
@@ -76,12 +91,31 @@ class NMPlugin implements Plugin<Project> {
         return dependency("com.github.Anuken.Arc", module, mindutsryVersion)
     }
 
+    @SuppressWarnings('GrMethodMayBeStatic')
     String dependency(String dep, String module, String version) {
         return "$dep:$module:$version"
     }
 
-    void genericInit(String mindustryVersion, boolean createLegacyTasks = false) {
-        this.mindutsryVersion = mindustryVersion
+    void setProps(Map<String, Object> data) {
+        for (Field field : getClass().getDeclaredFields()) {
+            var anno = field.getAnnotation(DataProp)
+
+            if (anno == null) continue
+
+            var key = anno.key()
+            if (key == "") key = field.name
+
+            if (data.containsKey(key)) {
+                field.setAccessible true
+                field.set this, data[key]
+                field.setAccessible false
+            }
+        }
+    }
+
+    void genericInit(boolean createLegacyTasks = false) {
+        project.group = modGroup ?: project.group
+        project.version = modVersion ?: project.version
 
         parseSettings()
         configureCompileTask()
@@ -96,4 +130,16 @@ class NMPlugin implements Plugin<Project> {
 
         target.extensions.nmp = this
     }
+
+    /** For easier in-closure configure. */
+    Object prop(Object property) {
+        project.properties.get(property)
+    }
+}
+
+/** Internal annotation. */
+@Target(ElementType.FIELD)
+@Retention(RetentionPolicy.RUNTIME)
+@interface DataProp {
+    String key() default ""
 }

@@ -3,14 +3,10 @@ package nekit508.tasks
 import nekit508.NMPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.RegularFileProperty
-import org.gradle.api.internal.provider.DefaultProvider
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputDirectory
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 
@@ -28,6 +24,8 @@ class DexTask extends DefaultTask {
 
     @Inject
     DexTask(NMPlugin ext) {
+        group = "nmp"
+
         ObjectFactory objectFactory = getProject().getObjects()
 
         logger.debug("$name: DexTask $name configuration")
@@ -37,12 +35,12 @@ class DexTask extends DefaultTask {
         logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
         buildAndroid = objectFactory.property(Boolean.class)
-        var use = project.extensions.local?.build?.useAndroid
+        var use = ext.local?.build?.useAndroid
         buildAndroid.set use != null ? use : true
         logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
         sdkRoot = objectFactory.property(String)
-        var p = project.extensions.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
+        var p = ext.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
         if (p)
             sdkRoot.set p
         else

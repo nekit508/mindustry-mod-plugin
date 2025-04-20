@@ -10,6 +10,8 @@ import javax.inject.Inject
 class BuildTask extends Jar {
     @Inject
     BuildTask(NMPlugin ext) {
+        group = "nmp"
+
         (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/classes.jar")
 
         dependsOn project.tasks.classes

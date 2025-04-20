@@ -9,3 +9,5 @@ rootProject.name = "mindustry-mod-plugin"
 
 include "dummyPlugin"
 include "test"
+
+project(":test").name = modName

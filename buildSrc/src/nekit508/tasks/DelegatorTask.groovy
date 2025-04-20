@@ -8,6 +8,8 @@ import javax.inject.Inject
 class DelegatorTask extends DefaultTask {
     @Inject
     DelegatorTask(Task task) {
+        group = "nmp"
+
         dependsOn task
     }
 }

@@ -7,14 +7,29 @@ project.repositories {
     maven { url "https://www.jitpack.io" }
 }
 
+repositories {
+    mavenCentral()
+}
+
 apply plugin: "java"
 apply plugin: NMPlugin
 
 sourceSets.main.java.srcDirs = ["src"]
 
-nmp.genericInit(mindustryVersion)
+nmp {
+    modName = prop("modName")
+    modGroup = prop("modGroup")
+    modVersion = prop("modVersion")
+    mindustryVersion = prop("mindustryVersion")
+    generateModInfo = true
 
-repositories {
-    mavenCentral()
+    genericInit()
 }
 
+tasks.nmpGenerateModInfo {
+    modMain = "core.Mod"
+
+    modAuthor = "nekit508"
+    modDescription = "Test mod."
+    modRepo = "https://github.com/nekit508/mindustry-mod-plugin"
+}

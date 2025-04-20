@@ -15,11 +15,13 @@ class CopyBuildReleaseTask extends DefaultTask {
 
     @Inject
     CopyBuildReleaseTask(NMPlugin ext) {
+        group = "nmp"
+
         ObjectFactory objectFactory = getProject().getObjects()
         dependsOn project.tasks.nmpBuildRelease
 
         copyPaths = objectFactory.listProperty(File.class)
-        copyPaths.set project.extensions.local?.copy?.collect {String path -> new File(path)} ?: []
+        copyPaths.set ext.local?.copy?.collect {String path -> new File(path)} ?: []
 
         doLast {
             copyPaths.get().each { p ->

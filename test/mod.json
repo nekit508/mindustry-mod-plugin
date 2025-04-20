@@ -1,0 +1,9 @@
+{
+    "main": "core.Mod",
+    "name": "modName",
+    "version": "v0.0.4",
+    "minGameVersion": "146",
+    "author": "nekit508",
+    "description": "Test mod.",
+    "java": true
+}
