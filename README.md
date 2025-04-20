@@ -4,7 +4,7 @@
 
 Plugin for building mindustry mods.
 
-[My mod template based on this plugin](https://github.com/nekit508/mmp-template)
+[My mod template based on this plugin](https://github.com/nekit508/mmp-template).
 
 ---
 ## Tasks info
