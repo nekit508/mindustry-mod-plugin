@@ -23,7 +23,7 @@ Plugin for building mindustry mods.
 
 ### Annotations subproject:
 
-`nmpaGenerateProcessorsFile` - generate 
+`nmpaGenerateProcessorsFile` - generate `javax.annotation.processing.Processor` file
 
 ---
 ## Local settings
