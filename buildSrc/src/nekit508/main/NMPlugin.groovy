@@ -1,12 +1,13 @@
-package nekit508
+package nekit508.main
 
 import groovy.json.JsonSlurper
-import nekit508.tasks.BuildReleaseTask
-import nekit508.tasks.BuildTask
-import nekit508.tasks.CopyBuildReleaseTask
-import nekit508.tasks.DelegatorTask
-import nekit508.tasks.DexTask
-import nekit508.tasks.GenerateModInfo
+import nekit508.anno.NMPAnnoPlugin
+import nekit508.main.tasks.BuildReleaseTask
+import nekit508.main.tasks.BuildTask
+import nekit508.main.tasks.CopyBuildReleaseTask
+import nekit508.main.tasks.DelegatorTask
+import nekit508.main.tasks.DexTask
+import nekit508.main.tasks.GenerateModInfoTask
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -91,7 +92,7 @@ class NMPlugin implements Plugin<Project> {
         project.tasks.register "nmpDex", DexTask, this
         project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
         project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-        project.tasks.register "nmpGenerateModInfo", GenerateModInfo, this
+        project.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
     }
 
     /** Add tasks with old names. */
@@ -107,6 +108,19 @@ class NMPlugin implements Plugin<Project> {
         }
     }
 
+    void setupProjectAsAnnoProject(Project project) {
+        project.apply {
+            plugin NMPAnnoPlugin
+        }
+
+        project.extensions.nmpa.genericInit()
+
+        this.project.dependencies { DependencyHandler handler ->
+            handler.add "compileOnly", project
+            handler.add "annotationProcessor", project
+        }
+    }
+
     String mindustryDependency(String module = "core") {
         return dependency("com.github.Anuken.Mindustry", module, mindutsryVersion)
     }
@@ -115,7 +129,7 @@ class NMPlugin implements Plugin<Project> {
         return dependency("com.github.Anuken.Arc", module, mindutsryVersion)
     }
 
-    @SuppressWarnings('GrMethodMayBeStatic')
+    @SuppressWarnings("GrMethodMayBeStatic")
     String dependency(String dep, String module, String version) {
         return "$dep:$module:$version"
     }
@@ -153,7 +167,7 @@ class NMPlugin implements Plugin<Project> {
     void apply(Project target) {
         project = target
 
-        target.extensions.nmp = this
+        project.extensions.nmp = this
     }
 
     /** For easier in-closure configure. */

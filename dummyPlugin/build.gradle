@@ -13,7 +13,7 @@ gradlePlugin {
     plugins{
         NModPlugin {
             id = "${rootProject.group}.${rootProject.name}"
-            implementationClass = "nekit508.NMPlugin"
+            implementationClass = "nekit508.main.NMPlugin"
 
             println "plugin id: $id"
         }

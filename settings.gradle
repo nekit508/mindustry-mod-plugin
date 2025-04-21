@@ -7,7 +7,9 @@ pluginManagement {
 
 rootProject.name = "mindustry-mod-plugin"
 
-include "dummyPlugin"
-include "test"
+include ":dummyPlugin"
 
+include ":test"
 project(":test").name = modName
+
+include "$modName:annotations"

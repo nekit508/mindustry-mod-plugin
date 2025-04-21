@@ -1,6 +1,6 @@
-package nekit508.tasks
+package nekit508.main.tasks
 
-import nekit508.NMPlugin
+import nekit508.main.NMPlugin
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.jvm.tasks.Jar

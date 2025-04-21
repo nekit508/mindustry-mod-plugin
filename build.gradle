@@ -1,4 +1,4 @@
 allprojects.each { Project p ->
     p.group = "com.github.nekit508"
-    p.version = "1.0dev"
+    p.version = "dev"
 }

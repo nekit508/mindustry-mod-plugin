@@ -1,7 +1,7 @@
-package nekit508.tasks
+package nekit508.main.tasks
 
 import groovy.json.JsonBuilder
-import nekit508.NMPlugin
+import nekit508.main.NMPlugin
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
@@ -10,10 +10,11 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
+import org.gradle.api.tasks.TaskAction
 
 import javax.inject.Inject
 
-class GenerateModInfo extends DefaultTask {
+class GenerateModInfoTask extends DefaultTask {
     @OutputFile
     final RegularFileProperty outputFile // by default set by plugin
 
@@ -48,7 +49,7 @@ class GenerateModInfo extends DefaultTask {
     MapProperty<String, ?> modMiscData
 
     @Inject
-    GenerateModInfo(NMPlugin ext) {
+    GenerateModInfoTask(NMPlugin ext) {
         group = "nmp"
 
         project.tasks.nmpBuildRelease.dependsOn this
@@ -90,39 +91,40 @@ class GenerateModInfo extends DefaultTask {
         onlyIf {
             ext.generateModInfo
         }
+    }
 
-        doLast {
-            JsonBuilder builder = new JsonBuilder()
+    @TaskAction
+    void generate() {
+        JsonBuilder builder = new JsonBuilder()
 
-            var misc = modMiscData.get()
-            var all = new LinkedHashMap<String, Object>()
+        var misc = modMiscData.get()
+        var all = new LinkedHashMap<String, Object>()
 
-            misc.forEach { k, v ->
-                all.put(k, v)
-            }
+        misc.forEach { k, v ->
+            all.put(k, v)
+        }
 
-            all.put("main", modMain.get())
-            all.put("name", modName.get())
-            all.put("version", modVersion.get())
-            all.put("minGameVersion", modMinGameVersion.get())
+        all.put("main", modMain.get())
+        all.put("name", modName.get())
+        all.put("version", modVersion.get())
+        all.put("minGameVersion", modMinGameVersion.get())
 
-            if (modDisplayName.isPresent()) all.put("displayName", modDisplayName.get())
-            if (modAuthor.isPresent()) all.put("author", modAuthor.get())
-            if (modDescription.isPresent()) all.put("description", modDescription.get())
-            if (modSubtitle.isPresent()) all.put("subtitle", modSubtitle.get())
-            if (!modDependencies.get().isEmpty()) all.put("dependencies", modDependencies.get())
-            if (!modSoftDependencies.get().isEmpty()) all.put("softDependencies", modSoftDependencies.get())
-            if (modJava.isPresent()) all.put("java", modJava.get())
-            if (modPregenerated.isPresent()) all.put("pregenerated", modPregenerated.get())
-            if (modHidden.isPresent()) all.put("hidden", modHidden.get())
-            if (modKeepOutlines.isPresent()) all.put("keepOutlines", modKeepOutlines.get())
+        if (modDisplayName.isPresent()) all.put("displayName", modDisplayName.get())
+        if (modAuthor.isPresent()) all.put("author", modAuthor.get())
+        if (modDescription.isPresent()) all.put("description", modDescription.get())
+        if (modSubtitle.isPresent()) all.put("subtitle", modSubtitle.get())
+        if (!modDependencies.get().isEmpty()) all.put("dependencies", modDependencies.get())
+        if (!modSoftDependencies.get().isEmpty()) all.put("softDependencies", modSoftDependencies.get())
+        if (modJava.isPresent()) all.put("java", modJava.get())
+        if (modPregenerated.isPresent()) all.put("pregenerated", modPregenerated.get())
+        if (modHidden.isPresent()) all.put("hidden", modHidden.get())
+        if (modKeepOutlines.isPresent()) all.put("keepOutlines", modKeepOutlines.get())
 
-            builder.call(all)
+        builder.call(all)
 
-            try (var writer = new FileWriter(outputFile.get().asFile)) {
-                writer.write(builder.toPrettyString())
-                writer.close()
-            }
+        try (var writer = new FileWriter(outputFile.get().asFile)) {
+            writer.write(builder.toPrettyString())
+            writer.close()
         }
     }
 }

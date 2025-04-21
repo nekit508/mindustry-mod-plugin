@@ -1,4 +1,4 @@
-package nekit508.tasks
+package nekit508.main.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task

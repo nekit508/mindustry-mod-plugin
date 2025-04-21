@@ -1,20 +1,20 @@
-import nekit508.NMPlugin
+import nekit508.main.NMPlugin
 
-project.repositories {
-    mavenCentral()
-    mavenLocal()
-    maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
-    maven { url "https://www.jitpack.io" }
+allprojects.each {project ->
+    project.repositories {
+        mavenCentral()
+        mavenLocal()
+        maven { url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
+        maven { url "https://www.jitpack.io" }
+    }
+
+    project.apply plugin: "java"
+
+    project.sourceSets.main.java.srcDirs = ["src"]
+    project.sourceSets.main.resources.srcDirs = ["res"]
 }
 
-repositories {
-    mavenCentral()
-}
-
-apply plugin: "java"
 apply plugin: NMPlugin
-
-sourceSets.main.java.srcDirs = ["src"]
 
 nmp {
     modName = prop("modName")
@@ -24,6 +24,7 @@ nmp {
     generateModInfo = true
 
     genericInit()
+    setupProjectAsAnnoProject project("annotations")
 }
 
 tasks.nmpGenerateModInfo {
