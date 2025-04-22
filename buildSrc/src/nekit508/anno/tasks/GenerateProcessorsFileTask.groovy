@@ -34,7 +34,6 @@ class GenerateProcessorsFileTask extends DefaultTask {
         sources = factory.fileCollection()
 
         outputFile = new File(temporaryDir, "/META-INF/services/javax.annotation.processing.Processor")
-        project.tasks.processResources.from temporaryDir
 
         triggerString.set "// anno processor class"
 
@@ -59,6 +58,11 @@ class GenerateProcessorsFileTask extends DefaultTask {
         String text = ""
         files.each {file -> text += file + '\n'}
         outputFile.setText(text)
+
+        project.copy {
+            from temporaryDir
+            into project.tasks.processResources.destinationDir
+        }
     }
 
     void addSource(Iterable<Object> files) {
