@@ -70,10 +70,26 @@ This method will create task for auto generate processors list and add annotatio
 ---
 ## Tasks graph
 
-Arrow from **A** to **B** means that task **A** depends on task **B**
+Arrow from **A** to **B** means that task **A** depends on task **B**.
 
-Color marks:
-- <span style="color: cyan"> tasks added by plugin </span>
-- <span style="color: gray"> non-plugin tasks </span>
+Dotted arrows like line arrows but optional.
 
-![](docs%2Fnmp-tasks-graph.png "NMP tasks graph")
+```mermaid
+graph LR;
+    subgraph mainProject [Main project]
+        direction TB
+        nmpCopyBuildRelease-->nmpBuildRelease
+        nmpBuildRelease-->nmpDex
+        nmpBuildRelease-->nmpBuild
+        nmpDex-->nmpBuild
+        nmpBuild-.->nmpGenerateModInfo
+        nmpBuild-->classes
+    end
+    
+    subgraph annoProject [Anno project]
+        direction TB
+        processResources-->nmpaGenerateProcessorsFile
+    end
+    
+    mainProject ---> annoProject
+```
