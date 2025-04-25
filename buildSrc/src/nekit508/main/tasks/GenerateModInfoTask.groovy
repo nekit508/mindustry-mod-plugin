@@ -93,9 +93,10 @@ class GenerateModInfoTask extends DefaultTask {
 
         (project.tasks.clean as Delete).delete
 
-        onlyIf {
-            ext.settings.generateModInfo.get()
-        }
+        if (ext.settings.generateModInfo.get())
+            project.tasks.nmpBuild.from outputFile
+
+        setEnabled ext.settings.generateModInfo.get()
     }
 
     @TaskAction
@@ -131,7 +132,5 @@ class GenerateModInfoTask extends DefaultTask {
             writer.write(builder.toPrettyString())
             writer.close()
         }
-
-        project.tasks.nmpBuild.from outputFile
     }
 }
