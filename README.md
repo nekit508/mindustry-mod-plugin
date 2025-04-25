@@ -70,6 +70,10 @@ This method will create task for auto generate processors list and add annotatio
 ---
 ## Tasks graph
 
-![Dependency graph of NMP tasks
-gray - default gradle tasks
-cyan - nmp's tasks](docs%2Fnmp-tasks-graph.png "NMP tasks graph")
+Arrow from **A** to **B** means that task **A** depends on task **B**
+
+Color marks:
+- <span style="color: cyan"> tasks added by plugin </span>
+- <span style="color: gray"> non-plugin tasks </span>
+
+![](docs%2Fnmp-tasks-graph.png "NMP tasks graph")
