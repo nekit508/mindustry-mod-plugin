@@ -66,3 +66,10 @@ This method will configure compilation settings, set up Jabel, create tasks and 
 
 Also, you can add annotation project by yourself and then configure it with `project.nmp.setupProjectAsAnnoProject(Project)`.
 This method will create task for auto generate processors list and add annotations project as dependency to your main project.
+
+---
+## Tasks graph
+
+![Dependency graph of NMP tasks
+gray - default gradle tasks
+cyan - nmp's tasks](docs%2Fnmp-tasks-graph.png "NMP tasks graph")
