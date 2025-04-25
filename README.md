@@ -39,20 +39,20 @@ Plugin for building mindustry mods.
 
 ### Main settings
 
-Plugin's main class (that can be referenced from main project by `project.nmp`) allows you to manually set up the following parameters:
+Plugin's main class contains settings (can be referenced from main project by `project.nmp.settings`) that allows you to manually set up the following parameters:
 - `mindutsryVersion` - mindustry and arc version that will be used as dependencies (default `v146`)
 - `modName` - name of mod, affects output .jar name and `mod.json`
 - `modVersion` - name of mod, affects output .jar name, `mod.json` and `project.version`
 - `modGroup` - group of mod, affects output .jar name and `project.group`
 - `jabelVersion` - jabel version that will be used to compile mod (default `1.0.0`)
 - `generateModInfo` - whether `mod.json` be generated (default `false`)
-- `sourceCompatibility` - source bytecode version (allows newer features) (default 20th java vesion)
-
-All these parameters can be set by the dictionary in the `nmp.setProps(Map<String, Object>)` method.
+- `sourceCompatibility` - mod source bytecode version (allows newer features) (default 20th java version)
 
 ### Anno settings
 
-Plugin's anno class (that can be referenced from anno subproject by `project.nmpa`) now doesn't contain any parameters.
+Plugin's anno class contains settings (that can be referenced from anno subproject by `project.nmpa`) that allows you to manually set up the following parameters:
+- `sourceCompatibility` - anno source bytecode version (allows newer features) (by default referenced to `jabelVersion` of main project)
+- `jabelVersion` - jabel version that will be used to compile anno (by default referenced to `sourceCompatibility` of main project)
 
 ### Mod info generator
 

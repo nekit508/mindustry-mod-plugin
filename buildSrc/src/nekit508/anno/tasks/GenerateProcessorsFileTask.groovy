@@ -11,6 +11,9 @@ import org.gradle.work.NormalizeLineEndings
 import javax.inject.Inject
 
 class GenerateProcessorsFileTask extends DefaultTask {
+    @Internal
+    NMPAnnoPlugin ext
+
     @OutputFile
     final File outputFile
 
@@ -27,6 +30,7 @@ class GenerateProcessorsFileTask extends DefaultTask {
     @Inject
     GenerateProcessorsFileTask(NMPAnnoPlugin ext) {
         group = "nmpa"
+        this.ext = ext
 
         var factory = project.getObjects()
 

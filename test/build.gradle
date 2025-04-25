@@ -17,11 +17,13 @@ allprojects.each {project ->
 apply plugin: NMPlugin
 
 nmp {
-    modName = prop("modName")
-    modGroup = prop("modGroup")
-    modVersion = prop("modVersion")
-    mindustryVersion = prop("mindustryVersion")
-    generateModInfo = true
+    settings.configure {
+        modName.set prop("modName")
+        modGroup.set prop("modGroup")
+        modVersion.set prop("modVersion")
+        mindustryVersion.set prop("mindustryVersion")
+        generateModInfo.set true
+    }
 
     genericInit()
     setupProjectAsAnnoProject project("annotations")

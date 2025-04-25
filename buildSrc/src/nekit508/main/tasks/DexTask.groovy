@@ -7,6 +7,7 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -14,6 +15,9 @@ import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
 class DexTask extends DefaultTask {
+    @Internal
+    NMPlugin ext
+
     @OutputFile
     @Optional
     final RegularFileProperty dexFile
@@ -26,6 +30,7 @@ class DexTask extends DefaultTask {
     @Inject
     DexTask(NMPlugin ext) {
         group = "nmp"
+        this.ext = ext
 
         ObjectFactory objectFactory = getProject().getObjects()
 

@@ -12,25 +12,21 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
+import org.gradle.util.Configurable
+import org.gradle.util.internal.ConfigureUtil
 
-import java.lang.annotation.ElementType
-import java.lang.annotation.Retention
-import java.lang.annotation.RetentionPolicy
-import java.lang.annotation.Target
-import java.lang.reflect.Field
+import javax.annotation.Nullable
 
 class NMPlugin implements Plugin<Project> {
+    NMPluginSettings settings
+
     Project project
 
-    @DataProp
-    String mindutsryVersion = "v146", modName, modVersion, modGroup, jabelVersion = "1.0.0"
-    @DataProp
-    boolean generateModInfo = false
-    @DataProp
-    JavaVersion sourceCompatibility = JavaVersion.VERSION_20
-
     Map<String, Object> local = new LinkedHashMap<>()
+
+    @Nullable NMPAnnoPlugin nmpa
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")
@@ -65,7 +61,7 @@ class NMPlugin implements Plugin<Project> {
 
     void setupJabel() {
         project.tasks.compileJava { JavaCompile task ->
-            task.sourceCompatibility = this.sourceCompatibility.majorVersion
+            task.sourceCompatibility = settings.sourceCompatibility.get().majorVersion
 
             task.options.compilerArgs = [
                     "--release", "8",
@@ -83,7 +79,7 @@ class NMPlugin implements Plugin<Project> {
         }
 
         project.dependencies { DependencyHandler handler ->
-            handler.add "annotationProcessor", "com.github.bsideup.jabel:jabel-javac-plugin:$jabelVersion"
+            handler.add "annotationProcessor", "com.github.bsideup.jabel:jabel-javac-plugin:${settings.jabelVersion.get()}"
         }
     }
 
@@ -113,7 +109,8 @@ class NMPlugin implements Plugin<Project> {
             plugin NMPAnnoPlugin
         }
 
-        project.extensions.nmpa.genericInit()
+        nmpa = project.extensions.nmpa
+        nmpa.genericInit()
 
         this.project.dependencies { DependencyHandler handler ->
             handler.add "compileOnly", project
@@ -122,11 +119,11 @@ class NMPlugin implements Plugin<Project> {
     }
 
     String mindustryDependency(String module = "core") {
-        return dependency("com.github.Anuken.Mindustry", module, mindutsryVersion)
+        return dependency("com.github.Anuken.Mindustry", module, settings.mindustryVersion.get())
     }
 
     String arcDependency(String module = "arc-core") {
-        return dependency("com.github.Anuken.Arc", module, mindutsryVersion)
+        return dependency("com.github.Anuken.Arc", module, settings.mindustryVersion.get())
     }
 
     @SuppressWarnings("GrMethodMayBeStatic")
@@ -134,26 +131,9 @@ class NMPlugin implements Plugin<Project> {
         return "$dep:$module:$version"
     }
 
-    void setProps(Map<String, Object> data) {
-        for (Field field : getClass().getDeclaredFields()) {
-            var anno = field.getAnnotation(DataProp)
-
-            if (anno == null) continue
-
-            var key = anno.key()
-            if (key == "") key = field.name
-
-            if (data.containsKey(key)) {
-                field.setAccessible true
-                field.set this, data[key]
-                field.setAccessible false
-            }
-        }
-    }
-
     void genericInit(boolean createLegacyTasks = false) {
-        project.group = modGroup ?: project.group
-        project.version = modVersion ?: project.version
+        project.group = settings.modGroup.getOrElse project.group
+        project.version = settings.modVersion.getOrElse project.version
 
         parseSettings()
         configureCompileTask()
@@ -168,17 +148,41 @@ class NMPlugin implements Plugin<Project> {
         project = target
 
         project.extensions.nmp = this
+
+        settings = new NMPluginSettings()
     }
 
     /** For easier in-closure configure. */
-    Object prop(Object property) {
-        project.properties.get(property)
+    <T> T prop(Object property) {
+        return (T) project.properties.get(property)
     }
-}
 
-/** Internal annotation. */
-@Target(ElementType.FIELD)
-@Retention(RetentionPolicy.RUNTIME)
-@interface DataProp {
-    String key() default ""
+    class NMPluginSettings implements Configurable<NMPluginSettings> {
+        Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion
+        Property<Boolean> generateModInfo
+        Property<JavaVersion> sourceCompatibility
+
+        NMPluginSettings() {
+            var factory = project.getObjects()
+
+            mindustryVersion = factory.property String
+            mindustryVersion.set "v146"
+            modName = factory.property String
+            modVersion = factory.property String
+            modGroup = factory.property String
+            jabelVersion = factory.property String
+            jabelVersion.set "1.0.0"
+
+            generateModInfo = factory.property Boolean
+            generateModInfo.set false
+
+            sourceCompatibility = factory.property JavaVersion
+            sourceCompatibility.set JavaVersion.VERSION_20
+        }
+
+        @Override
+        NMPluginSettings configure(Closure cl) {
+            return ConfigureUtil.configureSelf(cl, this)
+        }
+    }
 }

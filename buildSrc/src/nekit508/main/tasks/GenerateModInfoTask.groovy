@@ -7,7 +7,9 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
@@ -15,6 +17,9 @@ import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
 class GenerateModInfoTask extends DefaultTask {
+    @Internal
+    NMPlugin ext
+
     @OutputFile
     final RegularFileProperty outputFile // by default set by plugin
 
@@ -51,8 +56,9 @@ class GenerateModInfoTask extends DefaultTask {
     @Inject
     GenerateModInfoTask(NMPlugin ext) {
         group = "nmp"
+        this.ext = ext
 
-        project.tasks.nmpBuildRelease.dependsOn this
+        project.tasks.nmpBuild.dependsOn this
 
         var factory = getProject().getObjects()
 
@@ -81,15 +87,14 @@ class GenerateModInfoTask extends DefaultTask {
         modJava.set true
         outputFile.set getProject().file("mod.json")
 
-        modName.set Objects.requireNonNull(ext.modName, "nmp.modName must be set")
-        modVersion.set Objects.requireNonNull(ext.modVersion, "nmp.modVersion must be set")
-        modMinGameVersion.set Objects.requireNonNull(ext.mindutsryVersion.substring(1), "nmp.mindutsryVersion must be set")
+        modName.set Objects.requireNonNull(ext.settings.modName.get(), "nmp.modName must be set")
+        modVersion.set Objects.requireNonNull(ext.settings.modVersion.get(), "nmp.modVersion must be set")
+        modMinGameVersion.set Objects.requireNonNull(ext.settings.mindustryVersion.get().substring(1), "nmp.mindutsryVersion must be set")
 
-        if (ext.generateModInfo)
-            project.tasks.nmpBuildRelease.from outputFile
+        (project.tasks.clean as Delete).delete
 
         onlyIf {
-            ext.generateModInfo
+            ext.settings.generateModInfo.get()
         }
     }
 
@@ -126,5 +131,7 @@ class GenerateModInfoTask extends DefaultTask {
             writer.write(builder.toPrettyString())
             writer.close()
         }
+
+        project.tasks.nmpBuild.from outputFile
     }
 }
