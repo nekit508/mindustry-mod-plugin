@@ -75,8 +75,8 @@ _Dashed arrows_ means optional dependency
 (for example, task **A** will be performed without task **B** if it disabled by config).
 
 Marks:
-- `#193d40` - added by plugin.
-- `#896300` - default or added by another plugins
+- cyan - added by plugin.
+- yellow - default or added by another plugins
 
 ```mermaid
 graph LR;
