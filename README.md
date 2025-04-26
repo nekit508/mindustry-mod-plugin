@@ -70,26 +70,43 @@ This method will create task for auto generate processors list and add annotatio
 ---
 ## Tasks graph
 
-Arrow from **A** to **B** means that task **A** depends on task **B**.
+_Arrow_ from **A** to **B** means that task **A** depends on task **B**.
+_Dashed arrows_ means optional dependency 
+(for example, task **A** will be performed without task **B** if it disabled by config).
 
-Dotted arrows like line arrows but optional.
+Marks:
+- `#193d40` - added by plugin.
+- `#896300` - default or added by another plugins
 
 ```mermaid
 graph LR;
+    classDef nmpTask fill:#193d40
+    classDef defTask fill:#896300
+    
     subgraph mainProject [Main project]
         direction TB
         nmpCopyBuildRelease-->nmpBuildRelease
-        nmpBuildRelease-->nmpDex
+        nmpBuildRelease-.->nmpDex
         nmpBuildRelease-->nmpBuild
         nmpDex-->nmpBuild
         nmpBuild-.->nmpGenerateModInfo
-        nmpBuild-->classes
+        nmpBuild-->classes([classes])
     end
     
     subgraph annoProject [Anno project]
         direction TB
-        processResources-->nmpaGenerateProcessorsFile
+        processResources([processResources])-->nmpaGenerateProcessorsFile
     end
+    
+    class nmpCopyBuildRelease nmpTask
+    class nmpBuildRelease nmpTask
+    class nmpDex nmpTask
+    class nmpBuild nmpTask
+    class nmpGenerateModInfo nmpTask
+    class nmpaGenerateProcessorsFile nmpTask
+        
+    class classes defTask
+    class processResources defTask
     
     mainProject ---> annoProject
 ```
