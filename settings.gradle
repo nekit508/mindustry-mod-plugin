@@ -14,3 +14,4 @@ include ":test"
 project(":test").name = modName
 
 include "$modName:annotations"
+include "$modName:tools"

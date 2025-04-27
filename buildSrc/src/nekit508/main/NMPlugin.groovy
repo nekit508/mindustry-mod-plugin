@@ -8,6 +8,8 @@ import nekit508.main.tasks.CopyBuildReleaseTask
 import nekit508.main.tasks.DelegatorTask
 import nekit508.main.tasks.DexTask
 import nekit508.main.tasks.GenerateModInfoTask
+import nekit508.tools.NMPToolsPlugin
+import org.gradle.api.Action
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -19,7 +21,11 @@ import org.gradle.util.internal.ConfigureUtil
 
 import javax.annotation.Nullable
 
+/** Main plugin class, must be applied to the main mod project.
+ */
 class NMPlugin implements Plugin<Project> {
+    private final List<Action> configureActions = new LinkedList<>()
+
     NMPluginSettings settings
 
     Project project
@@ -27,74 +33,83 @@ class NMPlugin implements Plugin<Project> {
     Map<String, Object> local = new LinkedHashMap<>()
 
     @Nullable NMPAnnoPlugin nmpa
+    @Nullable NMPToolsPlugin nmpt
 
     void parseSettings() {
-        var localFile = project.file("settings/local.json")
+        configureActions.add () -> {
+            var localFile = project.file("settings/local.json")
 
-        if (localFile.exists())
-            local += new JsonSlurper().parse(localFile)
+            if (localFile.exists())
+                local += new JsonSlurper().parse(localFile)
+        }
     }
 
     void configureCompileTask() {
-        project.tasks.compileJava { JavaCompile task ->
-            task.options.encoding = "UTF-8"
-            task.options.generatedSourceOutputDirectory.set project.file("gen")
+        configureActions.add () -> {
+            project.tasks.compileJava { JavaCompile task ->
+                task.options.encoding = "UTF-8"
+                task.options.generatedSourceOutputDirectory.set project.file("gen")
 
-            task.options.forkOptions.jvmArgs += [
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
-            ]
-
-
+                task.options.forkOptions.jvmArgs += [
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+                        "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
+                ]
+            }
         }
     }
 
     void setupJabel() {
-        project.tasks.compileJava { JavaCompile task ->
-            task.sourceCompatibility = settings.sourceCompatibility.get().majorVersion
+        configureActions.add () -> {
+            project.tasks.compileJava { JavaCompile task ->
+                task.sourceCompatibility = settings.sourceCompatibility.get().majorVersion
 
-            task.options.compilerArgs = [
-                    "--release", "8",
-                    "--enable-preview",
-                    "-Xlint:-options"
-            ]
+                task.options.compilerArgs = [
+                        "--release", "8",
+                        "--enable-preview",
+                        "-Xlint:-options"
+                ]
 
-            task.doFirst {
-                project.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
+                task.doFirst {
+                    project.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
 
-                task.options.compilerArgs = task.options.compilerArgs.findAll {
-                    it != "--enable-preview"
+                    task.options.compilerArgs = task.options.compilerArgs.findAll {
+                        it != "--enable-preview"
+                    }
                 }
             }
-        }
 
-        project.dependencies { DependencyHandler handler ->
-            handler.add "annotationProcessor", "com.github.bsideup.jabel:jabel-javac-plugin:${settings.jabelVersion.get()}"
+            project.dependencies { DependencyHandler handler ->
+                handler.add "annotationProcessor", "com.github.bsideup.jabel:jabel-javac-plugin:${settings.jabelVersion.get()}"
+            }
         }
     }
 
     void initTasks() {
-        project.tasks.register "nmpBuild", BuildTask, this
-        project.tasks.register "nmpDex", DexTask, this
-        project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
-        project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-        project.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+        configureActions.add () -> {
+            project.tasks.register "nmpBuild", BuildTask, this
+            project.tasks.register "nmpDex", DexTask, this
+            project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
+            project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
+            project.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+        }
     }
 
     /** Add tasks with old names. */
     void enableLegacy() {
-        project.tasks.register "copyBuildRelease", DelegatorTask, project.tasks.nmpCopyBuildRelease
-        project.tasks.register "buildRelease", DelegatorTask, project.tasks.nmpBuildRelease
+        configureActions.add () -> {
+            project.tasks.register "copyBuildRelease", DelegatorTask, project.tasks.nmpCopyBuildRelease
+            project.tasks.register "buildRelease", DelegatorTask, project.tasks.nmpBuildRelease
+        }
     }
 
     void modBaseDependencies() {
@@ -116,6 +131,15 @@ class NMPlugin implements Plugin<Project> {
             handler.add "compileOnly", project
             handler.add "annotationProcessor", project
         }
+    }
+
+    void setupProjectAsToolsProject(Project project) {
+        project.apply {
+            plugin NMPToolsPlugin
+        }
+
+        nmpt = project.extensions.nmpt
+        nmpt.genericInit()
     }
 
     String mindustryDependency(String module = "core") {
@@ -181,7 +205,7 @@ class NMPlugin implements Plugin<Project> {
         }
 
         @Override
-        NMPluginSettings configure(Closure cl) {
+        NMPluginSettings configure(@DelegatesTo(NMPluginSettings) Closure cl) {
             return ConfigureUtil.configureSelf(cl, this)
         }
     }

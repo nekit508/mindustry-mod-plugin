@@ -23,3 +23,9 @@ gradlePlugin {
 dependencies {
     compileOnly gradleApi()
 }
+
+groovydoc {
+    destinationDir = rootProject.file("docs/javadoc")
+
+    source = project.sourceSets.main.allGroovy
+}

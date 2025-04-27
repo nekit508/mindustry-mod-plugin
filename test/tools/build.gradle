@@ -1,0 +1,3 @@
+dependencies {
+    //implementation nmpt.nmp.arcDependency("arc-core")
+}

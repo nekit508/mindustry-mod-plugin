@@ -1,8 +1,7 @@
-package nekit508.anno
-
+package nekit508.tools
 
 import nekit508.main.NMPlugin
-import nekit508.anno.tasks.GenerateProcessorsFileTask
+import nekit508.tools.tasks.RunToolsTask
 import org.gradle.api.JavaVersion
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -12,8 +11,8 @@ import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.util.Configurable
 import org.gradle.util.internal.ConfigureUtil
 
-class NMPAnnoPlugin implements Plugin<Project> {
-    NMPAnnoPluginSettings settings
+class NMPToolsPlugin implements Plugin<Project> {
+    NMPToolsPluginSettings settings
 
     Project project
     NMPlugin nmp
@@ -65,30 +64,30 @@ class NMPAnnoPlugin implements Plugin<Project> {
     }
 
     void initTasks() {
-        project.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
+        project.tasks.register "nmptRunTools", RunToolsTask, this
     }
 
     void genericInit() {
-        initTasks()
         configureCompileTask()
         setupJabel()
+        initTasks()
     }
 
     @Override
     void apply(Project target) {
         project = target
 
-        project.extensions.nmpa = this
+        project.extensions.nmpt = this
         nmp = Objects.requireNonNull project.parent.extensions.nmp, "NMPPlugin must be applied to parent project"
 
-        settings = new NMPAnnoPluginSettings()
+        settings = new NMPToolsPluginSettings()
     }
 
-    class NMPAnnoPluginSettings implements Configurable<NMPAnnoPluginSettings> {
+    class NMPToolsPluginSettings implements Configurable<NMPToolsPluginSettings> {
         Property<String> jabelVersion
         Property<JavaVersion> sourceCompatibility
 
-        NMPAnnoPluginSettings() {
+        NMPToolsPluginSettings() {
             var factory = project.getObjects()
 
             jabelVersion = factory.property String
@@ -99,7 +98,7 @@ class NMPAnnoPlugin implements Plugin<Project> {
         }
 
         @Override
-        NMPAnnoPluginSettings configure(@DelegatesTo(NMPAnnoPluginSettings) Closure cl) {
+        NMPToolsPluginSettings configure(@DelegatesTo(NMPToolsPluginSettings) Closure cl) {
             return ConfigureUtil.configureSelf(cl, this)
         }
     }

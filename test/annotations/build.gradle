@@ -1,1 +1,1 @@
-tasks.nmpaGenerateProcessorsFile.triggerString = "@AnnotationProcessor"
+//tasks.nmpaGenerateProcessorsFile.triggerString = "@AnnotationProcessor"

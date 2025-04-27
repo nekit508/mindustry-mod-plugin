@@ -1,4 +1,4 @@
-import nekit508.main.NMPlugin
+import nekit508.NMPlugin
 
 allprojects.each {project ->
     project.repositories {
@@ -16,7 +16,7 @@ allprojects.each {project ->
 
 apply plugin: NMPlugin
 
-nmp {
+/*nmp {
     settings.configure {
         modName.set prop("modName")
         modGroup.set prop("modGroup")
@@ -27,12 +27,25 @@ nmp {
 
     genericInit()
     setupProjectAsAnnoProject project("annotations")
-}
+    setupProjectAsToolsProject project("tools")
+}*/
 
-tasks.nmpGenerateModInfo {
+/*tasks.nmpGenerateModInfo {
     modMain = "core.Mod"
 
     modAuthor = "nekit508"
     modDescription = "Test mod."
     modRepo = "https://github.com/nekit508/mindustry-mod-plugin"
+}*/
+
+nmp.core.configure {
+    configureCompileTask()
+    setupJabel()
+    modBaseDependencies()
 }
+
+nmp.core.settings {
+    modName.set project.ext.modName
+}
+
+nmp.afterConfigure()
