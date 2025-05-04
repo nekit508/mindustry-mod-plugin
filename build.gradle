@@ -9,7 +9,7 @@ allprojects.each { Project p ->
             p.version = System.getenv("VERSION")
             p.group = System.getenv("GROUP")
 
-            println """$p info:\n    is jitpack build: $p.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
+            println """$p info:\n    is jitpack build: $rootProject.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
         } else {
             p.version = "dev"
             p.group = "com.github.nekit508"
