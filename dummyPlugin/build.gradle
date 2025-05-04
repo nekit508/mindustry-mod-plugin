@@ -13,7 +13,7 @@ repositories {
 gradlePlugin {
     plugins {
         NModPlugin {
-            id = "${group}.${rootProject.name}"
+            id = "${project.parent.group}.${rootProject.name}"
             implementationClass = "nekit508.NMPlugin"
 
             println "plugin id: $id version: $version"
