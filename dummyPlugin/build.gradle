@@ -7,15 +7,16 @@ project.sourceSets.main.groovy.srcDirs = [project.layout.projectDirectory.dir(".
 
 repositories {
     mavenCentral()
+    mavenLocal()
 }
 
 gradlePlugin {
-    plugins{
+    plugins {
         NModPlugin {
             id = "${group}.${rootProject.name}"
-            implementationClass = "nekit508.main.NMPlugin"
+            implementationClass = "nekit508.NMPlugin"
 
-            println "plugin id: $id"
+            println "plugin id: $id version: $version"
         }
     }
 }

@@ -39,7 +39,7 @@ abstract class NMPluginExtension {
             if (holdOverInappropriateMethods)
                 settingsActions.add () -> closure()
             else
-                throw new IllegalCallerException("Settings cannot be adjusted outside settings closure")
+                throw new Exception("Settings cannot be adjusted outside settings closure")
             return true
         }
         return false
@@ -52,7 +52,7 @@ abstract class NMPluginExtension {
                 println "Held inappropriate method in extension $this"
                 return true
             } else
-                throw new IllegalCallerException("Configuration methods cannot be executed outside configure closure")
+                throw new Exception("Configuration methods cannot be executed outside configure closure")
 
         }
         return false
