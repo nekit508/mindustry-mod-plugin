@@ -1,6 +1,6 @@
-package nekit508.main.tasks
+package nekit508.tasks.core
 
-import nekit508.main.NMPlugin
+import nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.RegularFileProperty
@@ -16,7 +16,7 @@ import javax.inject.Inject
 
 class DexTask extends DefaultTask {
     @Internal
-    NMPlugin ext
+    NMPluginCoreExtension ext
 
     @OutputFile
     @Optional
@@ -28,36 +28,40 @@ class DexTask extends DefaultTask {
     final Property<Boolean> buildAndroid
 
     @Inject
-    DexTask(NMPlugin ext) {
+    DexTask(NMPluginCoreExtension ext) {
         group = "nmp"
         this.ext = ext
 
         ObjectFactory objectFactory = getProject().getObjects()
-
-        logger.debug("$name: DexTask $name configuration")
-
         dexFile = objectFactory.fileProperty()
-        dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
-        logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
-
         buildAndroid = objectFactory.property(Boolean.class)
-        var use = ext.local?.build?.useAndroid
-        buildAndroid.set use != null ? use : true
-        logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
-
         sdkRoot = objectFactory.property(String)
-        var p = ext.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
-        if (p)
-            sdkRoot.set p
-        else
-            sdkRoot.unset()
-        logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()}")
 
-        dependsOn project.tasks.nmpBuild
+        configure {
+            logger.debug("$name: DexTask $name configuration")
 
-        onlyIf {
-            buildAndroid.get()
+            dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
+            logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
+
+            var use = ext.nmp.local?.build?.useAndroid
+            buildAndroid.set use != null ? use : true
+            logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
+
+            var p = ext.nmp.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
+            if (p)
+                sdkRoot.set p
+            else
+                sdkRoot.unset()
+            logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()}")
+
+            dependsOn project.tasks.nmpBuild
+
+            onlyIf {
+                buildAndroid.get()
+            }
         }
+
+
     }
 
     @TaskAction

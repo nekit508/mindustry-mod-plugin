@@ -1,1 +1,11 @@
-//tasks.nmpaGenerateProcessorsFile.triggerString = "@AnnotationProcessor"
+nmp.anno(project, "anno", nmp.project.core)
+
+anno.configure {
+    genericInit()
+
+    configureTasks {
+        nmpaGenerateProcessorsFile {
+            triggerString.set "@AnnotationProcessor"
+        }
+    }
+}

@@ -6,7 +6,13 @@ pluginManagement {
     }
 }
 
-rootProject.name = "mindustry-mod-plugin"
+var jitpack = Boolean.parseBoolean(System.getenv("JITPACK") ?: "false")
+
+if (jitpack) {
+    rootProject.name = System.getenv "ARTIFACT"
+} else {
+    rootProject.name = "mindustry-mod-plugin"
+}
 
 include ":dummyPlugin"
 

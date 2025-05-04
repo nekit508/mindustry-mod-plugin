@@ -1,7 +1,7 @@
-package nekit508.main.tasks
+package nekit508.tasks.core
 
 import groovy.json.JsonBuilder
-import nekit508.main.NMPlugin
+import nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 class GenerateModInfoTask extends DefaultTask {
     @Internal
-    NMPlugin ext
+    NMPluginCoreExtension ext
 
     @OutputFile
     final RegularFileProperty outputFile // by default set by plugin
@@ -54,7 +54,7 @@ class GenerateModInfoTask extends DefaultTask {
     MapProperty<String, ?> modMiscData
 
     @Inject
-    GenerateModInfoTask(NMPlugin ext) {
+    GenerateModInfoTask(NMPluginCoreExtension ext) {
         group = "nmp"
         this.ext = ext
 
@@ -84,19 +84,20 @@ class GenerateModInfoTask extends DefaultTask {
 
         modMiscData = factory.mapProperty(String, Object)
 
-        modJava.set true
-        outputFile.set getProject().file("mod.json")
+        configure {
+            modJava.set true
+            outputFile.set getProject().file("mod.json")
 
-        modName.set Objects.requireNonNull(ext.settings.modName.get(), "nmp.modName must be set")
-        modVersion.set Objects.requireNonNull(ext.settings.modVersion.get(), "nmp.modVersion must be set")
-        modMinGameVersion.set Objects.requireNonNull(ext.settings.mindustryVersion.get().substring(1), "nmp.mindutsryVersion must be set")
+            modName.set Objects.requireNonNull(ext.modName.get(), "nmp.modName must be set")
+            modVersion.set Objects.requireNonNull(ext.modVersion.get(), "nmp.modVersion must be set")
+            modMinGameVersion.set Objects.requireNonNull(ext.mindustryVersion.get().substring(1), "nmp.mindutsryVersion must be set")
 
-        (project.tasks.clean as Delete).delete
+            (project.tasks.clean as Delete).delete
 
-        if (ext.settings.generateModInfo.get())
-            project.tasks.nmpBuild.from outputFile
-
-        setEnabled ext.settings.generateModInfo.get()
+            if (ext.generateModInfo.get())
+                project.tasks.nmpBuild.from outputFile
+            setEnabled ext.generateModInfo.get()
+        }
     }
 
     @TaskAction

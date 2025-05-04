@@ -1,3 +1,15 @@
+nmp.tools(project, "tools", nmp.project.core)
+
+tools.configure {
+    genericInit()
+
+    configureTasks {
+        nmptRunTools {
+            mainClass.set "tools.Tools"
+        }
+    }
+}
+
 dependencies {
-    //implementation nmpt.nmp.arcDependency("arc-core")
+    implementation(nmp.arcDependency "v146", "arc-core")
 }

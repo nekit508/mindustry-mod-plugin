@@ -1,4 +1,18 @@
+var jitpack = Boolean.parseBoolean(System.getenv("JITPACK") ?: "false")
+ext.isJitpackBuild = jitpack
+
 allprojects.each { Project p ->
-    p.group = "com.github.nekit508"
-    p.version = "dev"
+    p.beforeEvaluate {
+        // setup version and group for jitpack builds
+        // otherwise configure it for local building and publishing
+        if (rootProject.ext.isJitpackBuild) {
+            p.version = System.getenv("VERSION")
+            p.group = System.getenv("GROUP")
+
+            println """$p info:\n    is jitpack build: $p.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
+        } else {
+            p.version = "dev"
+            p.group = "com.github.nekit508"
+        }
+    }
 }

@@ -16,36 +16,26 @@ allprojects.each {project ->
 
 apply plugin: NMPlugin
 
-/*nmp {
-    settings.configure {
-        modName.set prop("modName")
-        modGroup.set prop("modGroup")
-        modVersion.set prop("modVersion")
-        mindustryVersion.set prop("mindustryVersion")
-        generateModInfo.set true
-    }
+nmp.core project, "core"
 
+core.configure {
     genericInit()
-    setupProjectAsAnnoProject project("annotations")
-    setupProjectAsToolsProject project("tools")
-}*/
 
-/*tasks.nmpGenerateModInfo {
-    modMain = "core.Mod"
+    core.configureTasks {
+        nmpGenerateModInfo {
+            modMain = "core.Mod"
 
-    modAuthor = "nekit508"
-    modDescription = "Test mod."
-    modRepo = "https://github.com/nekit508/mindustry-mod-plugin"
-}*/
-
-nmp.core.configure {
-    configureCompileTask()
-    setupJabel()
-    modBaseDependencies()
+            modAuthor = "nekit508"
+            modDescription = "Test mod."
+            modRepo = "https://github.com/nekit508/mindustry-mod-plugin"
+        }
+    }
 }
 
-nmp.core.settings {
-    modName.set project.ext.modName
+core.settings {
+    modName.set prop("modName") as String
+    modGroup.set prop("modGroup") as String
+    modVersion.set prop("modVersion") as String
+    mindustryVersion.set prop("mindustryVersion") as String
+    generateModInfo.set true
 }
-
-nmp.afterConfigure()

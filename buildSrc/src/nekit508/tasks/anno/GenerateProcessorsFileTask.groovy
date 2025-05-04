@@ -1,7 +1,7 @@
-package nekit508.anno.tasks
+package nekit508.tasks.anno
 
 import groovy.io.FileType
-import nekit508.anno.NMPAnnoPlugin
+import nekit508.extensions.NMPluginAnnoExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 class GenerateProcessorsFileTask extends DefaultTask {
     @Internal
-    NMPAnnoPlugin ext
+    NMPluginAnnoExtension ext
 
     @OutputFile
     final File outputFile
@@ -28,7 +28,7 @@ class GenerateProcessorsFileTask extends DefaultTask {
     final ConfigurableFileCollection sources
 
     @Inject
-    GenerateProcessorsFileTask(NMPAnnoPlugin ext) {
+    GenerateProcessorsFileTask(NMPluginAnnoExtension ext) {
         group = "nmpa"
         this.ext = ext
 
@@ -39,11 +39,13 @@ class GenerateProcessorsFileTask extends DefaultTask {
 
         outputFile = new File(temporaryDir, "/META-INF/services/javax.annotation.processing.Processor")
 
-        triggerString.set "// anno processor class"
+        configure {
+            triggerString.set "// anno processor class"
 
-        addSource project.sourceSets.main.java.srcDirs
+            addSource project.sourceSets.main.java.srcDirs
 
-        project.tasks.processResources.dependsOn this
+            project.tasks.processResources.dependsOn this
+        }
     }
 
     @TaskAction
