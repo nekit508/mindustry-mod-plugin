@@ -33,6 +33,7 @@ core.configure {
 }
 
 core.settings {
+    jabelVersion.set "1.0.1-1"
     modName.set prop("modName") as String
     modGroup.set prop("modGroup") as String
     modVersion.set prop("modVersion") as String
