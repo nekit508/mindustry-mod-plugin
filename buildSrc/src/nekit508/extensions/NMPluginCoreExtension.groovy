@@ -60,7 +60,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
             srcDirs.add attachedProject.file("src")
             sourceCompatibility.set JavaVersion.VERSION_20
             generateModInfo.set false
-            jabelVersion.set "1.0.0"
+            jabelVersion.set "1.0.1-1"
             mindustryVersion.set "v146"
         }
     }
