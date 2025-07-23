@@ -82,6 +82,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
 
         attachedProject.dependencies { DependencyHandler handler ->
             handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+            handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
         }
     }
 
