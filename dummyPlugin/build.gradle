@@ -5,11 +5,6 @@ apply plugin: "java-gradle-plugin"
 
 project.sourceSets.main.groovy.srcDirs = [project.layout.projectDirectory.dir("../buildSrc/src")]
 
-repositories {
-    mavenCentral()
-    mavenLocal()
-}
-
 gradlePlugin {
     plugins {
         NModPlugin {
@@ -23,6 +18,7 @@ gradlePlugin {
 
 dependencies {
     compileOnly gradleApi()
+    implementation "com.github.nekit508:pl-compiler-framework:$plCompilerFrameworkVersion"
 }
 
 groovydoc {

@@ -23,3 +23,11 @@ configureProjectData rootProject
 subprojects.each { Project p ->
     configureProjectData p
 }
+
+allprojects.each {Project p ->
+    p.repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+        mavenLocal()
+    }
+}

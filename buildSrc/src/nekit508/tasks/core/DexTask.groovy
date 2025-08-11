@@ -3,10 +3,13 @@ package nekit508.tasks.core
 import nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
+import org.gradle.api.Task
+import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -17,7 +20,6 @@ import javax.inject.Inject
 class DexTask extends DefaultTask {
     @Internal
     NMPluginCoreExtension ext
-
     @OutputFile
     @Optional
     final RegularFileProperty dexFile
@@ -59,9 +61,11 @@ class DexTask extends DefaultTask {
             onlyIf {
                 buildAndroid.get()
             }
+
+            outputs.upToDateWhen { Task t ->
+                project.tasks.nmpBuild.state.getUpToDate()
+            }
         }
-
-
     }
 
     @TaskAction

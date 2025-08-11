@@ -1,2 +1,12 @@
 sourceSets.main.groovy.srcDirs = ["src"]
 sourceSets.main.java.srcDirs = ["src"]
+
+repositories {
+    mavenCentral()
+    maven { url 'https://jitpack.io' }
+    mavenLocal()
+}
+
+dependencies {
+    implementation "com.github.nekit508:pl-compiler-framework:v2.1.0"
+}
