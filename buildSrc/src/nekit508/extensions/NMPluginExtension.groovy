@@ -2,25 +2,27 @@ package nekit508.extensions
 
 import nekit508.NMPlugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.util.internal.ConfigureUtil
 
 abstract class NMPluginExtension {
     ObjectFactory factory
-    NMPlugin nmp
-    Project attachedProject
+    protected final NMPlugin nmp
+    protected final Project attachedProject
 
     /**
      * If `true`, than method that must be executed in action/settings closure was called outside it,
      * will be stored as action and will not throw an exception.
      */
-    boolean holdOverInappropriateMethods = true
+    protected boolean ignoreWrongMethodCalls = true
 
     /** Generally shouldn't be accessed manually */
-    private final List<Runnable> configureActions = new LinkedList<>()
+    protected final List<Runnable> configureActions = new LinkedList<>()
     /** Generally shouldn't be accessed manually */
-    private final Queue<Runnable> settingsActions = new LinkedList<>()
+    protected final Queue<Runnable> settingsActions = new LinkedList<>()
 
     NMPluginExtension(String name, Project project, NMPlugin plugin) {
         nmp = plugin
@@ -36,7 +38,7 @@ abstract class NMPluginExtension {
 
     boolean checkSettings(Closure closure) {
         if (!nmp.settingsConf) {
-            if (holdOverInappropriateMethods)
+            if (ignoreWrongMethodCalls)
                 settingsActions.add () -> closure()
             else
                 throw new Exception("Settings cannot be adjusted outside settings closure")
@@ -47,7 +49,7 @@ abstract class NMPluginExtension {
 
     boolean checkConfigure(Closure closure) {
         if (!nmp.configureConf) {
-            if (holdOverInappropriateMethods) {
+            if (ignoreWrongMethodCalls) {
                 configureActions.add () -> closure()
                 println "Held inappropriate method in extension $this"
                 return true
@@ -62,7 +64,7 @@ abstract class NMPluginExtension {
      * This method should be used by {@link nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
      * implementation to add settings closure in query.
      */
-    void settingsI(Closure cl) {
+    protected void settingsI(Closure cl) {
         settingsActions.add () -> ConfigureUtil.configureSelf cl, this
     }
 
@@ -76,7 +78,7 @@ abstract class NMPluginExtension {
      * This method should be used by {@link nekit508.extensions.NMPluginExtension#configure(groovy.lang.Closure)}
      * implementation to add configure closure in query.
      */
-    void configureI(Closure cl) {
+    protected void configureI(Closure cl) {
         configureActions.add () -> ConfigureUtil.configureSelf cl, this
     }
 
@@ -104,6 +106,7 @@ abstract class NMPluginExtension {
         settingsActions.clear()
         out
     }
+
     /** Do not use manually. */
     List<Runnable> popConfigureActions() {
         var out = configureActions.asImmutable()
@@ -111,6 +114,7 @@ abstract class NMPluginExtension {
         out
     }
 
+    /** Do not use manually. */
     void clearActions() {
         configureActions.clear()
         settingsActions.clear()

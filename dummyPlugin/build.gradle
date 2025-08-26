@@ -18,7 +18,6 @@ gradlePlugin {
 
 dependencies {
     compileOnly gradleApi()
-    implementation "com.github.nekit508:pl-compiler-framework:$plCompilerFrameworkVersion"
 }
 
 groovydoc {

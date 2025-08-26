@@ -15,7 +15,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
     ListProperty<File> srcDirs, resDirs
     Property<File> genDir
 
-    NMPluginCoreExtension core
+    final NMPluginCoreExtension core
 
     NMPluginToolsExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
         super(name, project, plugin)

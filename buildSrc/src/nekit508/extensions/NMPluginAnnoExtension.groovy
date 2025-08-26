@@ -15,7 +15,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     ListProperty<File> srcDirs, resDirs
     Property<File> genDir
 
-    NMPluginCoreExtension core
+    final NMPluginCoreExtension core
 
     NMPluginAnnoExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
         super(name, project, plugin)
