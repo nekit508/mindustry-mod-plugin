@@ -1,4 +1,5 @@
 import nekit508.NMPlugin
+import nekit508.tasks.core.GenerateModInfoTask
 
 allprojects.each {project ->
     project.repositories {
@@ -22,12 +23,13 @@ core.configure {
     genericInit()
 
     core.configureTasks {
-        nmpGenerateModInfo {
-            modMain = "core.Mod"
-
-            modAuthor = "nekit508"
-            modDescription = "Test mod."
-            modRepo = "https://github.com/nekit508/mindustry-mod-plugin"
+        nmpGenerateModInfo { GenerateModInfoTask task ->
+            task.set(
+                    "author": "NaN508",
+                    "description": "Test mod.",
+                    "repo": "https://github.com/nekit508/mindustry-mod-plugin",
+                    "main": "core.Mod"
+            )
         }
     }
 }

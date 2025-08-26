@@ -1,9 +1,16 @@
 {
-    "main": "core.Mod",
-    "name": "modName",
-    "version": "v0.0.4",
-    "minGameVersion": "149",
-    "author": "nekit508",
+    "author": "NaN508",
+    "repo": "https://github.com/nekit508/mindustry-mod-plugin",
     "description": "Test mod.",
-    "java": true
+    "main": "core.Mod",
+    "softDependencies": [
+        
+    ],
+    "version": "v0.0.4",
+    "dependencies": [
+        
+    ],
+    "java": true,
+    "name": "modName",
+    "minGameVersion": "149"
 }

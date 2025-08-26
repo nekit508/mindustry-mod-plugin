@@ -7,12 +7,14 @@ import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.MapProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Delete
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.internal.Pair
 
 import javax.inject.Inject
 
@@ -25,33 +27,35 @@ class GenerateModInfoTask extends DefaultTask {
 
     @Input
     final Property<String> modName, // by default set by plugin
-            modMinGameVersion, // by default set by plugin
-            modVersion,  // by default set by plugin
-            modMain
+                           modMinGameVersion, // by default set by plugin
+                           modVersion,  // by default set by plugin
+                           modMain
 
     @Input
     @Optional
     final Property<String> modDisplayName,
-            modAuthor,
-            modDescription,
-            modSubtitle,
-            modRepo
+                           modAuthor,
+                           modDescription,
+                           modSubtitle,
+                           modRepo
 
     @Optional
     @Input
     final ListProperty<String> modDependencies,
-            modSoftDependencies
+                               modSoftDependencies
 
     @Optional
     @Input
     final Property<Boolean> modJava,  // by default set by plugin
-            modPregenerated,
-            modHidden,
-            modKeepOutlines
+                            modPregenerated,
+                            modHidden,
+                            modKeepOutlines
 
     @Optional
     @Input
     MapProperty<String, ?> modMiscData
+
+    protected Map<String, Pair<Provider<?>, Boolean>> jsonProperties
 
     @Inject
     GenerateModInfoTask(NMPluginCoreExtension ext) {
@@ -64,23 +68,25 @@ class GenerateModInfoTask extends DefaultTask {
 
         outputFile = factory.fileProperty()
 
-        modName = factory.property String
-        modDisplayName = factory.property String
-        modMinGameVersion = factory.property String
-        modAuthor = factory.property String
-        modDescription = factory.property String
-        modSubtitle = factory.property String
-        modVersion = factory.property String
-        modMain = factory.property String
-        modRepo = factory.property String
+        jsonProperties = new HashMap<>()
 
-        modDependencies = factory.listProperty String
-        modSoftDependencies = factory.listProperty String
+        modName = adjProp("name", factory.property (String), true)
+        modDisplayName = adjProp("displayName", factory.property (String))
+        modMinGameVersion = adjProp("minGameVersion", factory.property (String), true)
+        modAuthor = adjProp("author", factory.property (String))
+        modDescription = adjProp("description", factory.property (String))
+        modSubtitle = adjProp("subtitle", factory.property (String))
+        modVersion = adjProp("version", factory.property (String), true)
+        modMain = adjProp("main", factory.property (String), true)
+        modRepo = adjProp("repo", factory.property (String))
 
-        modJava = factory.property Boolean
-        modPregenerated = factory.property Boolean
-        modHidden = factory.property Boolean
-        modKeepOutlines = factory.property Boolean
+        modDependencies = adjProp("dependencies", factory.listProperty (String))
+        modSoftDependencies = adjProp("softDependencies", factory.listProperty (String))
+
+        modJava = adjProp("java", factory.property (Boolean))
+        modPregenerated = adjProp("pregenerated", factory.property (Boolean))
+        modHidden = adjProp("hidden", factory.property (Boolean))
+        modKeepOutlines = adjProp("keepOutlines", factory.property (Boolean))
 
         modMiscData = factory.mapProperty(String, Object)
 
@@ -100,35 +106,74 @@ class GenerateModInfoTask extends DefaultTask {
         }
     }
 
+    void set(Map<String, ?> settings) {
+        var keys = settings.keySet()
+        for (final var key in keys) {
+            var value = settings[key]
+
+            if (!jsonProperties.containsKey(key)) {
+                modMiscData.put(key, value)
+            } else {
+                var prop = jsonProperties[key].left()
+                if (prop instanceof ListProperty<?>) {
+                    if (value instanceof Provider<Iterable<?>>)
+                        prop.set value
+                    else {
+                        if (value instanceof Iterable<?>)
+                            prop.addAll value
+                        else
+                            prop.add value
+                    }
+                } else if (prop instanceof Property<?>) {
+                    prop.set value
+                } else if (prop instanceof MapProperty<?, ?>)
+                    throw new IllegalArgumentException("Map property " + key + " cannot be set.")
+                else
+                    throw new IllegalArgumentException("Property " + key + " has unknown type.")
+            }
+        }
+    }
+
+    Object getAt(String name) {
+        jsonProperties.containsKey(name) ? jsonProperties[name].left() : modMiscData[name]
+    }
+
+    void putAt(String name, var value) {
+        if (jsonProperties.containsKey(name)) {
+            var prop = jsonProperties[name].left()
+
+            if (prop instanceof Property<?>)
+                prop.set value
+            else
+                throw new ClassCastException("If you want to adjust list or map property, do it directly by getting it and using it's methods.")
+        } else {
+            modMiscData[name] = value
+        }
+    }
+
+    protected <T extends Provider<?>> T adjProp(String name, T property, boolean required = false) {
+        jsonProperties[name] = Pair.of(property, required)
+        return property
+    }
+
     @TaskAction
     void generate() {
-        JsonBuilder builder = new JsonBuilder()
-
-        var misc = modMiscData.get()
         var all = new LinkedHashMap<String, Object>()
 
+        var misc = modMiscData.get()
         misc.forEach { k, v ->
-            all.put(k, v)
+            all[k] = v instanceof Provider<?> ? (v.isPresent() ? v.get() : "null") : v
         }
 
-        all.put("main", modMain.get())
-        all.put("name", modName.get())
-        all.put("version", modVersion.get())
-        all.put("minGameVersion", modMinGameVersion.get())
+        var keys = jsonProperties.keySet()
+        for (final var key in keys) {
+            var pair = jsonProperties[key]
+            if (pair.left().isPresent() || pair.right())
+                all.put(key, pair.left().get())
+        }
 
-        if (modDisplayName.isPresent()) all.put("displayName", modDisplayName.get())
-        if (modAuthor.isPresent()) all.put("author", modAuthor.get())
-        if (modDescription.isPresent()) all.put("description", modDescription.get())
-        if (modSubtitle.isPresent()) all.put("subtitle", modSubtitle.get())
-        if (!modDependencies.get().isEmpty()) all.put("dependencies", modDependencies.get())
-        if (!modSoftDependencies.get().isEmpty()) all.put("softDependencies", modSoftDependencies.get())
-        if (modJava.isPresent()) all.put("java", modJava.get())
-        if (modPregenerated.isPresent()) all.put("pregenerated", modPregenerated.get())
-        if (modHidden.isPresent()) all.put("hidden", modHidden.get())
-        if (modKeepOutlines.isPresent()) all.put("keepOutlines", modKeepOutlines.get())
-
+        JsonBuilder builder = new JsonBuilder()
         builder.call(all)
-
         try (var writer = new FileWriter(outputFile.get().asFile)) {
             writer.write(builder.toPrettyString())
             writer.close()
