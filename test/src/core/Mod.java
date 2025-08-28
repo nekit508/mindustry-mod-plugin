@@ -8,7 +8,6 @@ import com.github.nekit508.mod.annotations.AnnotationProcessor;
 public class Mod extends mindustry.mod.Mod {
     @Override
     public void loadContent() {
-        var content = "Hello!";
-        Log.info(content);
+        Log.info("Loaded @.", getClass().getCanonicalName());
     }
 }

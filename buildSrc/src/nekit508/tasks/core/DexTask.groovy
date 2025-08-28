@@ -98,8 +98,46 @@ class DexTask extends DefaultTask {
         logger.debug("$name: dependencies: $dependencies")
 
         logger.debug("$name: d8 start")
-        ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
-                " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).waitForProcessOutput(System.out, System.err)
-        logger.debug("$name: d8 end")
+
+        var exitCode = ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
+                " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).with {self ->
+            Thread tout = self.consumeProcessOutputStream System.out
+            Thread terr = self.consumeProcessErrorStream System.err
+            var interrupted = false
+            try {
+                try {
+                    tout.join()
+                } catch (InterruptedException ignored) {
+                    interrupted = true
+                }
+
+                try {
+                    terr.join()
+                } catch (InterruptedException ignored) {
+                    interrupted = true
+                }
+
+                try {
+                    var exitCode = self.waitFor()
+                    self.closeStreams()
+                    return exitCode
+                } catch (InterruptedException ignored) {
+                    interrupted = true
+                }
+            } finally {
+                if (interrupted) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+            throw new RuntimeException("Wrong exit point.")
+        }
+
+        if (exitCode != 0) {
+            logger.error("$name: d8 ended with exit code $exitCode")
+
+            if (dexFile.get().asFile.exists()) project.delete dexFile
+
+            throw new GradleException("Failed to compile dex file.")
+        } else logger.debug("$name: d8 ended with exit code $exitCode")
     }
 }
