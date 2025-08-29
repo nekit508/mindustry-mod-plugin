@@ -1,6 +1,6 @@
-package com.github.nekit508.tasks.tools
+package nekit508.tasks.tools
 
-import com.github.nekit508.extensions.NMPluginToolsExtension
+import nekit508.extensions.NMPluginToolsExtension
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.JavaExec
 

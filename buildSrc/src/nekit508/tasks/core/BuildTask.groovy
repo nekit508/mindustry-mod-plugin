@@ -1,6 +1,6 @@
-package com.github.nekit508.tasks.core
+package nekit508.tasks.core
 
-import com.github.nekit508.extensions.NMPluginCoreExtension
+import nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Internal

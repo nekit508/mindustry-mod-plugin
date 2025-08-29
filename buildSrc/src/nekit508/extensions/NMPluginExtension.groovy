@@ -1,21 +1,23 @@
-package com.github.nekit508.extensions
+package nekit508.extensions
 
-import com.github.nekit508.NMPlugin
+import nekit508.NMPlugin
 import org.gradle.api.Project
+import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.TaskContainer
+import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.util.internal.ConfigureUtil
 
 abstract class NMPluginExtension {
-    protected ObjectFactory factory
+    ObjectFactory factory
     protected final NMPlugin nmp
     protected final Project attachedProject
 
     /**
-     * If `true`, method that must be executed in action/settings closure was called outside it,
+     * If `true`, than method that must be executed in action/settings closure was called outside it,
      * will be stored as action and will not throw an exception.
      */
-    protected boolean ignoreWrongMethodCalls = false
+    protected boolean ignoreWrongMethodCalls = true
 
     /** Generally shouldn't be accessed manually */
     protected final List<Runnable> configureActions = new LinkedList<>()
@@ -32,14 +34,6 @@ abstract class NMPluginExtension {
         project.extensions.add name, this
 
         apply()
-    }
-
-    Project attachedProject() {
-        return attachedProject
-    }
-
-    NMPlugin nmp() {
-        return nmp
     }
 
     boolean checkSettings(Closure closure) {
@@ -67,7 +61,7 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * This method should be used by {@link com.github.nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
+     * This method should be used by {@link nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
      * implementation to add settings closure in query.
      */
     protected void settingsI(Closure cl) {
@@ -75,13 +69,13 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * Stores settings adjustment action. Must use {@link com.github.nekit508.extensions.NMPluginExtension#settingsI(groovy.lang.Closure)}
+     * Stores settings adjustment action. Must use {@link nekit508.extensions.NMPluginExtension#settingsI(groovy.lang.Closure)}
      * to add settings closure in query.
      */
     abstract <T> T settings(Closure closure)
 
     /**
-     * This method should be used by {@link com.github.nekit508.extensions.NMPluginExtension#configure(groovy.lang.Closure)}
+     * This method should be used by {@link nekit508.extensions.NMPluginExtension#configure(groovy.lang.Closure)}
      * implementation to add configure closure in query.
      */
     protected void configureI(Closure cl) {
@@ -89,7 +83,7 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * Stores settings adjustment action. Must use {@link com.github.nekit508.extensions.NMPluginExtension#configureI(groovy.lang.Closure)}
+     * Stores settings adjustment action. Must use {@link nekit508.extensions.NMPluginExtension#configureI(groovy.lang.Closure)}
      * to add configure closure in query.
      */
     abstract <T> T configure(Closure closure)

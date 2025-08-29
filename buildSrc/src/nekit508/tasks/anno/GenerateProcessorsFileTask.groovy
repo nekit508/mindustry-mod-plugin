@@ -1,7 +1,7 @@
-package com.github.nekit508.tasks.anno
+package nekit508.tasks.anno
 
-import com.github.nekit508.extensions.NMPluginAnnoExtension
 import groovy.io.FileType
+import nekit508.extensions.NMPluginAnnoExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.provider.Property
