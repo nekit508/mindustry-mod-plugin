@@ -1,11 +1,11 @@
-package nekit508
+package com.github.nekit508
 
 import groovy.json.JsonSlurper
-import nekit508.extensions.NMPluginAnnoExtension
-import nekit508.extensions.NMPluginCoreExtension
-import nekit508.extensions.NMPluginExtension
+import com.github.nekit508.extensions.NMPluginAnnoExtension
+import com.github.nekit508.extensions.NMPluginCoreExtension
+import com.github.nekit508.extensions.NMPluginExtension
 
-import nekit508.extensions.NMPluginToolsExtension
+import com.github.nekit508.extensions.NMPluginToolsExtension
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
@@ -54,23 +54,23 @@ class NMPlugin implements Plugin<Project> {
 
         List<Runnable> settingsActions = new LinkedList<>(), configureActions = new LinkedList<>()
 
-       while (true) {
-           for (final def ext in extensions)
-               settingsActions.addAll ext.popSettingsActions()
+        while (true) {
+            for (final def ext in extensions)
+                settingsActions.addAll ext.popSettingsActions()
 
-           if (settingsActions.empty)
-               break
+            if (settingsActions.empty)
+                break
 
-           settingsConf = true
-           settingsActions*.run()
-           settingsConf = false
+            settingsConf = true
+            settingsActions*.run()
+            settingsConf = false
 
-           settingsActions.clear()
-       }
+            settingsActions.clear()
+        }
 
         while (true) {
             for (final def ext in extensions)
-               configureActions.addAll ext.popConfigureActions()
+                configureActions.addAll ext.popConfigureActions()
 
             if (configureActions.empty)
                 break
@@ -101,4 +101,18 @@ class NMPlugin implements Plugin<Project> {
     NMPluginCoreExtension core(Project project, String name) { new NMPluginCoreExtension(name, project, this) }
     NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) { new NMPluginAnnoExtension(name, project, this, core) }
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
+
+    void configureProjectDataForJitpackBuilding() {
+        project.allprojects { Project p ->
+            var path = p.path
+            var forcedGroup = path.length() == 1 ? property("group") : ("$p.parent.group.$p.parent.name")
+
+            if (rootProject.ext.isJitpackBuild) {
+                p.version = System.getenv("VERSION")
+                p.group = forcedGroup
+
+                println """$p info:\n    is jitpack build: $rootProject.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
+            }
+        }
+    }
 }

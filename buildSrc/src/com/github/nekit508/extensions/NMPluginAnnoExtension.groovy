@@ -1,7 +1,7 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
-import nekit508.tasks.tools.RunToolsTask
+import com.github.nekit508.NMPlugin
+import com.github.nekit508.tasks.anno.GenerateProcessorsFileTask
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -9,7 +9,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
 
-class NMPluginToolsExtension extends NMPluginExtension {
+class NMPluginAnnoExtension extends NMPluginExtension {
     Property<String> jabelVersion
     Property<JavaVersion> sourceCompatibility
     ListProperty<File> srcDirs, resDirs
@@ -17,25 +17,26 @@ class NMPluginToolsExtension extends NMPluginExtension {
 
     final NMPluginCoreExtension core
 
-    NMPluginToolsExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
+    NMPluginAnnoExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
         super(name, project, plugin)
         this.core = core
     }
 
     @Override
-    NMPluginToolsExtension settings(Closure closure) {
+    NMPluginAnnoExtension settings(Closure closure) {
         settingsI closure
         return this
     }
 
     @Override
-    NMPluginToolsExtension configure(Closure closure) {
+    NMPluginAnnoExtension configure(Closure closure) {
         configureI closure
         return this
     }
 
     void configureCompileTask() {
         if (checkConfigure(this::configureCompileTask)) return
+
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.options.encoding = "UTF-8"
             task.options.generatedSourceOutputDirectory.set genDir.get()
@@ -70,6 +71,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
 
     void setupJabel() {
         if (checkConfigure(this::setupJabel)) return
+
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
@@ -86,14 +88,25 @@ class NMPluginToolsExtension extends NMPluginExtension {
         }
     }
 
+    void setupDependencies() {
+        if (checkConfigure(this::setupDependencies)) return
+
+        core.attachedProject.dependencies { DependencyHandler handler ->
+            handler.add "compileOnly", attachedProject
+            handler.add "annotationProcessor", attachedProject
+        }
+    }
+
     void initTasks() {
         if (checkConfigure(this::initTasks)) return
-        attachedProject.tasks.register "nmptRunTools", RunToolsTask, this
+
+        attachedProject.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
     }
 
     void genericInit() {
         configureCompileTask()
         setupJabel()
+        setupDependencies()
         initTasks()
     }
 

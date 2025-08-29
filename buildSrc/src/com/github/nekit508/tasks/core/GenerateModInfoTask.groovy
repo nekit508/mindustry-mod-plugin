@@ -1,7 +1,7 @@
-package nekit508.tasks.core
+package com.github.nekit508.tasks.core
 
 import groovy.json.JsonBuilder
-import nekit508.extensions.NMPluginCoreExtension
+import com.github.nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
@@ -64,7 +64,7 @@ class GenerateModInfoTask extends DefaultTask {
         group = "nmp"
         this.ext = ext
 
-        project.tasks.nmpBuild.dependsOn this
+        project.tasks.nmpBuildRelease.dependsOn this
 
         var factory = getProject().getObjects()
 
@@ -103,7 +103,7 @@ class GenerateModInfoTask extends DefaultTask {
             (project.tasks.clean as Delete).delete
 
             if (ext.generateModInfo.get())
-                project.tasks.nmpBuild.from outputFile
+                project.tasks.nmpBuildRelease.from outputFile
             setEnabled ext.generateModInfo.get()
         }
     }

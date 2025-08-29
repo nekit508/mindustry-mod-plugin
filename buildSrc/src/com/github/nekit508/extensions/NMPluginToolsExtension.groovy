@@ -1,11 +1,7 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
-import nekit508.tasks.core.BuildReleaseTask
-import nekit508.tasks.core.BuildTask
-import nekit508.tasks.core.CopyBuildReleaseTask
-import nekit508.tasks.core.DexTask
-import nekit508.tasks.core.GenerateModInfoTask
+import com.github.nekit508.NMPlugin
+import com.github.nekit508.tasks.tools.RunToolsTask
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -13,69 +9,33 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
 
-class NMPluginCoreExtension extends NMPluginExtension {
-    Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion
-    Property<Boolean> generateModInfo
+class NMPluginToolsExtension extends NMPluginExtension {
+    Property<String> jabelVersion
     Property<JavaVersion> sourceCompatibility
     ListProperty<File> srcDirs, resDirs
     Property<File> genDir
 
-    NMPluginCoreExtension(String name, Project project, NMPlugin plugin) {
+    final NMPluginCoreExtension core
+
+    NMPluginToolsExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
         super(name, project, plugin)
+        this.core = core
     }
 
     @Override
-    NMPluginCoreExtension settings(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
+    NMPluginToolsExtension settings(Closure closure) {
         settingsI closure
         return this
     }
 
     @Override
-    NMPluginCoreExtension configure(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
+    NMPluginToolsExtension configure(Closure closure) {
         configureI closure
         return this
     }
 
-    @Override
-    void apply() {
-        super.apply()
-
-        mindustryVersion = factory.property String
-        modName = factory.property String
-        modVersion = factory.property String
-        modGroup = factory.property String
-        jabelVersion = factory.property String
-
-        generateModInfo = factory.property Boolean
-
-        sourceCompatibility = factory.property JavaVersion
-
-        srcDirs = factory.listProperty File
-        resDirs = factory.listProperty File
-        genDir = factory.property File
-
-        settings {
-            genDir.set attachedProject.file("gen")
-            resDirs.add attachedProject.file("res")
-            srcDirs.add attachedProject.file("src")
-            sourceCompatibility.set JavaVersion.VERSION_20
-            generateModInfo.set false
-            jabelVersion.set "1.0.1-1"
-            mindustryVersion.set "v146"
-        }
-    }
-
-    void initTasks() {
-        attachedProject.tasks.register "nmpBuild", BuildTask, this
-        attachedProject.tasks.register "nmpDex", DexTask, this
-        attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
-        attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-        attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
-    }
-
     void configureCompileTask() {
         if (checkConfigure(this::configureCompileTask)) return
-
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.options.encoding = "UTF-8"
             task.options.generatedSourceOutputDirectory.set genDir.get()
@@ -110,7 +70,6 @@ class NMPluginCoreExtension extends NMPluginExtension {
 
     void setupJabel() {
         if (checkConfigure(this::setupJabel)) return
-
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
@@ -127,19 +86,35 @@ class NMPluginCoreExtension extends NMPluginExtension {
         }
     }
 
-    void modBaseDependencies() {
-        if (checkConfigure(this::modBaseDependencies)) return
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
-            handler.add "compileOnly", nmp.arcDependency(mindustryVersion.get())
-        }
+    void initTasks() {
+        if (checkConfigure(this::initTasks)) return
+        attachedProject.tasks.register "nmptRunTools", RunToolsTask, this
     }
 
     void genericInit() {
         configureCompileTask()
         setupJabel()
-        modBaseDependencies()
         initTasks()
+    }
+
+    @Override
+    void apply() {
+        super.apply()
+
+        jabelVersion = factory.property String
+        sourceCompatibility = factory.property JavaVersion
+
+        srcDirs = factory.listProperty File
+        resDirs = factory.listProperty File
+        genDir = factory.property File
+
+        settings {
+            genDir.set attachedProject.file("gen")
+            resDirs.add attachedProject.file("res")
+            srcDirs.add attachedProject.file("src")
+
+            sourceCompatibility.set core.sourceCompatibility
+            jabelVersion.set core.jabelVersion
+        }
     }
 }
