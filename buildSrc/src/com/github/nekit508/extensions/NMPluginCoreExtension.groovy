@@ -220,16 +220,6 @@ class NMPluginCoreExtension extends NMPluginExtension {
             initLibraryTasks()
             nmp.configureProjectDataForJitpackBuilding group
             configureMavenPublishing()
-            arcAndMindustryAsApi()
-        }
-    }
-
-    void arcAndMindustryAsApi() {
-        if (checkConfigure this::arcAndMindustryAsApi) return
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "api", nmp.mindustryDependency(mindustryVersion.get())
-            handler.add "api", nmp.arcDependency(mindustryVersion.get())
         }
     }
 

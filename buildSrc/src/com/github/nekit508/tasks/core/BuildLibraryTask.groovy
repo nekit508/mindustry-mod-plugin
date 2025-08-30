@@ -15,13 +15,14 @@ class BuildLibraryTask extends Jar {
     BuildLibraryTask(NMPluginCoreExtension ext) {
         group = "nmp"
         this.ext = ext
-        
+
+        // TODO this task now does nothing
         configure {
-            dependsOn project.tasks.nmpBuild
+            //dependsOn project.tasks.nmpBuild
 
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/library.jar")
 
-            from project.zipTree(project.tasks.nmpBuild.archiveFile.get())
+            //from project.zipTree(project.tasks.nmpBuild.archiveFile.get())
         }
     }
 }
