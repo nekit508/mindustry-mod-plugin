@@ -1,4 +1,8 @@
-jdk: 20
+before_install:
+   - sdk install java 20-open
+   - sdk use java 20-open
+jdk:
+  - openjdk 20
 install:
   - chmod +x gradlew
   - ./gradlew dummyPlugin:publishToMavenLocal
