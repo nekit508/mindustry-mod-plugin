@@ -1,10 +1,13 @@
 package com.github.nekit508.extensions
 
 import com.github.nekit508.NMPlugin
+import com.github.nekit508.tasks.FetchTask
+import com.github.nekit508.tasks.TasksQueue
 import com.github.nekit508.tasks.core.*
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
@@ -89,6 +92,14 @@ class NMPluginCoreExtension extends NMPluginExtension {
         attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
         attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
         attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+
+        attachedProject.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
+        attachedProject.tasks.register "nmpRunMindustry", RunMindustry, this
+
+        attachedProject.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
+                attachedProject.tasks.nmpCopyBuildRelease,
+                attachedProject.tasks.nmpRunMindustry
+        }
     }
 
     @Deprecated(forRemoval = true)

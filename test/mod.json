@@ -12,5 +12,5 @@
     ],
     "java": true,
     "name": "modName",
-    "minGameVersion": 149
+    "minGameVersion": 147
 }
