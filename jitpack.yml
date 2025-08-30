@@ -1,5 +1,4 @@
-jdk:
-  - openjdk20
+jdk: 20
 install:
   - chmod +x gradlew
   - ./gradlew dummyPlugin:publishToMavenLocal
