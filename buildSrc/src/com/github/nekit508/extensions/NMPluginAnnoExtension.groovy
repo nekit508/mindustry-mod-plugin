@@ -1,12 +1,12 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
-import nekit508.tasks.anno.GenerateProcessorsFileTask
+import com.github.nekit508.NMPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import com.github.nekit508.tasks.anno.*
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPluginAnnoExtension extends NMPluginExtension {

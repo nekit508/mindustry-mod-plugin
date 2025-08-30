@@ -5,7 +5,6 @@ import com.github.nekit508.tasks.core.*
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty

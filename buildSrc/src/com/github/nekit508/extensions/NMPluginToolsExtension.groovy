@@ -1,13 +1,13 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
-import nekit508.tasks.tools.RunToolsTask
+import com.github.nekit508.NMPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
+import com.github.nekit508.tasks.tools.*
 
 class NMPluginToolsExtension extends NMPluginExtension {
     Property<String> jabelVersion

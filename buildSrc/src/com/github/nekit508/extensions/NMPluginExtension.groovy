@@ -1,6 +1,6 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
+import com.github.nekit508.NMPlugin
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.model.ObjectFactory
@@ -36,6 +36,10 @@ abstract class NMPluginExtension {
         apply()
     }
 
+    NMPlugin nmp() {
+        nmp
+    }
+
     boolean checkSettings(Closure closure) {
         if (!nmp.settingsConf) {
             if (ignoreWrongMethodCalls) {
@@ -62,7 +66,7 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * This method should be used by {@link nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
+     * This method should be used by {@link com.github.nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
      * implementation to add settings closure in query.
      */
     protected void settingsI(Closure cl) {
@@ -70,13 +74,13 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * Stores settings adjustment action. Must use {@link nekit508.extensions.NMPluginExtension#settingsI(groovy.lang.Closure)}
+     * Stores settings adjustment action. Must use {@link com.github.nekit508.extensions.NMPluginExtension#settingsI(groovy.lang.Closure)}
      * to add settings closure in query.
      */
     abstract <T> T settings(Closure closure)
 
     /**
-     * This method should be used by {@link nekit508.extensions.NMPluginExtension#configure(groovy.lang.Closure)}
+     * This method should be used by {@link com.github.nekit508.extensions.NMPluginExtension#configure(groovy.lang.Closure)}
      * implementation to add configure closure in query.
      */
     protected void configureI(Closure cl) {
@@ -84,7 +88,7 @@ abstract class NMPluginExtension {
     }
 
     /**
-     * Stores settings adjustment action. Must use {@link nekit508.extensions.NMPluginExtension#configureI(groovy.lang.Closure)}
+     * Stores settings adjustment action. Must use {@link com.github.nekit508.extensions.NMPluginExtension#configureI(groovy.lang.Closure)}
      * to add configure closure in query.
      */
     abstract <T> T configure(Closure closure)

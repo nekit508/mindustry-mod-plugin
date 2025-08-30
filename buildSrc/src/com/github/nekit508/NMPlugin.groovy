@@ -1,11 +1,11 @@
 package com.github.nekit508
 
-import groovy.json.JsonSlurper
 import com.github.nekit508.extensions.NMPluginAnnoExtension
 import com.github.nekit508.extensions.NMPluginCoreExtension
 import com.github.nekit508.extensions.NMPluginExtension
-
 import com.github.nekit508.extensions.NMPluginToolsExtension
+import groovy.json.JsonSlurper
+
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -101,7 +101,9 @@ class NMPlugin implements Plugin<Project> {
     }
 
     NMPluginCoreExtension core(Project project, String name) { new NMPluginCoreExtension(name, project, this) }
+
     NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) { new NMPluginAnnoExtension(name, project, this, core) }
+
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
 
     void configureProjectDataForJitpackBuilding(String group) {

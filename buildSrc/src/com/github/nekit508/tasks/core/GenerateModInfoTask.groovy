@@ -1,7 +1,7 @@
-package nekit508.tasks.core
+package com.github.nekit508.tasks.core
 
+import com.github.nekit508.extensions.NMPluginCoreExtension
 import groovy.json.JsonBuilder
-import nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty

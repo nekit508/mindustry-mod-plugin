@@ -1,6 +1,6 @@
-package nekit508.tasks.core
+package com.github.nekit508.tasks.core
 
-import nekit508.extensions.NMPluginCoreExtension
+import com.github.nekit508.extensions.NMPluginCoreExtension
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
