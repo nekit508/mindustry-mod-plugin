@@ -22,10 +22,10 @@ class BuildReleaseTask extends Jar {
 
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/$project.group.$project.name-${project.version}-release.jar")
 
-            from {
-                project.tasks.nmpDex.buildAndroid.get() ? [project.zipTree(project.tasks.nmpBuild.archiveFile.get()), project.zipTree(project.tasks.nmpDex.dexFile.get())] :
-                        [project.zipTree(project.tasks.nmpBuild.archiveFile.get())]
-            }
+            if (project.tasks.nmpDex.buildAndroid.get())
+                from project.tasks.nmpDex
+
+            from project.tasks.nmpBuild
         }
     }
 }

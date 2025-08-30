@@ -9,7 +9,7 @@ gradlePlugin {
     plugins {
         NModPlugin {
             id = "${project.parent.group}.${rootProject.name}"
-            implementationClass = "nekit508.NMPlugin"
+            implementationClass = "com.github.nekit508.NMPlugin"
 
             println "plugin id: $id version: $version"
         }

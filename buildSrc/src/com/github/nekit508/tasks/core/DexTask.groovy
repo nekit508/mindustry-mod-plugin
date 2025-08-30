@@ -45,11 +45,11 @@ class DexTask extends DefaultTask {
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
             logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
-            var use = ext.nmp.local?.build?.useAndroid
+            var use = ext.nmp().local?.build?.useAndroid
             buildAndroid.set use != null ? use : true
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
-            var p = ext.nmp.local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
+            var p = ext.nmp().local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
             if (p)
                 sdkRoot.set p
             else
@@ -70,20 +70,20 @@ class DexTask extends DefaultTask {
 
     @TaskAction
     void compile() {
-        logger.debug("$name: d8 start preparing")
+        logger.debug("d8 start preparing")
 
         var sdkRootPath = sdkRoot.getOrNull()
         var sdkRoot = sdkRootPath != null ? project.file(sdkRootPath) : null
         if (!sdkRoot || !sdkRoot.exists()) throw new GradleException("No Android SDK found. SDK root if set to $sdkRootPath")
-        logger.debug("$name: sdkRoot: $sdkRoot.absolutePath")
+        logger.debug("sdkRoot: $sdkRoot.absolutePath")
 
         var platformRoot = new File(sdkRoot, "platforms").listFiles().find { File file -> new File(file, "android.jar").exists() }
-        logger.debug("$name: platformRoot: $platformRoot.absolutePath")
+        logger.debug("platformRoot: $platformRoot.absolutePath")
 
         String d8Name = System.getenv("OS") == "Windows_NT" ? "d8.bat" : "d8"
-        logger.debug("$name: d8Name: $d8Name")
+        logger.debug("d8Name: $d8Name")
         var buildToolsRoot = new File(sdkRoot, "build-tools").listFiles().find { File file -> new File(file, d8Name).exists() }
-        logger.debug("$name: buildToolsRoot: $buildToolsRoot.absolutePath")
+        logger.debug("buildToolsRoot: $buildToolsRoot.absolutePath")
 
         if (!platformRoot || !buildToolsRoot)
             throw new GradleException("" +
@@ -95,14 +95,15 @@ class DexTask extends DefaultTask {
                 + project.configurations.runtimeClasspath.asList()
                 + new File(platformRoot, "android.jar")).each { path -> dependencies += "--classpath $path.absolutePath " }
 
-        logger.debug("$name: dependencies: $dependencies")
+        logger.debug("dependencies: $dependencies")
 
-        logger.debug("$name: d8 start")
+        logger.debug("d8 start")
 
+        var stream = new StringBuilder()
         var exitCode = ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
                 " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).with {self ->
-            Thread tout = self.consumeProcessOutputStream System.out
-            Thread terr = self.consumeProcessErrorStream System.err
+            Thread tout = self.consumeProcessOutputStream stream
+            Thread terr = self.consumeProcessErrorStream stream
             var interrupted = false
             try {
                 try {
@@ -133,11 +134,9 @@ class DexTask extends DefaultTask {
         }
 
         if (exitCode != 0) {
-            logger.error("$name: d8 ended with exit code $exitCode")
-
+            logger.error("${stream.toString()}\nd8 ended with exit code $exitCode")
             if (dexFile.get().asFile.exists()) project.delete dexFile
-
             throw new GradleException("Failed to compile dex file.")
-        } else logger.debug("$name: d8 ended with exit code $exitCode")
+        } else logger.debug("${stream.toString()}\nd8 ended with exit code $exitCode")
     }
 }

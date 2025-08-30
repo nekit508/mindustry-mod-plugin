@@ -20,10 +20,6 @@ class BuildSourcesTask extends Jar {
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/sources.jar")
 
             from project.sourceSets.main.allSource
-
-            logger.lifecycle( project.tasks.sourcesJar as String)
-            project.tasks.sourcesJar.dependsOn this
-            project.tasks.sourcesJar.from this
         }
     }
 }

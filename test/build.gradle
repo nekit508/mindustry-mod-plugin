@@ -21,24 +21,12 @@ apply plugin: "maven-publish"
 
 nmp.core project, "core"
 
+group = modGroup
+
 var isLib = true
 
 core.configure {
-    if (isLib) {
-        java {
-            withSourcesJar()
-            withJavadocJar()
-        }
-
-        publishing {
-            publications {
-                library(MavenPublication) {
-                    from components.java
-                }
-            }
-        }
-    }
-    genericModInit(isLib)
+    genericModInit(isLib, group)
 
     core.configureTasks {
         nmpGenerateModInfo { GenerateModInfoTask task ->
@@ -53,8 +41,8 @@ core.configure {
 }
 
 core.settings {
-    modName.set prop("modName") as String
-    modGroup.set prop("modGroup") as String
+    modName.set name
+    modGroup.set group as String
     modVersion.set prop("modVersion") as String
     mindustryVersion.set prop("mindustryVersion") as String
     generateModInfo.set true

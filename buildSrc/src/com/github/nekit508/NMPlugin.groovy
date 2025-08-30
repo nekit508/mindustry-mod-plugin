@@ -6,8 +6,10 @@ import com.github.nekit508.extensions.NMPluginCoreExtension
 import com.github.nekit508.extensions.NMPluginExtension
 
 import com.github.nekit508.extensions.NMPluginToolsExtension
+import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.plugins.UnknownPluginException
 
 class NMPlugin implements Plugin<Project> {
     final Set<Project> evaluatedProjects = new LinkedHashSet<>()
@@ -102,17 +104,26 @@ class NMPlugin implements Plugin<Project> {
     NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) { new NMPluginAnnoExtension(name, project, this, core) }
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
 
-    void configureProjectDataForJitpackBuilding() {
+    void configureProjectDataForJitpackBuilding(String group) {
         project.allprojects { Project p ->
             var path = p.path
-            var forcedGroup = path.length() == 1 ? property("group") : ("$p.parent.group.$p.parent.name")
+            var forcedGroup = path.length() == 1 ? group : ("$p.parent.group.$p.parent.name")
+            var isJitpackBuild = Boolean.parseBoolean(System.getenv("JITPACK") ?: "false")
 
-            if (rootProject.ext.isJitpackBuild) {
+            if (isJitpackBuild) {
                 p.version = System.getenv("VERSION")
                 p.group = forcedGroup
 
-                println """$p info:\n    is jitpack build: $rootProject.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
+                println """jitpack build info $p\n    version: $p.version\n    group: $p.group"""
             }
+        }
+    }
+
+    void requirePlugin(Project project, String pluginId) {
+        try {
+            var p = project.plugins.getPlugin(pluginId)
+        } catch (UnknownPluginException ignored) {
+            throw new GradleException("Required plugin $pluginId was not founded in project $project")
         }
     }
 }
