@@ -1,6 +1,6 @@
-package com.github.nekit508.tasks.core
+package com.github.nekit508.nmp.tasks.core
 
-import com.github.nekit508.extensions.NMPluginCoreExtension
+import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Task

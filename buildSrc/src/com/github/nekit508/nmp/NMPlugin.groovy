@@ -1,9 +1,9 @@
-package com.github.nekit508
+package com.github.nekit508.nmp
 
-import com.github.nekit508.extensions.NMPluginAnnoExtension
-import com.github.nekit508.extensions.NMPluginCoreExtension
-import com.github.nekit508.extensions.NMPluginExtension
-import com.github.nekit508.extensions.NMPluginToolsExtension
+import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
+import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
+import com.github.nekit508.nmp.extensions.NMPluginExtension
+import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import groovy.json.JsonSlurper
 
 import org.gradle.api.GradleException

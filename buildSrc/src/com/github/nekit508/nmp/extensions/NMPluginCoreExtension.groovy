@@ -1,9 +1,7 @@
-package com.github.nekit508.extensions
+package com.github.nekit508.nmp.extensions
 
-import com.github.nekit508.NMPlugin
-import com.github.nekit508.tasks.FetchTask
-import com.github.nekit508.tasks.TasksQueue
-import com.github.nekit508.tasks.core.*
+import com.github.nekit508.nmp.NMPlugin
+import com.github.nekit508.nmp.tasks.TasksQueue
 import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
@@ -14,6 +12,7 @@ import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.compile.JavaCompile
+import com.github.nekit508.nmp.tasks.core.*
 
 class NMPluginCoreExtension extends NMPluginExtension {
     Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion
@@ -204,9 +203,11 @@ class NMPluginCoreExtension extends NMPluginExtension {
                 }
             }
 
+
             tasks.jar.dependsOn tasks.nmpBuildLibrary
             tasks.jar.from zipTree(tasks.nmpBuildLibrary.archiveFile.get())
             tasks.jar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+
 
             tasks.sourcesJar.dependsOn tasks.nmpBuildSources
             tasks.sourcesJar.from zipTree(tasks.nmpBuildSources.archiveFile.get())

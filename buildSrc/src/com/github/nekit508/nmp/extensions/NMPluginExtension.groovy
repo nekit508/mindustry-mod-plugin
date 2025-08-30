@@ -1,11 +1,9 @@
-package com.github.nekit508.extensions
+package com.github.nekit508.nmp.extensions
 
-import com.github.nekit508.NMPlugin
+import com.github.nekit508.nmp.NMPlugin
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.tasks.TaskContainer
-import org.gradle.api.tasks.compile.JavaCompile
 import org.gradle.util.internal.ConfigureUtil
 
 abstract class NMPluginExtension {

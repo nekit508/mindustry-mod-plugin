@@ -1,13 +1,14 @@
-package com.github.nekit508.tasks.core
+package com.github.nekit508.nmp.tasks.core
 
-import com.github.nekit508.extensions.NMPluginCoreExtension
-import com.github.nekit508.tasks.FileFetchTask
+import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
+import com.github.nekit508.nmp.tasks.FileFetchTask
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
+import org.gradle.internal.hash.HashCode
 
 import javax.inject.Inject
 

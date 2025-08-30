@@ -1,4 +1,4 @@
-package com.github.nekit508.tasks
+package com.github.nekit508.nmp.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
