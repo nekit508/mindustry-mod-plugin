@@ -7,6 +7,7 @@ import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.maven.MavenPublication
@@ -193,11 +194,13 @@ class NMPluginCoreExtension extends NMPluginExtension {
                 }
             }
 
-            tasks.jar.from tasks.nmpBuildLibrary
             tasks.jar.dependsOn tasks.nmpBuildLibrary
+            tasks.jar.from zipTree(tasks.nmpBuildLibrary.archiveFile.get())
+            tasks.jar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
 
-            tasks.sourcesJar.from tasks.nmpBuildSources
             tasks.sourcesJar.dependsOn tasks.nmpBuildSources
+            tasks.sourcesJar.from zipTree(tasks.nmpBuildSources.archiveFile.get())
+            tasks.sourcesJar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
         }
     }
 

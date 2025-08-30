@@ -21,7 +21,7 @@ class BuildLibraryTask extends Jar {
 
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/library.jar")
 
-            from project.tasks.nmpBuild
+            from project.zipTree(project.tasks.nmpBuild.archiveFile.get())
         }
     }
 }
