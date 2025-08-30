@@ -38,9 +38,10 @@ abstract class NMPluginExtension {
 
     boolean checkSettings(Closure closure) {
         if (!nmp.settingsConf) {
-            if (ignoreWrongMethodCalls)
+            if (ignoreWrongMethodCalls) {
                 settingsActions.add () -> closure()
-            else
+                attachedProject.logger.warn "Held inappropriate settings method in extension $this"
+            } else
                 throw new Exception("Settings cannot be adjusted outside settings closure")
             return true
         }
@@ -51,7 +52,7 @@ abstract class NMPluginExtension {
         if (!nmp.configureConf) {
             if (ignoreWrongMethodCalls) {
                 configureActions.add () -> closure()
-                println "Held inappropriate method in extension $this"
+                attachedProject.logger.warn "Held inappropriate configuration method in extension $this"
                 return true
             } else
                 throw new Exception("Configuration methods cannot be executed outside configure closure")

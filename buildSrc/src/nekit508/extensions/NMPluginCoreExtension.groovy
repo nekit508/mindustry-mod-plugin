@@ -1,16 +1,16 @@
-package nekit508.extensions
+package com.github.nekit508.extensions
 
-import nekit508.NMPlugin
-import nekit508.tasks.core.BuildReleaseTask
-import nekit508.tasks.core.BuildTask
-import nekit508.tasks.core.CopyBuildReleaseTask
-import nekit508.tasks.core.DexTask
-import nekit508.tasks.core.GenerateModInfoTask
+import com.github.nekit508.NMPlugin
+import com.github.nekit508.tasks.core.*
+import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
+import org.gradle.api.artifacts.Dependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPluginCoreExtension extends NMPluginExtension {
@@ -19,6 +19,8 @@ class NMPluginCoreExtension extends NMPluginExtension {
     Property<JavaVersion> sourceCompatibility
     ListProperty<File> srcDirs, resDirs
     Property<File> genDir
+
+    Property<String> mavenPublishPluginName, javaLibraryPluginName
 
     NMPluginCoreExtension(String name, Project project, NMPlugin plugin) {
         super(name, project, plugin)
@@ -54,27 +56,63 @@ class NMPluginCoreExtension extends NMPluginExtension {
         resDirs = factory.listProperty File
         genDir = factory.property File
 
+        mavenPublishPluginName = factory.property String
+        javaLibraryPluginName = factory.property String
+
         settings {
             genDir.set attachedProject.file("gen")
             resDirs.add attachedProject.file("res")
             srcDirs.add attachedProject.file("src")
             sourceCompatibility.set JavaVersion.VERSION_20
-            generateModInfo.set false
+            generateModInfo.set true
             jabelVersion.set "1.0.1-1"
             mindustryVersion.set "v146"
+
+            mavenPublishPluginName.set "maven-publish"
+            javaLibraryPluginName.set "java-library"
         }
     }
 
-    void initTasks() {
+    // TODO remove this boolean after some minor releases
+    private boolean initedGenericTasks = false;
+    void initGenericTasks() {
+        if (checkConfigure(this::initGenericTasks)) return
+
         attachedProject.tasks.register "nmpBuild", BuildTask, this
         attachedProject.tasks.register "nmpDex", DexTask, this
+
+        initedGenericTasks = true
+    }
+
+    void initModTasks() {
+        if (checkConfigure(this::initModTasks)) return
+
         attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
         attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
         attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
     }
 
+    @Deprecated(forRemoval = true)
+    void initTasks() {
+        if (checkConfigure(this::initTasks)) return
+
+        if (!initedGenericTasks)
+            initGenericTasks()
+
+        initModTasks()
+
+        attachedProject.logger.error("Legacy tasks initialisation will be removed in feature. Instead execute initGenericTasks() and initModTasks().")
+    }
+
+    void initLibraryTasks() {
+        if (checkConfigure this::initLibraryTasks) return
+
+        attachedProject.tasks.register "nmpBuildSources", BuildSourcesTask, this
+        attachedProject.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
+    }
+
     void configureCompileTask() {
-        if (checkConfigure(this::configureCompileTask)) return
+        if (checkConfigure this::configureCompileTask) return
 
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.options.encoding = "UTF-8"
@@ -109,7 +147,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void setupJabel() {
-        if (checkConfigure(this::setupJabel)) return
+        if (checkConfigure this::setupJabel) return
 
         attachedProject.tasks.compileJava { JavaCompile task ->
             task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
@@ -128,7 +166,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void modBaseDependencies() {
-        if (checkConfigure(this::modBaseDependencies)) return
+        if (checkConfigure this::modBaseDependencies) return
 
         attachedProject.dependencies { DependencyHandler handler ->
             handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
@@ -136,10 +174,60 @@ class NMPluginCoreExtension extends NMPluginExtension {
         }
     }
 
-    void genericInit() {
+    void configureMavenPublishing() {
+        if (checkConfigure this::configureMavenPublishing) return
+
+        attachedProject.with {
+            nmp.requirePlugin attachedProject, mavenPublishPluginName.get()
+            nmp.requirePlugin attachedProject, javaLibraryPluginName.get()
+
+            java {
+                withSourcesJar()
+                withJavadocJar()
+            }
+
+            publishing {
+                publications {
+                    library(MavenPublication) {
+                        from components.java
+                    }
+                }
+            }
+
+            tasks.jar.dependsOn tasks.nmpBuildLibrary
+            tasks.jar.from zipTree(tasks.nmpBuildLibrary.archiveFile.get())
+            tasks.jar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+
+            tasks.sourcesJar.dependsOn tasks.nmpBuildSources
+            tasks.sourcesJar.from zipTree(tasks.nmpBuildSources.archiveFile.get())
+            tasks.sourcesJar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+        }
+    }
+
+    void genericModInit(boolean isLibrary = false, String group = null) {
+        if (checkConfigure () -> genericModInit(isLibrary, group)) return
+
         configureCompileTask()
         setupJabel()
         modBaseDependencies()
-        initTasks()
+
+        initGenericTasks()
+        initModTasks()
+
+        if (isLibrary) {
+            if (group == null)
+                new GradleException("group must be specified with isLibrary = true.")
+            initLibraryTasks()
+            nmp.configureProjectDataForJitpackBuilding group
+            configureMavenPublishing()
+        }
+    }
+
+    @Deprecated(forRemoval = true)
+    void genericInit() {
+        if (checkConfigure this::genericInit) return
+
+        genericModInit(false)
+        attachedProject.logger.error("genericInit() will be removed in feature. Use genericModInit() instead.")
     }
 }

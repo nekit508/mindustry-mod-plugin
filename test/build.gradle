@@ -1,7 +1,7 @@
-import nekit508.NMPlugin
-import nekit508.tasks.core.GenerateModInfoTask
+import com.github.nekit508.NMPlugin
+import com.github.nekit508.tasks.core.GenerateModInfoTask
 
-allprojects.each {project ->
+allprojects.each { project ->
     project.repositories {
         mavenCentral()
         mavenLocal()
@@ -16,16 +16,22 @@ allprojects.each {project ->
 }
 
 apply plugin: NMPlugin
+apply plugin: "java-library"
+apply plugin: "maven-publish"
 
 nmp.core project, "core"
 
+group = modGroup
+
+var isLib = true
+
 core.configure {
-    genericInit()
+    genericModInit(isLib, group)
 
     core.configureTasks {
         nmpGenerateModInfo { GenerateModInfoTask task ->
             task.set(
-                    "author": "NaN508",
+                    "author": "NaN",
                     "description": "Test mod.",
                     "repo": "https://github.com/nekit508/mindustry-mod-plugin",
                     "main": "core.Mod"
@@ -35,8 +41,8 @@ core.configure {
 }
 
 core.settings {
-    modName.set prop("modName") as String
-    modGroup.set prop("modGroup") as String
+    modName.set name
+    modGroup.set group as String
     modVersion.set prop("modVersion") as String
     mindustryVersion.set prop("mindustryVersion") as String
     generateModInfo.set true
