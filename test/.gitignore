@@ -1,1 +1,7 @@
+/gen/*
+/build/*
+.idea/
+.gradle/
+/fetchedComps/*
+
 settings/local.json

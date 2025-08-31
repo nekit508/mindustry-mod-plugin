@@ -63,6 +63,10 @@ abstract class NMPluginExtension {
         return false
     }
 
+    Project attachedProject() {
+        attachedProject
+    }
+
     /**
      * This method should be used by {@link com.github.nekit508.extensions.NMPluginExtension#settings(groovy.lang.Closure)}
      * implementation to add settings closure in query.

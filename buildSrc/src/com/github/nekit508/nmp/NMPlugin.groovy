@@ -2,6 +2,7 @@ package com.github.nekit508.nmp
 
 import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
+import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import groovy.json.JsonSlurper
@@ -106,6 +107,8 @@ class NMPlugin implements Plugin<Project> {
 
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
 
+    NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginEntityAnnoExtension(name, project, this, core) }
+
     void configureProjectDataForJitpackBuilding(String group) {
         project.allprojects { Project p ->
             var path = p.path
@@ -123,7 +126,7 @@ class NMPlugin implements Plugin<Project> {
 
     void requirePlugin(Project project, String pluginId) {
         try {
-            var p = project.plugins.getPlugin(pluginId)
+            project.plugins.getPlugin(pluginId)
         } catch (UnknownPluginException ignored) {
             throw new GradleException("Required plugin $pluginId was not founded in project $project")
         }

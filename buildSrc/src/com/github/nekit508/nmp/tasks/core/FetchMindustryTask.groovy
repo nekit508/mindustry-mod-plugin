@@ -1,23 +1,22 @@
 package com.github.nekit508.nmp.tasks.core
 
+import com.github.nekit508.nmp.Utils
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
-import com.github.nekit508.nmp.tasks.FileFetchTask
-import org.gradle.api.file.RegularFile
+import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.Property
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
-import org.gradle.api.tasks.OutputDirectory
-import org.gradle.internal.hash.HashCode
+import org.gradle.api.tasks.*
 
 import javax.inject.Inject
 
-class FetchMindustryTask extends FileFetchTask {
+class FetchMindustryTask extends DefaultTask {
     @Internal
     NMPluginCoreExtension ext
 
     @OutputDirectory
     final RegularFileProperty outputDir
+    @OutputFile
+    final Property<File> outputFile
 
     @Input
     final Property<String> mindustryVersion
@@ -35,6 +34,7 @@ class FetchMindustryTask extends FileFetchTask {
 
         mindustryVersion = factory.property String
         outputDir = factory.fileProperty()
+        outputFile = factory.property File
         fileName = factory.property String
         extension = factory.property String
 
@@ -49,23 +49,10 @@ class FetchMindustryTask extends FileFetchTask {
         }
     }
 
-    @Override
+    @TaskAction
     void fetch() {
         logger.lifecycle("Fetching mindustry ${mindustryVersion.get()} into ${outputFile.get().absolutePath}.")
-        super.fetch()
+        Utils.readFile "https://github.com/Anuken/Mindustry/releases/download/${mindustryVersion.get()}/Mindustry.jar", outputFile.get()
         logger.lifecycle("Fetched.")
-    }
-
-    @Override
-    BufferedInputStream resolveInput() {
-        new URI("https://github.com/Anuken/Mindustry/releases/download/${mindustryVersion.get()}/Mindustry.jar").toURL().newInputStream()
-    }
-
-    @Override
-    BufferedOutputStream resolveOutput() {
-        var dir
-        if (outputDir.isPresent() && !(dir = outputDir.get().asFile).exists())
-            dir.mkdirs()
-        return super.resolveOutput()
     }
 }

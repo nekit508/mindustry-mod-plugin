@@ -20,6 +20,7 @@ apply plugin: "java-library"
 apply plugin: "maven-publish"
 
 nmp.core project, "core"
+nmp.entityAnno project, "eanno", core
 
 group = modGroup
 
@@ -47,3 +48,13 @@ core.settings {
     mindustryVersion.set prop("mindustryVersion") as String
     generateModInfo.set true
 }
+
+eanno.settings {
+    genPackage.set "core.gen"
+    entityAnnoVersion.set prop("entityAnnoVersion") as String
+}
+
+eanno.configure {
+    genericInit()
+}
+
