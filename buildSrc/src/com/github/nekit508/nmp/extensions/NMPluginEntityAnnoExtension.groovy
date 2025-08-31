@@ -112,11 +112,8 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
 
         attachedProject.tasks.nmpBuild.configure { BuildTask task ->
             task.exclude { FileTreeElement elem ->
-                var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")
-                compsPackages.each { String packagee ->
-                    if (elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee)) return true
-                }
-                return false
+                var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
+                return compsPackages.any { String packagee -> elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee) }
             }
         }
     }
