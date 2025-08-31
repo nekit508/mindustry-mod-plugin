@@ -4,6 +4,7 @@ import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginExtension
+import com.github.nekit508.nmp.extensions.NMPluginMMCAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import groovy.json.JsonSlurper
 
@@ -108,6 +109,8 @@ class NMPlugin implements Plugin<Project> {
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
 
     NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginEntityAnnoExtension(name, project, this, core) }
+
+    NMPluginMMCAnnoExtension mmcAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginMMCAnnoExtension(name, project, this, core) }
 
     void configureProjectDataForJitpackBuilding(String group) {
         project.allprojects { Project p ->

@@ -151,8 +151,8 @@ class NMPluginCoreExtension extends NMPluginExtension {
             }
         }
 
-        attachedProject.sourceSets.main.java.srcDirs += srcDirs.get()
-        attachedProject.sourceSets.main.resources.srcDirs += resDirs.get()
+        attachedProject.sourceSets.main.java.srcDirs += srcDirs
+        attachedProject.sourceSets.main.resources.srcDirs += resDirs
     }
 
     void setupJabel() {

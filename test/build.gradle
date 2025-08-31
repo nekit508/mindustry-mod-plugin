@@ -21,6 +21,7 @@ apply plugin: "maven-publish"
 
 nmp.core project, "core"
 nmp.entityAnno project, "eanno", core
+nmp.mmcAnno project, "mmcAnno", core
 
 group = modGroup
 
@@ -58,3 +59,13 @@ eanno.configure {
     genericInit()
 }
 
+// TODO AP argument does not works
+/*mmcAnno.settings {
+    mmcVersion.set "v2.0.3b"
+}
+
+mmcAnno.configure {
+    genericInit()
+
+    classPrefix.set "TM"
+}*/

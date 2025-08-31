@@ -1,6 +1,7 @@
 package com.github.nekit508.nmp.extensions
 
 import com.github.nekit508.nmp.NMPlugin
+import com.github.nekit508.nmp.Utils
 import com.github.nekit508.nmp.tasks.core.BuildTask
 import com.github.nekit508.nmp.tasks.entityanno.FetchComponentsTask
 import com.github.nekit508.nmp.tasks.entityanno.ProcessComponentsTask
@@ -9,6 +10,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.file.FileTreeElement
 import org.gradle.api.provider.Property
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPluginEntityAnnoExtension extends NMPluginExtension {
@@ -121,12 +123,15 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     void configureAnnotationProcessor() {
         //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get()
 
-        attachedProject.tasks.named("compileJava") { JavaCompile task ->
-            task.options.compilerArgs.with {
-                add "-AmodName=${core.modName.get()}"
-                add "-AgenPackage=${genPackage.get()}"
-                add "-AfetchPackage=${fetchedCompsPackage.get()}"
-                add "-ArevisionDir=${revisionsDir.get().asFile.absolutePath}"
+        attachedProject.tasks.named("compileJava").configure {
+            doFirst {
+                Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
+                        [
+                                "modName": core.modName.get(),
+                                "genPackage": genPackage.get(),
+                                "fetchPackage": fetchedCompsPackage.get(),
+                                "revisionDir": revisionsDir.get().asFile.absolutePath
+                        ]
             }
         }
     }

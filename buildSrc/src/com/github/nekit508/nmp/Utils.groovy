@@ -1,6 +1,8 @@
 package com.github.nekit508.nmp
 
 import groovy.json.JsonSlurper
+import org.gradle.api.tasks.TaskProvider
+import org.gradle.api.tasks.compile.JavaCompile
 
 class Utils {
     static var json = new JsonSlurper()
@@ -23,5 +25,17 @@ class Utils {
                 output << input
             }
         }
+    }
+
+    static void annotationProcessorArgs(TaskProvider<JavaCompile> provider, Map<String, String> args) {
+        provider.configure { task ->
+            args.each { key, value ->
+                task.options.compilerArgs.add "-A$key=$value"
+            }
+        }
+    }
+
+    static String subpath(String root, String child) {
+        child.substring(root.length(), child.length())
     }
 }
