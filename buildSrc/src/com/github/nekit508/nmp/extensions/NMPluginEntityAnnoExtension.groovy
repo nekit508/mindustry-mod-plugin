@@ -68,31 +68,33 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     }
 
     void genericInit(boolean excludeFetchedComponents = true) {
-        if (checkConfigure this::genericInit) return
+        nmp.configuration() + {
+            initTasks()
+            configureFetchedComps()
+            addEntityAnnoRepo()
+            setupDependencies()
+            configureAnnotationProcessor()
 
-        initTasks()
-        configureFetchedComps()
-        addEntityAnnoRepo()
-        setupDependencies()
-        configureAnnotationProcessor()
-
-        if (excludeFetchedComponents)
-            excludeCompsFromBuild()
+            if (excludeFetchedComponents)
+                excludeCompsFromBuild()
+        }
     }
 
     void initTasks() {
-        if (checkConfigure this::initTasks) return
+        nmp.configuration() + {
+            attachedProject.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
+            attachedProject.tasks.register "nmpeaProcessComps", ProcessComponentsTask, this
 
-        attachedProject.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
-        attachedProject.tasks.register "nmpeaProcessComps", ProcessComponentsTask, this
-
-        attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaFetchComps
-        attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaProcessComps
+            attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaFetchComps
+            attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaProcessComps
+        }
     }
 
     void addEntityAnnoRepo() {
-        attachedProject.repositories {
-            maven { url "https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main" }
+        nmp.configuration() + {
+            attachedProject.repositories {
+                maven { url "https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main" }
+            }
         }
     }
 
@@ -104,34 +106,36 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     }
 
     void configureFetchedComps() {
-        if (checkConfigure this::configureFetchedComps) return
-
-        attachedProject.sourceSets.main.java.srcDirs += fetchedCompsDir
+        nmp.configuration() + {
+            attachedProject.sourceSets.main.java.srcDirs += fetchedCompsDir
+        }
     }
 
     void excludeCompsFromBuild() {
-        if (checkConfigure this::excludeCompsFromBuild) return
-
-        attachedProject.tasks.nmpBuild.configure { BuildTask task ->
-            task.exclude { FileTreeElement elem ->
-                var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
-                return compsPackages.any { String packagee -> elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee) }
+        nmp.configuration() + {
+            attachedProject.tasks.nmpBuild.configure { BuildTask task ->
+                task.exclude { FileTreeElement elem ->
+                    var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
+                    return compsPackages.any { String packagee -> elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee) }
+                }
             }
         }
     }
 
     void configureAnnotationProcessor() {
-        //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get()
+        nmp.configuration() + {
+            //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get()
 
-        attachedProject.tasks.named("compileJava").configure {
-            doFirst {
-                Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
-                        [
-                                "modName": core.modName.get(),
-                                "genPackage": genPackage.get(),
-                                "fetchPackage": fetchedCompsPackage.get(),
-                                "revisionDir": revisionsDir.get().asFile.absolutePath
-                        ]
+            attachedProject.tasks.named("compileJava").configure {
+                doFirst {
+                    Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
+                            [
+                                    "modName"     : core.modName.get(),
+                                    "genPackage"  : genPackage.get(),
+                                    "fetchPackage": fetchedCompsPackage.get(),
+                                    "revisionDir" : revisionsDir.get().asFile.absolutePath
+                            ]
+                }
             }
         }
     }

@@ -62,68 +62,68 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     }
 
     void genericInit() {
-        if (checkConfigure this::genericInit) return
-
-        basicModules()
-        addMMCRepo()
-        setupDependencies()
-        setupCompileJava()
-        setupSourceSets()
+        nmp.configuration() + {
+            basicModules()
+            addMMCRepo()
+            setupDependencies()
+            setupCompileJava()
+            setupSourceSets()
+        }
     }
 
     void addMMCRepo() {
-        if (checkConfigure this::addMMCRepo) return
-
-        attachedProject.repositories {
-            maven { url "https://raw.githubusercontent.com/Zelaux/Repo/master/repository" }
+        nmp.configuration() + {
+            attachedProject.repositories {
+                maven { url "https://raw.githubusercontent.com/Zelaux/Repo/master/repository" }
+            }
         }
     }
 
     void setupDependencies() {
-        if (checkConfigure this::setupDependencies) return
+        nmp.configuration() + {
+            var version = mmcVersion.get()
 
-        var version = mmcVersion.get()
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            this.modules.get().each { module ->
-                var moduleDependency = "com.github.Zelaux.MindustryModCore:annotations-$module:$version"
-                handler.compileOnly moduleDependency
-                handler.annotationProcessor moduleDependency
+            attachedProject.dependencies { DependencyHandler handler ->
+                this.modules.get().each { module ->
+                    var moduleDependency = "com.github.Zelaux.MindustryModCore:annotations-$module:$version"
+                    handler.compileOnly moduleDependency
+                    handler.annotationProcessor moduleDependency
+                }
             }
         }
     }
 
     void setupCompileJava() {
-        if (checkConfigure this::setupCompileJava) return
+        nmp.configuration() + {
+            attachedProject.tasks.named("compileJava").configure { task ->
+                task.doFirst {
+                    attachedProject.delete genRes.get().asFileTree.files
 
-        attachedProject.tasks.named("compileJava").configure { task ->
-            task.doFirst {
-                attachedProject.delete genRes.get().asFileTree.files
-
-                var rootPath = rootDirectory.get().asFile.absolutePath
-                Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
-                        [
-                                "rootDirectory": rootPath,
-                                "assetsPath": Utils.subpath(rootPath, genRes.get().asFile.absolutePath),
-                                "assetsRawPath": Utils.subpath(rootPath, rawRes.get().asFile.absolutePath),
-                                "rootPackage": Utils.subpath(rootPath, rootDirectory.get().asFile.absolutePath),
-                                "modInfoPath": Utils.subpath(rootPath, modInfoPath.get().asFile.absolutePath),
-                                "revisionsPath": Utils.subpath(rootPath, revisionsPath.get().asFile.absolutePath),
-                                "classPrefix": classPrefix.get()
-                        ]
+                    var rootPath = rootDirectory.get().asFile.absolutePath
+                    Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
+                            [
+                                    "rootDirectory": rootPath,
+                                    "assetsPath"   : Utils.subpath(rootPath, genRes.get().asFile.absolutePath),
+                                    "assetsRawPath": Utils.subpath(rootPath, rawRes.get().asFile.absolutePath),
+                                    "rootPackage"  : Utils.subpath(rootPath, rootDirectory.get().asFile.absolutePath),
+                                    "modInfoPath"  : Utils.subpath(rootPath, modInfoPath.get().asFile.absolutePath),
+                                    "revisionsPath": Utils.subpath(rootPath, revisionsPath.get().asFile.absolutePath),
+                                    "classPrefix"  : classPrefix.get()
+                            ]
+                }
             }
         }
     }
 
     void setupSourceSets() {
-        if (checkConfigure this::setupSourceSets) return
-
-        attachedProject.sourceSets.main.resources.srcDirs += genRes
+        nmp.configuration() + {
+            attachedProject.sourceSets.main.resources.srcDirs += genRes
+        }
     }
 
     void basicModules() {
-        if (checkConfigure this::basicModules) return
-
-        modules.addAll "load", "remote", "logic", "assets", "struct", "serialize"
+        nmp.configuration() + {
+            modules.addAll "load", "remote", "logic", "assets", "struct", "serialize"
+        }
     }
 }

@@ -77,168 +77,172 @@ class NMPluginCoreExtension extends NMPluginExtension {
     // TODO remove this boolean after some minor releases
     private boolean initedGenericTasks = false;
     void initGenericTasks() {
-        if (checkConfigure(this::initGenericTasks)) return
+        nmp.configuration() + {
+            attachedProject.tasks.register "nmpBuild", BuildTask, this
+            attachedProject.tasks.register "nmpDex", DexTask, this
 
-        attachedProject.tasks.register "nmpBuild", BuildTask, this
-        attachedProject.tasks.register "nmpDex", DexTask, this
-
-        initedGenericTasks = true
+            initedGenericTasks = true
+        }
     }
 
     void initModTasks() {
-        if (checkConfigure(this::initModTasks)) return
+        nmp.configuration() + {
+            attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
+            attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
+            attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
 
-        attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
-        attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-        attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+            attachedProject.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
+            attachedProject.tasks.register "nmpRunMindustry", RunMindustry, this
 
-        attachedProject.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
-        attachedProject.tasks.register "nmpRunMindustry", RunMindustry, this
-
-        attachedProject.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
-                attachedProject.tasks.nmpCopyBuildRelease,
-                attachedProject.tasks.nmpRunMindustry
+            attachedProject.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
+                    attachedProject.tasks.nmpCopyBuildRelease,
+                    attachedProject.tasks.nmpRunMindustry
+            }
         }
     }
 
     @Deprecated(forRemoval = true)
     void initTasks() {
-        if (checkConfigure(this::initTasks)) return
+        nmp.configuration() + {
+            if (!initedGenericTasks)
+                initGenericTasks()
 
-        if (!initedGenericTasks)
-            initGenericTasks()
+            initModTasks()
 
-        initModTasks()
-
-        attachedProject.logger.error("Legacy tasks initialisation will be removed in feature. Instead execute initGenericTasks() and initModTasks().")
+            attachedProject.logger.error("Legacy tasks initialisation will be removed in feature. Instead execute initGenericTasks() and initModTasks().")
+        }
     }
 
     void initLibraryTasks() {
-        if (checkConfigure this::initLibraryTasks) return
-
-        attachedProject.tasks.register "nmpBuildSources", BuildSourcesTask, this
-        attachedProject.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
+        nmp.configuration() + {
+            attachedProject.tasks.register "nmpBuildSources", BuildSourcesTask, this
+            attachedProject.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
+        }
     }
 
     void configureCompileTask() {
-        if (checkConfigure this::configureCompileTask) return
+        nmp.configuration() + {
+            attachedProject.tasks.compileJava { JavaCompile task ->
+                task.options.encoding = "UTF-8"
+                task.options.generatedSourceOutputDirectory.set genDir.get()
 
-        attachedProject.tasks.compileJava { JavaCompile task ->
-            task.options.encoding = "UTF-8"
-            task.options.generatedSourceOutputDirectory.set genDir.get()
+                task.options.forkOptions.jvmArgs += [
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+                        "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
+                ]
 
-            task.options.forkOptions.jvmArgs += [
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
-            ]
+                task.doFirst {
+                    attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
 
-            task.doFirst {
-                attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
-
-                task.options.compilerArgs = task.options.compilerArgs.findAll {
-                    it != "--enable-preview"
-                }
-            }
-        }
-
-        attachedProject.sourceSets.main.java.srcDirs += srcDirs
-        attachedProject.sourceSets.main.resources.srcDirs += resDirs
-    }
-
-    void setupJabel() {
-        if (checkConfigure this::setupJabel) return
-
-        attachedProject.tasks.compileJava { JavaCompile task ->
-            task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
-
-            task.options.compilerArgs = [
-                    "--release", "8",
-                    "--enable-preview",
-                    "-Xlint:-options"
-            ]
-        }
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
-            handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
-        }
-    }
-
-    void modBaseDependencies() {
-        if (checkConfigure this::modBaseDependencies) return
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
-            handler.add "compileOnly", nmp.arcDependency(mindustryVersion.get())
-        }
-    }
-
-    void configureMavenPublishing() {
-        if (checkConfigure this::configureMavenPublishing) return
-
-        attachedProject.with {
-            nmp.requirePlugin attachedProject, mavenPublishPluginName.get()
-            nmp.requirePlugin attachedProject, javaLibraryPluginName.get()
-
-            java {
-                withSourcesJar()
-                withJavadocJar()
-            }
-
-            publishing {
-                publications {
-                    library(MavenPublication) {
-                        from components.java
+                    task.options.compilerArgs = task.options.compilerArgs.findAll {
+                        it != "--enable-preview"
                     }
                 }
             }
 
+            attachedProject.sourceSets.main.java.srcDirs += srcDirs
+            attachedProject.sourceSets.main.resources.srcDirs += resDirs
+        }
+    }
 
-            tasks.jar.dependsOn tasks.nmpBuildLibrary
-            tasks.jar.from zipTree(tasks.nmpBuildLibrary.archiveFile.get())
-            tasks.jar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+    void setupJabel() {
+        nmp.configuration() + {
+
+            attachedProject.tasks.compileJava { JavaCompile task ->
+                task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
+
+                task.options.compilerArgs = [
+                        "--release", "8",
+                        "--enable-preview",
+                        "-Xlint:-options"
+                ]
+            }
+
+            attachedProject.dependencies { DependencyHandler handler ->
+                handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+                handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+            }
+        }
+    }
+
+    void modBaseDependencies() {
+        nmp.configuration() + {
+
+            attachedProject.dependencies { DependencyHandler handler ->
+                handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
+                handler.add "compileOnly", nmp.arcDependency(mindustryVersion.get())
+            }
+        }
+    }
+
+    void configureMavenPublishing() {
+        nmp.configuration() + {
+
+            attachedProject.with {
+                nmp.requirePlugin attachedProject, mavenPublishPluginName.get()
+                nmp.requirePlugin attachedProject, javaLibraryPluginName.get()
+
+                java {
+                    withSourcesJar()
+                    withJavadocJar()
+                }
+
+                publishing {
+                    publications {
+                        library(MavenPublication) {
+                            from components.java
+                        }
+                    }
+                }
 
 
-            tasks.sourcesJar.dependsOn tasks.nmpBuildSources
-            tasks.sourcesJar.from zipTree(tasks.nmpBuildSources.archiveFile.get())
-            tasks.sourcesJar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+                tasks.jar.dependsOn tasks.nmpBuildLibrary
+                tasks.jar.from zipTree(tasks.nmpBuildLibrary.archiveFile.get())
+                tasks.jar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+
+
+                tasks.sourcesJar.dependsOn tasks.nmpBuildSources
+                tasks.sourcesJar.from zipTree(tasks.nmpBuildSources.archiveFile.get())
+                tasks.sourcesJar.setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
+            }
         }
     }
 
     void genericModInit(boolean isLibrary = false, String group = null) {
-        if (checkConfigure () -> genericModInit(isLibrary, group)) return
+        nmp.configuration() + {
 
-        configureCompileTask()
-        setupJabel()
-        modBaseDependencies()
+            configureCompileTask()
+            setupJabel()
+            modBaseDependencies()
 
-        initGenericTasks()
-        initModTasks()
+            initGenericTasks()
+            initModTasks()
 
-        if (isLibrary) {
-            if (group == null)
-                new GradleException("group must be specified with isLibrary = true.")
-            initLibraryTasks()
-            nmp.configureProjectDataForJitpackBuilding group
-            configureMavenPublishing()
+            if (isLibrary) {
+                if (group == null)
+                    new GradleException("group must be specified with isLibrary = true.")
+                initLibraryTasks()
+                nmp.configureProjectDataForJitpackBuilding group
+                configureMavenPublishing()
+            }
         }
     }
 
     @Deprecated(forRemoval = true)
     void genericInit() {
-        if (checkConfigure this::genericInit) return
-
-        genericModInit(false)
-        attachedProject.logger.error("genericInit() will be removed in feature. Use genericModInit() instead.")
+        nmp.configuration() + {
+            genericModInit(false)
+            attachedProject.logger.error("genericInit() will be removed in feature. Use genericModInit() instead.")
+        }
     }
 }

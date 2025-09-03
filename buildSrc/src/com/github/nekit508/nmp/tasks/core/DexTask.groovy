@@ -14,9 +14,11 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
 import javax.inject.Inject
 
+@DisableCachingByDefault
 class DexTask extends DefaultTask {
     @Internal
     NMPluginCoreExtension ext

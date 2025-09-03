@@ -6,6 +6,7 @@ import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginExtension
 import com.github.nekit508.nmp.extensions.NMPluginMMCAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
+import com.github.nekit508.nmp.lib.ScheduledActionsList
 import groovy.json.JsonSlurper
 
 import org.gradle.api.GradleException
@@ -22,6 +23,8 @@ class NMPlugin implements Plugin<Project> {
     Project project
 
     Map<String, Object> local = new LinkedHashMap<>()
+
+    protected ScheduledActionsList initialisation, adjustment, configuration
 
     /** Do not set manually. */
     boolean configureConf = false, settingsConf = false
@@ -41,6 +44,22 @@ class NMPlugin implements Plugin<Project> {
                     afterConfigure()
             }
         }
+
+        initialisation = new ScheduledActionsList()
+        adjustment = new ScheduledActionsList()
+        configuration = new ScheduledActionsList()
+    }
+
+    ScheduledActionsList initialisation() {
+        initialisation
+    }
+
+    ScheduledActionsList setting() {
+        adjustment
+    }
+
+    ScheduledActionsList configuration() {
+        configuration
     }
 
     void parseSettings() {
@@ -51,42 +70,9 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void afterConfigure() {
-        if (configured) {
-            println "afterConfigure executed not first time!"
-            return
-        }
-
-        List<Runnable> settingsActions = new LinkedList<>(), configureActions = new LinkedList<>()
-
-        while (true) {
-            for (final def ext in extensions)
-                settingsActions.addAll ext.popSettingsActions()
-
-            if (settingsActions.empty)
-                break
-
-            settingsConf = true
-            settingsActions*.run()
-            settingsConf = false
-
-            settingsActions.clear()
-        }
-
-        while (true) {
-            for (final def ext in extensions)
-                configureActions.addAll ext.popConfigureActions()
-
-            if (configureActions.empty)
-                break
-
-            configureConf = true
-            configureActions*.run()
-            configureConf = false
-
-            configureActions.clear()
-        }
-
-        configured = true
+        initialisation().schedule()
+        setting().schedule()
+        configuration().schedule()
     }
 
     String mindustryDependency(String version, String module = "core") {

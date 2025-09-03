@@ -35,72 +35,73 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     }
 
     void configureCompileTask() {
-        if (checkConfigure(this::configureCompileTask)) return
+        nmp.configuration() + {
 
-        attachedProject.tasks.compileJava { JavaCompile task ->
-            task.options.encoding = "UTF-8"
-            task.options.generatedSourceOutputDirectory.set genDir.get()
+            attachedProject.tasks.compileJava { JavaCompile task ->
+                task.options.encoding = "UTF-8"
+                task.options.generatedSourceOutputDirectory.set genDir.get()
 
-            task.options.forkOptions.jvmArgs += [
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
-                    "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                    "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
-            ]
+                task.options.forkOptions.jvmArgs += [
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
+                        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
+                        "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
+                ]
 
-            task.doFirst {
-                attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
+                task.doFirst {
+                    attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
 
-                task.options.compilerArgs = task.options.compilerArgs.findAll {
-                    it != "--enable-preview"
+                    task.options.compilerArgs = task.options.compilerArgs.findAll {
+                        it != "--enable-preview"
+                    }
                 }
             }
-        }
 
-        attachedProject.sourceSets.main.java.srcDirs += srcDirs.get()
-        attachedProject.sourceSets.main.resources.srcDirs += resDirs.get()
+            attachedProject.sourceSets.main.java.srcDirs += srcDirs.get()
+            attachedProject.sourceSets.main.resources.srcDirs += resDirs.get()
+        }
     }
 
     void setupJabel() {
-        if (checkConfigure(this::setupJabel)) return
+        nmp.configuration() + {
+            attachedProject.tasks.compileJava { JavaCompile task ->
+                task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
-        attachedProject.tasks.compileJava { JavaCompile task ->
-            task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
+                task.options.compilerArgs = [
+                        "--release", "8",
+                        "--enable-preview",
+                        "-Xlint:-options"
+                ]
+            }
 
-            task.options.compilerArgs = [
-                    "--release", "8",
-                    "--enable-preview",
-                    "-Xlint:-options"
-            ]
-        }
-
-        attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
-            handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+            attachedProject.dependencies { DependencyHandler handler ->
+                handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+                handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
+            }
         }
     }
 
     void setupDependencies() {
-        if (checkConfigure(this::setupDependencies)) return
-
-        core.attachedProject.dependencies { DependencyHandler handler ->
-            handler.add "compileOnly", attachedProject
-            handler.add "annotationProcessor", attachedProject
+        nmp.configuration() + {
+            core.attachedProject.dependencies { DependencyHandler handler ->
+                handler.add "compileOnly", attachedProject
+                handler.add "annotationProcessor", attachedProject
+            }
         }
     }
 
     void initTasks() {
-        if (checkConfigure(this::initTasks)) return
-
-        attachedProject.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
+        nmp.configuration() + {
+            attachedProject.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
+        }
     }
 
     void genericInit() {
