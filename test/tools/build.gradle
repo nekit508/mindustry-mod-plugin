@@ -1,6 +1,6 @@
 nmp.tools(project, "tools", nmp.project.core)
 
-tools.configure {
+tools.with {
     genericInit()
 
     configureTasks {
@@ -10,6 +10,8 @@ tools.configure {
     }
 }
 
-dependencies {
-    implementation(nmp.arcDependency "v146", "arc-core")
+nmp.configuration {
+    dependencies {
+        implementation(nmp.arcDependency tools.core.mindustryVersion.get(), "arc-core")
+    }
 }

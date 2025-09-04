@@ -1,4 +1,4 @@
-package com.github.nekit508.nmp
+package com.github.nekit508.nmp.lib
 
 import groovy.json.JsonSlurper
 import org.gradle.api.tasks.TaskProvider

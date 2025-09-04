@@ -1,6 +1,6 @@
-nmp.anno(project, "anno", nmp.project.core)
+nmp.anno project, "anno", nmp.project.core
 
-anno.configure {
+anno.with {
     genericInit()
 
     configureTasks {

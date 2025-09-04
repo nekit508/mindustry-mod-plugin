@@ -36,7 +36,7 @@ abstract class NMPluginExtension {
 
     @Deprecated(forRemoval = true)
     protected void settingsI(Closure cl) {
-        nmp.setting() + () -> ConfigureUtil.configureSelf cl, this
+        nmp.setting () -> ConfigureUtil.configureSelf cl, this
     }
 
     @Deprecated(forRemoval = true)
@@ -44,14 +44,14 @@ abstract class NMPluginExtension {
 
     @Deprecated(forRemoval = true)
     protected void configureI(Closure cl) {
-        nmp.configuration() + () -> ConfigureUtil.configureSelf cl, this
+        nmp.configuration () -> ConfigureUtil.configureSelf cl, this
     }
 
     @Deprecated(forRemoval = true)
     abstract <T> T configure(Closure closure)
 
     void configureTasks(@DelegatesTo(TaskContainer) Closure closure) {
-        nmp.configuration() + () -> ConfigureUtil.configureSelf closure, attachedProject.tasks
+        nmp.setting () -> ConfigureUtil.configureSelf closure, attachedProject.tasks
     }
 
     /** There you can initialize all your properties. */

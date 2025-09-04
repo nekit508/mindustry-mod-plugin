@@ -1,7 +1,7 @@
 package com.github.nekit508.nmp.extensions
 
 import com.github.nekit508.nmp.NMPlugin
-import com.github.nekit508.nmp.Utils
+import com.github.nekit508.nmp.lib.Utils
 import com.github.nekit508.nmp.tasks.core.BuildTask
 import com.github.nekit508.nmp.tasks.entityanno.FetchComponentsTask
 import com.github.nekit508.nmp.tasks.entityanno.ProcessComponentsTask
@@ -57,7 +57,7 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
         fetchedCompsDir = factory.directoryProperty()
         modCompsPackage = factory.property String
 
-        settings {
+        nmp.setting {
             //kotlinKaptPluginName.set "kotlin-kapt"
 
             fetchedCompsPackage.set attachedProject.provider { "${genPackage.get()}.comps.fetched" }
@@ -67,24 +67,24 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
         }
     }
 
-    void genericInit(boolean excludeFetchedComponents = true) {
-        nmp.configuration() + {
-            initTasks()
-            configureFetchedComps()
-            addEntityAnnoRepo()
-            setupDependencies()
-            configureAnnotationProcessor()
+    void genericInit(boolean excludeComponents = true) {
+        initTasks()
+        addFetchedCompsToSourceSets()
+        addEntityAnnoRepo()
+        setupDependencies()
+        configureAnnotationProcessor()
 
-            if (excludeFetchedComponents)
-                excludeCompsFromBuild()
-        }
+        if (excludeComponents)
+            excludeCompsFromBuild()
     }
 
     void initTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             attachedProject.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
             attachedProject.tasks.register "nmpeaProcessComps", ProcessComponentsTask, this
+        }
 
+        nmp.configuration {
             attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaFetchComps
             attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaProcessComps
         }
@@ -99,20 +99,22 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     }
 
     void setupDependencies() {
-        attachedProject.dependencies { handler ->
-            handler.compileOnly "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}"
-            handler.annotationProcessor "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}" // TODO use kapt
+        nmp.configuration {
+            attachedProject.dependencies { handler ->
+                handler.compileOnly "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}"
+                handler.annotationProcessor "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}" // TODO use kapt
+            }
         }
     }
 
-    void configureFetchedComps() {
-        nmp.configuration() + {
+    void addFetchedCompsToSourceSets() {
+        nmp.configuration {
             attachedProject.sourceSets.main.java.srcDirs += fetchedCompsDir
         }
     }
 
     void excludeCompsFromBuild() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.nmpBuild.configure { BuildTask task ->
                 task.exclude { FileTreeElement elem ->
                     var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
@@ -123,7 +125,7 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     }
 
     void configureAnnotationProcessor() {
-        nmp.configuration() + {
+        nmp.configuration {
             //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get()
 
             attachedProject.tasks.named("compileJava").configure {

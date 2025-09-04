@@ -1,6 +1,6 @@
 package com.github.nekit508.nmp.tasks.core
 
-import com.github.nekit508.nmp.Utils
+import com.github.nekit508.nmp.lib.Utils
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty

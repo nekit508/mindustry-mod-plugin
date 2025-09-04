@@ -16,7 +16,6 @@ import org.gradle.api.plugins.UnknownPluginException
 
 class NMPlugin implements Plugin<Project> {
     final Set<Project> evaluatedProjects = new LinkedHashSet<>()
-    private boolean configured = false
 
     final List<NMPluginExtension> extensions = new LinkedList<>()
 
@@ -25,9 +24,6 @@ class NMPlugin implements Plugin<Project> {
     Map<String, Object> local = new LinkedHashMap<>()
 
     protected ScheduledActionsList initialisation, adjustment, configuration
-
-    /** Do not set manually. */
-    boolean configureConf = false, settingsConf = false
 
     @Override
     void apply(Project target) {
@@ -61,6 +57,19 @@ class NMPlugin implements Plugin<Project> {
     ScheduledActionsList configuration() {
         configuration
     }
+
+    ScheduledActionsList initialisation(Closure closure) {
+        initialisation + closure
+    }
+
+    ScheduledActionsList setting(Closure closure) {
+        adjustment + closure
+    }
+
+    ScheduledActionsList configuration(Closure closure) {
+        configuration + closure
+    }
+
 
     void parseSettings() {
         var localFile = project.file("settings/local.json")

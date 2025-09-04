@@ -27,8 +27,8 @@ group = modGroup
 
 var isLib = true
 
-core.configure {
-    genericModInit(isLib, group)
+core.with {
+    core.genericModInit(isLib, group)
 
     core.configureTasks {
         nmpGenerateModInfo { GenerateModInfoTask task ->
@@ -40,23 +40,23 @@ core.configure {
             )
         }
     }
+
+    nmp.setting {
+        modName.set name
+        modGroup.set group as String
+        modVersion.set prop("modVersion") as String
+        mindustryVersion.set prop("mindustryVersion") as String
+        generateModInfo.set true
+    }
 }
 
-core.settings {
-    modName.set name
-    modGroup.set group as String
-    modVersion.set prop("modVersion") as String
-    mindustryVersion.set prop("mindustryVersion") as String
-    generateModInfo.set true
-}
-
-eanno.settings {
-    genPackage.set "core.gen"
-    entityAnnoVersion.set prop("entityAnnoVersion") as String
-}
-
-eanno.configure {
+eanno.with {
     genericInit()
+
+    nmp.setting {
+        genPackage.set "core.gen"
+        entityAnnoVersion.set prop("entityAnnoVersion") as String
+    }
 }
 
 // TODO AP argument does not works

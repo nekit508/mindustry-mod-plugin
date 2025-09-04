@@ -1,15 +1,21 @@
 package com.github.nekit508.nmp.lib
 
 class ScheduledActionsList {
-    final List<Runnable> actions
-    protected boolean scheduling
+    protected final List<Runnable> actions
+
+    protected var scheduling = false
+    protected var finalized = false
+
+    public var finalizeAfterSchedule = true
+    protected StackTraceElement[] finalizedAt
 
     ScheduledActionsList() {
         actions = new ArrayList<>()
-        scheduling = false
     }
 
     ScheduledActionsList plus(Runnable runnable) {
+        checkFinalization()
+
         if (scheduling)
             runnable.run()
         else actions.add runnable
@@ -20,5 +26,21 @@ class ScheduledActionsList {
         scheduling = true
         actions*.run()
         scheduling = false
+
+        if (finalizeAfterSchedule)
+            finalizeList()
+    }
+
+    void finalizeList() {
+        finalized = true
+        finalizedAt = Thread.currentThread().stackTrace
+    }
+
+    void checkFinalization() {
+        if (!finalized) return
+
+        var cause = new Exception()
+        cause.setStackTrace finalizedAt
+        throw new RuntimeException("Actions list is finalized.", cause)
     }
 }

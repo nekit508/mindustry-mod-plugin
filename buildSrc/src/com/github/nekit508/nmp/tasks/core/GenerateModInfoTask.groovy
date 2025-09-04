@@ -96,11 +96,9 @@ class GenerateModInfoTask extends DefaultTask {
             modJava.set true
             outputFile.set getProject().file("mod.json")
 
-            modName.set Objects.requireNonNull(ext.modName.get(), "nmp.modName must be set")
-            modVersion.set Objects.requireNonNull(ext.modVersion.get(), "nmp.modVersion must be set")
-            modMinGameVersion.set Objects.requireNonNull(ext.mindustryVersion.get().substring(1), "nmp.mindutsryVersion must be set") as Integer
-
-            (project.tasks.clean as Delete).delete
+            modName.set ext.modName
+            modVersion.set ext.modVersion
+            modMinGameVersion.set project.provider { ext.mindustryVersion.get().substring(1) as Integer }
 
             if (ext.generateModInfo.get())
                 project.tasks.nmpBuild.from outputFile

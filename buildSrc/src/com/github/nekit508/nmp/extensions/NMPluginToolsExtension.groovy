@@ -35,7 +35,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
     }
 
     void configureCompileTask() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.options.encoding = "UTF-8"
                 task.options.generatedSourceOutputDirectory.set genDir.get()
@@ -70,7 +70,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
     }
 
     void setupJabel() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
@@ -89,17 +89,15 @@ class NMPluginToolsExtension extends NMPluginExtension {
     }
 
     void initTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             attachedProject.tasks.register "nmptRunTools", RunToolsTask, this
         }
     }
 
     void genericInit() {
-        nmp.configuration() + {
-            configureCompileTask()
-            setupJabel()
-            initTasks()
-        }
+        configureCompileTask()
+        setupJabel()
+        initTasks()
     }
 
     @Override
@@ -113,7 +111,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
         resDirs = factory.listProperty File
         genDir = factory.property File
 
-        settings {
+        nmp.setting {
             genDir.set attachedProject.file("gen")
             resDirs.add attachedProject.file("res")
             srcDirs.add attachedProject.file("src")

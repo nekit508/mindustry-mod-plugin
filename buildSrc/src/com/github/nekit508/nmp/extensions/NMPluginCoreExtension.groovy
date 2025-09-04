@@ -60,7 +60,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
         mavenPublishPluginName = factory.property String
         javaLibraryPluginName = factory.property String
 
-        settings {
+        nmp.setting {
             genDir.set attachedProject.file("gen")
             resDirs.add attachedProject.file("res")
             srcDirs.add attachedProject.file("src")
@@ -77,7 +77,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     // TODO remove this boolean after some minor releases
     private boolean initedGenericTasks = false;
     void initGenericTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             attachedProject.tasks.register "nmpBuild", BuildTask, this
             attachedProject.tasks.register "nmpDex", DexTask, this
 
@@ -86,7 +86,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void initModTasks() {
-        nmp.configuration() + {
+        nmp.initialisation() + {
             attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
             attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
             attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
@@ -103,25 +103,25 @@ class NMPluginCoreExtension extends NMPluginExtension {
 
     @Deprecated(forRemoval = true)
     void initTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             if (!initedGenericTasks)
                 initGenericTasks()
-
-            initModTasks()
-
-            attachedProject.logger.error("Legacy tasks initialisation will be removed in feature. Instead execute initGenericTasks() and initModTasks().")
         }
+
+        initModTasks()
+
+        attachedProject.logger.error("Legacy tasks initialisation will be removed in feature. Instead execute initGenericTasks() and initModTasks().")
     }
 
     void initLibraryTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             attachedProject.tasks.register "nmpBuildSources", BuildSourcesTask, this
             attachedProject.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
         }
     }
 
     void configureCompileTask() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.options.encoding = "UTF-8"
                 task.options.generatedSourceOutputDirectory.set genDir.get()
@@ -156,8 +156,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void setupJabel() {
-        nmp.configuration() + {
-
+        nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
@@ -176,8 +175,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void modBaseDependencies() {
-        nmp.configuration() + {
-
+        nmp.configuration {
             attachedProject.dependencies { DependencyHandler handler ->
                 handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
                 handler.add "compileOnly", nmp.arcDependency(mindustryVersion.get())
@@ -186,8 +184,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void configureMavenPublishing() {
-        nmp.configuration() + {
-
+        nmp.configuration {
             attachedProject.with {
                 nmp.requirePlugin attachedProject, mavenPublishPluginName.get()
                 nmp.requirePlugin attachedProject, javaLibraryPluginName.get()
@@ -219,30 +216,25 @@ class NMPluginCoreExtension extends NMPluginExtension {
     }
 
     void genericModInit(boolean isLibrary = false, String group = null) {
-        nmp.configuration() + {
+        configureCompileTask()
+        setupJabel()
+        modBaseDependencies()
 
-            configureCompileTask()
-            setupJabel()
-            modBaseDependencies()
+        initGenericTasks()
+        initModTasks()
 
-            initGenericTasks()
-            initModTasks()
-
-            if (isLibrary) {
-                if (group == null)
-                    new GradleException("group must be specified with isLibrary = true.")
-                initLibraryTasks()
-                nmp.configureProjectDataForJitpackBuilding group
-                configureMavenPublishing()
-            }
+        if (isLibrary) {
+            if (group == null)
+                new GradleException("group must be specified with isLibrary = true.")
+            nmp.configureProjectDataForJitpackBuilding group
+            initLibraryTasks()
+            configureMavenPublishing()
         }
     }
 
     @Deprecated(forRemoval = true)
     void genericInit() {
-        nmp.configuration() + {
-            genericModInit(false)
-            attachedProject.logger.error("genericInit() will be removed in feature. Use genericModInit() instead.")
-        }
+        genericModInit(false)
+        attachedProject.logger.error("genericInit() will be removed in feature. Use genericModInit() instead.")
     }
 }

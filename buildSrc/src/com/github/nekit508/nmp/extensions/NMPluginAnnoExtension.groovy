@@ -35,7 +35,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     }
 
     void configureCompileTask() {
-        nmp.configuration() + {
+        nmp.configuration {
 
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.options.encoding = "UTF-8"
@@ -71,7 +71,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     }
 
     void setupJabel() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
 
@@ -90,7 +90,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     }
 
     void setupDependencies() {
-        nmp.configuration() + {
+        nmp.configuration {
             core.attachedProject.dependencies { DependencyHandler handler ->
                 handler.add "compileOnly", attachedProject
                 handler.add "annotationProcessor", attachedProject
@@ -99,7 +99,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     }
 
     void initTasks() {
-        nmp.configuration() + {
+        nmp.initialisation {
             attachedProject.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
         }
     }
@@ -122,7 +122,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
         resDirs = factory.listProperty File
         genDir = factory.property File
 
-        settings {
+        nmp.setting {
             genDir.set attachedProject.file("gen")
             resDirs.add attachedProject.file("res")
             srcDirs.add attachedProject.file("src")

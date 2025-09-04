@@ -1,7 +1,7 @@
 package com.github.nekit508.nmp.extensions
 
 import com.github.nekit508.nmp.NMPlugin
-import com.github.nekit508.nmp.Utils
+import com.github.nekit508.nmp.lib.Utils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DirectoryProperty
@@ -51,7 +51,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
 
         classPrefix = factory.property String
 
-        settings {
+        nmp.setting {
             rootDirectory.set attachedProject.projectDir
 
             genRes.set attachedProject.layout.projectDirectory.file("genRes").asFile
@@ -62,17 +62,15 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     }
 
     void genericInit() {
-        nmp.configuration() + {
-            basicModules()
-            addMMCRepo()
-            setupDependencies()
-            setupCompileJava()
-            setupSourceSets()
-        }
+        basicModules()
+        addMMCRepo()
+        setupDependencies()
+        setupCompileJava()
+        setupSourceSets()
     }
 
     void addMMCRepo() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.repositories {
                 maven { url "https://raw.githubusercontent.com/Zelaux/Repo/master/repository" }
             }
@@ -80,7 +78,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     }
 
     void setupDependencies() {
-        nmp.configuration() + {
+        nmp.configuration {
             var version = mmcVersion.get()
 
             attachedProject.dependencies { DependencyHandler handler ->
@@ -94,7 +92,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     }
 
     void setupCompileJava() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.tasks.named("compileJava").configure { task ->
                 task.doFirst {
                     attachedProject.delete genRes.get().asFileTree.files
@@ -116,13 +114,13 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     }
 
     void setupSourceSets() {
-        nmp.configuration() + {
+        nmp.configuration {
             attachedProject.sourceSets.main.resources.srcDirs += genRes
         }
     }
 
     void basicModules() {
-        nmp.configuration() + {
+        nmp.setting {
             modules.addAll "load", "remote", "logic", "assets", "struct", "serialize"
         }
     }
