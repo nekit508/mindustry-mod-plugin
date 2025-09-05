@@ -163,7 +163,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
 
                 task.options.compilerArgs = [
                         "--release", "8",
-                        "--enable-preview",
+                        /*"--enable-preview",*/
                         "-Xlint:-options"
                 ]
             }
