@@ -2,17 +2,190 @@
 
 Main extension, that must be applied to the logical root of your mod.
 
-That extension can create following tasks and methods which provides them:
-- [initGenericTasks]():
+That extension contains following methods that create listed tasks (if specified):
+- genericModInit
+- [initGenericTasks](#initGenericTasks):
   - [nmpBuild]()
   - [nmpDex]()
-- [initModTasks]():
+- [initModTasks](#initModTasks)
   - [nmpBuildRelease]()
   - [nmpCopyBuildRelease]()
   - [nmpGenerateModInfo]()
   - [nmpFetchMindustry]()
   - [nmpRunMindustry]()
   - [nmpCopyBuildReleaseRunMindustry]()
-- [initLibraryTasks]():
+- [initLibraryTasks](#initLibraryTasks)
   - [nmpBuildSources]()
   - [nmpBuildLibrary]()
+- [configureCompileTask](#configureCompileTask)
+- [setupJabel](#setupJabel)
+- [modBaseDependencies](#modBaseDependencies)
+- [configureMavenPublishing](#configureMavenPublishing)
+
+## Properties info:
+
+---
+
+### mindustryVersion
+
+type: String\
+default value: v146
+
+---
+
+### modName
+
+type: String\
+default value: _unset_
+
+---
+
+### modVersion
+
+type: String\
+default value: _unset_
+
+---
+
+### modGroup
+
+type: String\
+default value: _unset_
+
+---
+
+### jabelVersion
+
+type: String\
+default value: 1.0.1-1
+
+---
+
+### generateModInfo
+
+type: Boolean\
+default value: 
+
+---
+
+### sourceCompatibility
+
+type: JavaVersion\
+default value: true
+
+---
+
+### srcDirs
+
+type: File\
+default value: projectRoot/src
+
+---
+
+### resDirs
+
+type: File\
+default value: projectRoot/res
+
+---
+
+### genDir
+
+type: File\
+default value: projectRoot/gen
+
+---
+
+### mavenPublishPluginName
+
+type: String\
+default value: maven-publish 
+
+---
+
+### javaLibraryPluginName
+
+type: String\
+default value: java-library
+
+---
+
+
+## Methods info:
+
+---
+
+### initGenericTasks
+
+Registers nmpBuild and nmpDex tasks.
+
+---
+
+### initModTasks
+
+Registers nmpBuildRelease, nmpCopyBuildRelease, nmpGenerateModInfo, nmpFetchMindustry, nmpRunMindustry and nmpCopyBuildReleaseRunMindustry tasks.
+
+---
+
+### initLibraryTasks
+
+Registers nmpBuildSources and nmpBuildLibrary tasks.
+
+--- 
+
+### configureCompileTask
+
+Configures compileJava task to compile mod:
+- sets utf-8 encoding
+- sets the directory with generated files
+- and before compilation:
+  - removes the preview option
+  - deletes the directory with generated files
+- configures source sets:
+  - sets main.java.srcDirs to [srcDirs](#srcdirs)
+  - sets main.resources.srcDirs to [resDirs](#resdirs)
+
+---
+
+### setupJabel
+
+Configures project for jabel using:
+- compileJava task configuration:
+  - sets task's sourceCompatibility to [sourceCompatibility](#sourcecompatibility)
+  - adds options:
+    - `--release 8`
+    - `--enable-preview`
+    - `-Xlint:-options`
+- adds dependencies:
+  - `com.pkware.jabel:jabel-javac-plugin` of [jabelVersion](#jabelversion) as annotationProcessor and compileOnly
+
+---
+
+### modBaseDependencies
+
+Adds dependencies of mindustry and arc of [mindustryVersion](#mindustryversion) as compileOnly
+
+---
+
+### configureMavenPublishing
+
+Requires plugins:
+- [mavenPublishPluginName](#mavenpublishpluginname)
+- [javaLibraryPluginName](#javalibrarypluginname)
+
+Configures project for publishing on jitpack platform:
+- components configuration:
+  - adds sources and javaDoc jars to java components
+- publishing configuration:
+  - creates library publication with java components
+- tasks configuration:
+  - jar:
+    - make depends on [nmpBuildLibrary]()
+    - sets duplications resolution strategy to exclude
+    - adds [nmpBuildLibrary]()'s archiveFile file tree as input
+  - sourcesJar:
+    - make depends on [nmpBuildSources]()
+    - sets duplications resolution strategy to exclude
+    - adds [nmpBuildSources]()'s archiveFile file tree as input
+
+---
