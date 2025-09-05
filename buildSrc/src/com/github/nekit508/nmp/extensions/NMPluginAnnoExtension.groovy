@@ -41,7 +41,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
                 task.options.encoding = "UTF-8"
                 task.options.generatedSourceOutputDirectory.set genDir.get()
 
-                task.options.forkOptions.jvmArgs += [
+                /*task.options.forkOptions.jvmArgs += [ // TODO it is redundant until fork disabled
                         "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
                         "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
                         "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
@@ -54,14 +54,14 @@ class NMPluginAnnoExtension extends NMPluginExtension {
                         "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
                         "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
                         "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
-                ]
+                ]*/
 
                 task.doFirst {
                     attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
 
-                    task.options.compilerArgs = task.options.compilerArgs.findAll {
+                    /*task.options.compilerArgs = task.options.compilerArgs.findAll { // TODO am i need it?
                         it != "--enable-preview"
-                    }
+                    }*/
                 }
             }
 

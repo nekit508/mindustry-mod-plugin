@@ -47,8 +47,7 @@ class DexTask extends DefaultTask {
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
             logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
-            var use = ext.nmp().local?.build?.useAndroid
-            buildAndroid.set use != null ? use : true
+            buildAndroid.set (ext.nmp().local?.build?.useAndroid as Boolean) ?: true
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
             var p = ext.nmp().local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null

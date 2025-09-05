@@ -10,6 +10,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.api.tasks.compile.JavaCompile
 import com.github.nekit508.nmp.tasks.core.*
@@ -124,7 +125,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
         nmp.configuration {
             attachedProject.tasks.compileJava { JavaCompile task ->
                 task.options.encoding = "UTF-8"
-                task.options.generatedSourceOutputDirectory.set genDir.get()
+                task.options.generatedSourceOutputDirectory.fileProvider genDir
 
                 task.options.forkOptions.jvmArgs += [
                         "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",

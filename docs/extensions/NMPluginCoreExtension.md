@@ -1,22 +1,13 @@
 # NMPluginCoreExtension
 
-Main extension, that must be applied to the logical root of your mod.
+Main extension, that must be applied to the logical root of your mod.\
+Contains reference to [NMPPlugin](../NMPPlugin.md) in nmp field.
 
-That extension contains following methods that create listed tasks (if specified):
-- genericModInit
+That extension contains following methods:
+- [genericModInit](#genericmodinit)
 - [initGenericTasks](#initGenericTasks):
-  - [nmpBuild]()
-  - [nmpDex]()
 - [initModTasks](#initModTasks)
-  - [nmpBuildRelease]()
-  - [nmpCopyBuildRelease]()
-  - [nmpGenerateModInfo]()
-  - [nmpFetchMindustry]()
-  - [nmpRunMindustry]()
-  - [nmpCopyBuildReleaseRunMindustry]()
 - [initLibraryTasks](#initLibraryTasks)
-  - [nmpBuildSources]()
-  - [nmpBuildLibrary]()
 - [configureCompileTask](#configureCompileTask)
 - [setupJabel](#setupJabel)
 - [modBaseDependencies](#modBaseDependencies)
@@ -64,28 +55,28 @@ default value: 1.0.1-1
 ### generateModInfo
 
 type: Boolean\
-default value: 
+default value: true
 
 ---
 
 ### sourceCompatibility
 
 type: JavaVersion\
-default value: true
+default value: 20
 
 ---
 
 ### srcDirs
 
-type: File\
-default value: projectRoot/src
+type: File[]\
+default value: \[projectRoot/src]
 
 ---
 
 ### resDirs
 
-type: File\
-default value: projectRoot/res
+type: File[]\
+default value: \[projectRoot/res]
 
 ---
 
@@ -110,26 +101,54 @@ default value: java-library
 
 ---
 
-
 ## Methods info:
+
+---
+
+### genericModInit
+
+Arguments:
+1) isLibrary: Boolean = false
+2) group: String = null (must be specified if isLibrary set to true)
+
+Executes:
+- [configureCompileTask](#configureCompileTask)
+- [setupJabel](#setupJabel)
+- [modBaseDependencies](#modBaseDependencies)
+- [initGenericTasks](#initGenericTasks)
+- [initModTasks](#initModTasks)
+- if isLibrary set to true:
+  - nmp.[configureProjectDataForJitpackBuilding]()(group)
+  - [initLibraryTasks](#initLibraryTasks)
+  - [configureMavenPublishing](#configureMavenPublishing)
 
 ---
 
 ### initGenericTasks
 
-Registers nmpBuild and nmpDex tasks.
+Registers following tasks:
+- [nmpBuild](../tasks/core/BuildTask.md)
+- [nmpDex](../tasks/core/DexTask.md)
 
 ---
 
 ### initModTasks
 
-Registers nmpBuildRelease, nmpCopyBuildRelease, nmpGenerateModInfo, nmpFetchMindustry, nmpRunMindustry and nmpCopyBuildReleaseRunMindustry tasks.
+Registers following tasks:
+- [nmpBuildRelease]()
+- [nmpCopyBuildRelease]()
+- [nmpGenerateModInfo]()
+- [nmpFetchMindustry]()
+- [nmpRunMindustry]()
+- [nmpCopyBuildReleaseRunMindustry]()
 
 ---
 
 ### initLibraryTasks
 
-Registers nmpBuildSources and nmpBuildLibrary tasks.
+Registers following tasks:
+- [nmpBuildSources]()
+- [nmpBuildLibrary]()
 
 --- 
 
@@ -137,13 +156,13 @@ Registers nmpBuildSources and nmpBuildLibrary tasks.
 
 Configures compileJava task to compile mod:
 - sets utf-8 encoding
-- sets the directory with generated files
+- sets generated files output directory to [genDir](#gendir)
 - and before compilation:
   - removes the preview option
   - deletes the directory with generated files
 - configures source sets:
-  - sets main.java.srcDirs to [srcDirs](#srcdirs)
-  - sets main.resources.srcDirs to [resDirs](#resdirs)
+  - adds [srcDirs](#srcdirs) to main.java.srcDirs
+  - adds [resDirs](#resdirs) to main.resources.srcDirs
 
 ---
 
@@ -157,13 +176,13 @@ Configures project for jabel using:
     - `--enable-preview`
     - `-Xlint:-options`
 - adds dependencies:
-  - `com.pkware.jabel:jabel-javac-plugin` of [jabelVersion](#jabelversion) as annotationProcessor and compileOnly
+  - `com.pkware.jabel:jabel-javac-plugin` of version [jabelVersion](#jabelversion) as annotationProcessor and compileOnly
 
 ---
 
 ### modBaseDependencies
 
-Adds dependencies of mindustry and arc of [mindustryVersion](#mindustryversion) as compileOnly
+Adds dependencies of mindustry and arc of version [mindustryVersion](#mindustryversion) as compileOnly
 
 ---
 
