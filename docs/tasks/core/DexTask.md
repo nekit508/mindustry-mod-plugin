@@ -1,7 +1,5 @@
 # Name (SuperClass)
 
-dependsOn nmpBuild
-
 ## Properties
 
 ---
@@ -31,9 +29,17 @@ default value: local.build.useAndroid or true
 
 ---
 
+### inputJar (optional)
+
+type: RegularFile\
+default value: project.tasks.nmpBuild.archiveFile
+
+Required if [buildAndroid](#buildandroid) is set to true.
+
+---
+
 ### Action
 
 Executes only if [buildAndroid](#buildandroid) is set to true.\
-Up to date when nmpBuild is up to date.\
-Builds [dex file](#dexfile-optional) with d8 from nmpBuild.archiveFile as input and compileClasspath, runtimeClasspath and android as classpath.\
+Builds [dex file](#dexfile-optional) with d8 from [inputJar](#inputjar) as input and compileClasspath, runtimeClasspath and android as classpath.\
 d8 executable is being searched for in the newest version of android tools in [sdkRoot](#sdkroot-optional).

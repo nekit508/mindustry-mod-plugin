@@ -20,7 +20,7 @@ class BuildTask extends Jar {
         configure {
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/classes.jar")
 
-            dependsOn project.tasks.classes
+            /*dependsOn project.tasks.classes*/
 
             setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
 

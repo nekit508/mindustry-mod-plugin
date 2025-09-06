@@ -8,10 +8,12 @@ import org.gradle.api.tasks.OutputFile
 import org.gradle.internal.hash.HashCode
 import org.gradle.internal.hash.HashFunction
 import org.gradle.internal.hash.Hashing
+import org.gradle.work.DisableCachingByDefault
 
 import javax.inject.Inject;
 
 /** outputFile fields must be set by subclasses. */
+@DisableCachingByDefault
 abstract class FileFetchTask extends FetchTask {
     /** must be set by subclasses. */
     @OutputFile

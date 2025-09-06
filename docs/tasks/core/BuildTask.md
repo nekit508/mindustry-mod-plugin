@@ -1,7 +1,5 @@
 # BuildTask (Jar)
 
-dependsOn classes
-
 ## Properties
 
 ---
@@ -21,4 +19,4 @@ default value: exclude
 ## Action
 Creates jar from the following file trees:
 - runtime classpath
-- main output
+- main output (that contains classes task outputs)

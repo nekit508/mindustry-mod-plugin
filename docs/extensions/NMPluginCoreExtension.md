@@ -135,7 +135,7 @@ Registers following tasks:
 ### initModTasks
 
 Registers following tasks:
-- [nmpBuildRelease]()
+- [nmpBuildRelease](../tasks/core/BuildReleaseTask.md)
 - [nmpCopyBuildRelease]()
 - [nmpGenerateModInfo]()
 - [nmpFetchMindustry]()
@@ -188,9 +188,9 @@ Adds dependencies of mindustry and arc of version [mindustryVersion](#mindustryv
 
 ### configureMavenPublishing
 
-Requires plugins:
-- [mavenPublishPluginName](#mavenpublishpluginname)
-- [javaLibraryPluginName](#javalibrarypluginname)
+Requires:
+- plugin with name [mavenPublishPluginName](#mavenpublishpluginname)
+- plugin with name [javaLibraryPluginName](#javalibrarypluginname)
 
 Configures project for publishing on jitpack platform:
 - components configuration:

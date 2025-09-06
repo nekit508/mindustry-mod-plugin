@@ -2,9 +2,11 @@ package com.github.nekit508.nmp.tasks
 
 import org.gradle.api.DefaultTask
 import org.gradle.api.Task
+import org.gradle.work.DisableCachingByDefault
 
 import javax.inject.Inject
 
+@DisableCachingByDefault
 class TasksQueue extends DefaultTask {
     @Inject
     TasksQueue(String group, Task... tasks) {

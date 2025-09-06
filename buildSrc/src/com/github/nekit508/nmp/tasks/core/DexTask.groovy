@@ -5,10 +5,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.Task
 import org.gradle.api.file.FileCollection
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
@@ -22,14 +25,21 @@ import javax.inject.Inject
 class DexTask extends DefaultTask {
     @Internal
     NMPluginCoreExtension ext
+
     @OutputFile
     @Optional
     final RegularFileProperty dexFile
+
     @Input
     @Optional
     final Property<String> sdkRoot
+
     @Input
     final Property<Boolean> buildAndroid
+
+    @Optional
+    @InputFile
+    final Property<RegularFile> inputJar
 
     @Inject
     DexTask(NMPluginCoreExtension ext) {
@@ -40,6 +50,7 @@ class DexTask extends DefaultTask {
         dexFile = objectFactory.fileProperty()
         buildAndroid = objectFactory.property(Boolean.class)
         sdkRoot = objectFactory.property(String)
+        inputJar = objectFactory.fileProperty()
 
         configure {
             logger.debug("$name: DexTask $name configuration")
@@ -50,6 +61,8 @@ class DexTask extends DefaultTask {
             buildAndroid.set (ext.nmp().local?.build?.useAndroid as Boolean) ?: true
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
+            inputJar.set project.tasks.nmpBuild.archiveFile as Provider<RegularFile>
+
             var p = ext.nmp().local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
             if (p)
                 sdkRoot.set p
@@ -57,15 +70,15 @@ class DexTask extends DefaultTask {
                 sdkRoot.unset()
             logger.debug("$name: sdkRoot: ${sdkRoot.getOrNull()}")
 
-            dependsOn project.tasks.nmpBuild
+            //dependsOn project.tasks.nmpBuild
 
             onlyIf {
                 buildAndroid.get()
             }
 
-            outputs.upToDateWhen { Task t ->
+            /*outputs.upToDateWhen { Task t ->
                 project.tasks.nmpBuild.state.getUpToDate()
-            }
+            }*/
         }
     }
 
@@ -101,7 +114,7 @@ class DexTask extends DefaultTask {
         logger.debug("d8 start")
 
         var stream = new StringBuilder()
-        var exitCode = ("$buildToolsRoot/$d8Name $dependencies ${project.tasks.nmpBuild.archiveFile.get()}" +
+        var exitCode = ("$buildToolsRoot/$d8Name $dependencies ${inputJar.get().asFile}" +
                 " --min-api 14 --output ${dexFile.get()}").execute(null, project.projectDir).with {self ->
             Thread tout = self.consumeProcessOutputStream stream
             Thread terr = self.consumeProcessErrorStream stream

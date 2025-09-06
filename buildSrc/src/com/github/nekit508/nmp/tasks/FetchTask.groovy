@@ -6,7 +6,9 @@ import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.TaskAction
+import org.gradle.work.DisableCachingByDefault
 
+@DisableCachingByDefault
 abstract class FetchTask extends DefaultTask {
     @Internal
     final Property<Integer> bufferSize
