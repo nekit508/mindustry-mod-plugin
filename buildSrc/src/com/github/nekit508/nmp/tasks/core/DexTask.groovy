@@ -53,13 +53,12 @@ class DexTask extends DefaultTask {
         inputJar = objectFactory.fileProperty()
 
         configure {
-logger.info(name)
             logger.debug("$name: DexTask $name configuration")
 
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
             logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
-            buildAndroid.set (ext.nmp().local?.build?.useAndroid as Boolean) ?: true
+            buildAndroid.set((ext.nmp().local?.build?.useAndroid as Boolean) ?: true)
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
             inputJar.set project.tasks.nmpBuild.archiveFile as Provider<RegularFile>
