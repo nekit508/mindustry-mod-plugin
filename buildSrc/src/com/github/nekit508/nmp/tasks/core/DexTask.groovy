@@ -53,6 +53,7 @@ class DexTask extends DefaultTask {
         inputJar = objectFactory.fileProperty()
 
         configure {
+logger.info(name)
             logger.debug("$name: DexTask $name configuration")
 
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
