@@ -28,10 +28,10 @@ class GenerateModInfoTask extends DefaultTask {
     @Input
     final Property<String> modName, // by default set by plugin
                            modVersion,  // by default set by plugin
-                           modMain
+                           modMain;
 
     @Input
-    final Property<Integer> modMinGameVersion // by default set by plugin;
+    final Property<String> modMinGameVersion // by default set by plugin;
 
     @Input
     @Optional
@@ -74,7 +74,7 @@ class GenerateModInfoTask extends DefaultTask {
 
         modName = adjProp("name", factory.property (String), true)
         modDisplayName = adjProp("displayName", factory.property (String))
-        modMinGameVersion = adjProp("minGameVersion", factory.property (Integer), true)
+        modMinGameVersion = adjProp("minGameVersion", factory.property (String), true)
         modAuthor = adjProp("author", factory.property (String))
         modDescription = adjProp("description", factory.property (String))
         modSubtitle = adjProp("subtitle", factory.property (String))
@@ -98,7 +98,7 @@ class GenerateModInfoTask extends DefaultTask {
 
             modName.set ext.modName
             modVersion.set ext.modVersion
-            modMinGameVersion.set project.provider { ext.mindustryVersion.get().substring(1) as Integer }
+            modMinGameVersion.set project.provider { ext.mindustryVersion.get().substring(0) }
 
             if (ext.generateModInfo.get())
                 project.tasks.nmpBuild.from outputFile
