@@ -98,7 +98,11 @@ class GenerateModInfoTask extends DefaultTask {
 
             modName.set ext.modName
             modVersion.set ext.modVersion
-            modMinGameVersion.set project.provider { ext.mindustryVersion.get().substring(0) }
+            modMinGameVersion.set project.provider {
+                var s = ext.mindustryVersion.get().substring(1)
+                s = s.substring(0, s.indexOf('.'))
+                return s
+            }
 
             if (ext.generateModInfo.get())
                 project.tasks.nmpBuild.from outputFile
