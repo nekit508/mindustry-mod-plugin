@@ -47,7 +47,7 @@ class RunMindustry extends DefaultTask {
 
     @TaskAction
     void run() {
-        var executable = "${javaHome.get()}/bin/java.exe"
+        var executable = "${javaHome.get()}/bin/java${System.getenv("OS") == "Windows_NT" ? ".exe" : ""}"
         ("$executable -jar ${mindustryFile.get().absolutePath} ${String.join(" ", arguments.get())}").execute().waitForProcessOutput System.out, System.err
     }
 }

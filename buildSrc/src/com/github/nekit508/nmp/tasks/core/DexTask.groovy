@@ -58,7 +58,8 @@ class DexTask extends DefaultTask {
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
             logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
-            buildAndroid.set((ext.nmp().local?.build?.useAndroid as Boolean) ?: true)
+            var raw = ext.nmp().local?.build?.useAndroid
+            buildAndroid.set(raw != null ? raw : true)
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
             inputJar.set project.tasks.nmpBuild.archiveFile as Provider<RegularFile>
