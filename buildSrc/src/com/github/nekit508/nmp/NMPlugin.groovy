@@ -70,7 +70,6 @@ class NMPlugin implements Plugin<Project> {
         configuration + closure
     }
 
-
     void parseSettings() {
         var localFile = project.file("settings/local.json")
 

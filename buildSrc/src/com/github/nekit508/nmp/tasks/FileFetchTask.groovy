@@ -14,6 +14,7 @@ import javax.inject.Inject;
 
 /** outputFile fields must be set by subclasses. */
 @DisableCachingByDefault
+@Deprecated // TODO
 abstract class FileFetchTask extends FetchTask {
     /** must be set by subclasses. */
     @OutputFile

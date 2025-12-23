@@ -9,6 +9,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.work.DisableCachingByDefault
 
 @DisableCachingByDefault
+@Deprecated // TODO
 abstract class FetchTask extends DefaultTask {
     @Internal
     final Property<Integer> bufferSize

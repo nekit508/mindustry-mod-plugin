@@ -11,6 +11,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
+// TODO Pull request settings via compiler arguments
 class NMPluginMMCAnnoExtension extends NMPluginExtension {
     RegularFileProperty modInfoPath
     DirectoryProperty rootDirectory, genRes, rawRes, revisionsPath

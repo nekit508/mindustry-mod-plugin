@@ -216,7 +216,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
         }
     }
 
-    void genericModInit(boolean isLibrary = false, String group = null) {
+    void genericModInit(boolean publishable = false, String group = null) {
         configureCompileTask()
         setupJabel()
         modBaseDependencies()
@@ -224,9 +224,9 @@ class NMPluginCoreExtension extends NMPluginExtension {
         initGenericTasks()
         initModTasks()
 
-        if (isLibrary) {
+        if (publishable) {
             if (group == null)
-                new GradleException("group must be specified with isLibrary = true.")
+                new GradleException("group must be specified with publishable = true.")
             nmp.configureProjectDataForJitpackBuilding group
             initLibraryTasks()
             configureMavenPublishing()

@@ -28,7 +28,7 @@ group = modGroup
 var isLib = true
 
 core.with {
-    core.genericModInit(isLib, group)
+    genericModInit(isLib, group)
 
     core.configureTasks {
         nmpGenerateModInfo { GenerateModInfoTask task ->

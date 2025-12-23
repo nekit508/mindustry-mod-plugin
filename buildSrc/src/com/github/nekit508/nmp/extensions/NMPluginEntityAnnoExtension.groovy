@@ -14,6 +14,7 @@ import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
 class NMPluginEntityAnnoExtension extends NMPluginExtension {
+    // TODO why is kapt here?
     //Property<String> kotlinKaptPluginName
 
     Property<String> genPackage, fetchedCompsPackage, modCompsPackage

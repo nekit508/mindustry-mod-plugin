@@ -4,6 +4,8 @@ import groovy.json.JsonSlurper
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
+import java.util.function.Consumer
+
 class Utils {
     static var json = new JsonSlurper()
 
@@ -19,10 +21,17 @@ class Utils {
         return json.parse(new URI(uri).toURL())
     }
 
-    static void readFile(String uri, File file) {
+    static void readFile(String uri, File file, int blockSize = 4096, Consumer<Long> progressHandler = (_ -> {})) {
         new URI(uri).toURL().withInputStream { input ->
             file.withOutputStream { output ->
-                output << input
+                byte[] buf = new byte[blockSize]
+                long totalCount = 0
+                for (int count; (count = input.read(buf)) != -1; ) {
+                    output.write(buf, 0, count)
+                    totalCount += count
+                    progressHandler.accept(totalCount)
+                }
+                output.flush()
             }
         }
     }

@@ -22,6 +22,11 @@ class NMPluginAnnoExtension extends NMPluginExtension {
         this.core = core
     }
 
+    /**
+     * @param closure
+     * @return
+     * @deprecated
+     */
     @Override
     NMPluginAnnoExtension settings(Closure closure) {
         settingsI closure

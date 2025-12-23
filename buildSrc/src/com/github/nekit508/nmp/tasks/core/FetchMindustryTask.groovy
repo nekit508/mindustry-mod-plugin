@@ -8,6 +8,7 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
 
 import javax.inject.Inject
+import java.util.function.Consumer
 
 class FetchMindustryTask extends DefaultTask {
     @Internal
@@ -52,7 +53,18 @@ class FetchMindustryTask extends DefaultTask {
     @TaskAction
     void fetch() {
         logger.lifecycle("Fetching mindustry ${mindustryVersion.get()} into ${outputFile.get().absolutePath}.")
-        Utils.readFile "https://github.com/Anuken/Mindustry/releases/download/${mindustryVersion.get()}/Mindustry.jar", outputFile.get()
+        Utils.readFile "https://github.com/Anuken/Mindustry/releases/download/${mindustryVersion.get()}/Mindustry.jar", outputFile.get(), 4096, new Consumer<Long>() {
+            final bs = 4096 * 1024
+            long prev = 0
+
+            @Override
+            void accept(Long count) {
+                if (count - prev > bs) {
+                    logger.lifecycle("Downloaded ${(long) (count / 1024 / 1024)}mB.")
+                    prev = (long) ((long) (count / bs)) * bs
+                }
+            }
+        }
         logger.lifecycle("Fetched.")
     }
 }
