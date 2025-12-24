@@ -21,6 +21,8 @@ class BuildReleaseTask extends Jar {
             dependsOn project.tasks.nmpDex
             dependsOn project.tasks.nmpBuild
 
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/$project.group-$project.name-${project.version}.jar")
 
             if (project.tasks.nmpDex.buildAndroid.get())

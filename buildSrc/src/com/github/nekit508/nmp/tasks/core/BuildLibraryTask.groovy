@@ -20,6 +20,8 @@ class BuildLibraryTask extends Jar {
         configure {
             //dependsOn project.tasks.nmpBuild
 
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/library.jar")
 
             //from project.zipTree(project.tasks.nmpBuild.archiveFile.get())

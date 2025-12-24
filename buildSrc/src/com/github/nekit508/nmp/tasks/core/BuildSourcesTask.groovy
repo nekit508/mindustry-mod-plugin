@@ -17,6 +17,8 @@ class BuildSourcesTask extends Jar {
         this.ext = ext
 
         configure {
+            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/sources.jar")
 
             from project.sourceSets.main.allSource
