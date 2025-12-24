@@ -1,6 +1,7 @@
 package com.github.nekit508.nmp.tasks.core
 
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.bundling.AbstractArchiveTask
@@ -21,7 +22,7 @@ class BuildReleaseTask extends Jar {
             dependsOn project.tasks.nmpDex
             dependsOn project.tasks.nmpBuild
 
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
 
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/$project.group-$project.name-${project.version}.jar")
 

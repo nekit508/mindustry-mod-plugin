@@ -1,6 +1,7 @@
 package com.github.nekit508.nmp.tasks.core
 
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
+import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.tasks.Internal
 import org.gradle.jvm.tasks.Jar
@@ -17,7 +18,7 @@ class BuildSourcesTask extends Jar {
         this.ext = ext
 
         configure {
-            duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+            setDuplicatesStrategy DuplicatesStrategy.EXCLUDE
 
             (archiveFile as RegularFileProperty).set project.layout.buildDirectory.file("libs/tmp/sources.jar")
 
