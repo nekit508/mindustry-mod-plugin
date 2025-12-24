@@ -6,7 +6,7 @@ Plugin for building mindustry mods.
 
 [My mod template based on this plugin](https://github.com/nekit508/mmp-template).
 
-[GroovyDocs](docs%2Fjavadoc%2Findex.html).
+# (Information bellow is outdated!)
 
 ---
 # Local settings
