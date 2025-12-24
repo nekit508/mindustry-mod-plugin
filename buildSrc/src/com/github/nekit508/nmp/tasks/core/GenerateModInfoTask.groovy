@@ -100,7 +100,9 @@ class GenerateModInfoTask extends DefaultTask {
             modVersion.set ext.modVersion
             modMinGameVersion.set project.provider {
                 var s = ext.mindustryVersion.get().substring(1)
-                s = s.substring(0, s.indexOf('.'))
+                var dot = s.indexOf('.');
+                if (dot != -1)
+                    s = s.substring(0, dot)
                 return s
             }
 
