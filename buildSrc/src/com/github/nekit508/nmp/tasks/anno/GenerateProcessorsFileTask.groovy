@@ -53,12 +53,13 @@ class GenerateProcessorsFileTask extends DefaultTask {
         List<String> files = []
 
         sources.each { dir ->
-            dir.eachFileRecurse(FileType.FILES, { file ->
-                if (file.getText().find(triggerString.get())) {
-                    var relativeFileName = dir.relativePath(file).replaceAll("[/\\\\]", ".")
-                    files += relativeFileName.substring(0, relativeFileName.lastIndexOf('.'))
-                }
-            })
+            if (dir.exists())
+                dir.eachFileRecurse(FileType.FILES, { file ->
+                    if (file.getText().find(triggerString.get())) {
+                        var relativeFileName = dir.relativePath(file).replaceAll("[/\\\\]", ".")
+                        files += relativeFileName.substring(0, relativeFileName.lastIndexOf('.'))
+                    }
+                })
         }
 
         String text = ""
