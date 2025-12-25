@@ -25,12 +25,14 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
 
     final NMPluginCoreExtension core
 
-    NMPluginEntityAnnoExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
+    NMPluginEntityAnnoExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core, boolean excludeComponents) {
         super(name, project, plugin)
         this.core = core
 
         if (core.attachedProject != attachedProject)
             throw new GradleException("Entity anno extension must be applied to the same project as core extension.")
+
+        genericInit(excludeComponents)
     }
 
     @Override
@@ -68,18 +70,7 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
         }
     }
 
-    void genericInit(boolean excludeComponents = true) {
-        initTasks()
-        addFetchedCompsToSourceSets()
-        addEntityAnnoRepo()
-        setupDependencies()
-        configureAnnotationProcessor()
-
-        if (excludeComponents)
-            excludeCompsFromBuild()
-    }
-
-    void initTasks() {
+    void genericInit(boolean excludeComponents) {
         nmp.initialisation {
             attachedProject.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
             attachedProject.tasks.register "nmpeaProcessComps", ProcessComponentsTask, this
@@ -88,46 +79,29 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
         nmp.configuration {
             attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaFetchComps
             attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaProcessComps
-        }
-    }
 
-    void addEntityAnnoRepo() {
-        nmp.configuration() + {
             attachedProject.repositories {
                 maven { url "https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main" }
             }
-        }
-    }
 
-    void setupDependencies() {
-        nmp.configuration {
             attachedProject.dependencies { handler ->
+                entityAnnoVersion.finalizeValue()
                 handler.compileOnly "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}"
                 handler.annotationProcessor "com.github.GglLfr.EntityAnno:entity:${entityAnnoVersion.get()}" // TODO use kapt
             }
-        }
-    }
 
-    void addFetchedCompsToSourceSets() {
-        nmp.configuration {
             attachedProject.sourceSets.main.java.srcDirs += fetchedCompsDir
-        }
-    }
-
-    void excludeCompsFromBuild() {
-        nmp.configuration {
-            attachedProject.tasks.nmpBuild.configure { BuildTask task ->
-                task.exclude { FileTreeElement elem ->
-                    var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
-                    return compsPackages.any { String packagee -> elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee) }
+            if (excludeComponents)
+                attachedProject.tasks.nmpBuild.configure { BuildTask task ->
+                    task.exclude { FileTreeElement elem ->
+                        fetchedCompsPackage.finalizeValue()
+                        modCompsPackage.finalizeValue()
+                        var compsPackages = [fetchedCompsPackage.get(), modCompsPackage.get()]*.replaceAll("\\.", "/")*.replaceAll("[/\\\\]", "/")
+                        return compsPackages.any { String packagee -> elem.path.replaceAll("[/\\\\]", "/").startsWith(packagee) }
+                    }
                 }
-            }
-        }
-    }
 
-    void configureAnnotationProcessor() {
-        nmp.configuration {
-            //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get()
+            //nmp.requirePlugin attachedProject, kotlinKaptPluginName.get() // TODO use kapt
 
             attachedProject.tasks.named("compileJava").configure {
                 doFirst {

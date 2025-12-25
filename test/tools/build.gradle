@@ -1,8 +1,8 @@
-nmp.tools(project, "tools", nmp.project.core)
+import com.github.nekit508.nmp.extensions.Common
+
+nmp.tools project, "tools", nmp.project.core
 
 tools.with {
-    genericInit()
-
     configureTasks {
         nmptRunTools {
             mainClass.set "tools.Tools"
@@ -12,6 +12,6 @@ tools.with {
 
 nmp.configuration {
     dependencies {
-        implementation(nmp.arcDependency tools.core.mindustryVersion.get(), "arc-core")
+        implementation Common.arcDependency(tools.core.mindustryVersion.get(), "arc-core")
     }
 }

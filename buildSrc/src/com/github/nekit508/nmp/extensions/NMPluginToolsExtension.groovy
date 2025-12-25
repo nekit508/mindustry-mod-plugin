@@ -3,7 +3,6 @@ package com.github.nekit508.nmp.extensions
 import com.github.nekit508.nmp.NMPlugin
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
-import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
@@ -20,6 +19,8 @@ class NMPluginToolsExtension extends NMPluginExtension {
     NMPluginToolsExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension core) {
         super(name, project, plugin)
         this.core = core
+
+        genericInit()
     }
 
     @Override
@@ -34,70 +35,21 @@ class NMPluginToolsExtension extends NMPluginExtension {
         return this
     }
 
-    void configureCompileTask() {
+    void genericInit() {
         nmp.configuration {
-            attachedProject.tasks.compileJava { JavaCompile task ->
-                task.options.encoding = "UTF-8"
-                task.options.generatedSourceOutputDirectory.set genDir.get()
+            Common.configureBuildTasks attachedProject, attachedProject.tasks.compileJava as JavaCompile, genDir
 
-                task.options.forkOptions.jvmArgs += [
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.jvm=ALL-UNNAMED",
-                        "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED",
-                        "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
-                ]
-
-                task.doFirst {
-                    attachedProject.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
-
-                    task.options.compilerArgs = task.options.compilerArgs.findAll {
-                        it != "--enable-preview"
-                    }
-                }
-            }
-
+            srcDirs.finalizeValue()
+            resDirs.finalizeValue()
             attachedProject.sourceSets.main.java.srcDirs += srcDirs.get()
             attachedProject.sourceSets.main.resources.srcDirs += resDirs.get()
+
+            Common.setupJabel attachedProject, sourceCompatibility, jabelVersion
         }
-    }
 
-    void setupJabel() {
-        nmp.configuration {
-            attachedProject.tasks.compileJava { JavaCompile task ->
-                task.sourceCompatibility = this.sourceCompatibility.get().majorVersion
-
-                task.options.compilerArgs = [
-                        "--release", "8",
-                        "--enable-preview",
-                        "-Xlint:-options"
-                ]
-            }
-
-            attachedProject.dependencies { DependencyHandler handler ->
-                handler.add "annotationProcessor", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
-                handler.add "compileOnly", "com.pkware.jabel:jabel-javac-plugin:${jabelVersion.get()}"
-            }
-        }
-    }
-
-    void initTasks() {
         nmp.initialisation {
             attachedProject.tasks.register "nmptRunTools", RunToolsTask, this
         }
-    }
-
-    void genericInit() {
-        configureCompileTask()
-        setupJabel()
-        initTasks()
     }
 
     @Override

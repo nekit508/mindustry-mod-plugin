@@ -29,7 +29,7 @@ class NMPlugin implements Plugin<Project> {
     void apply(Project target) {
         project = target
 
-        project.allprojects.each {it.extensions.nmp = this }
+        project.allprojects.each { it.extensions.nmp = this }
         parseSettings()
 
         project.allprojects.each {
@@ -83,26 +83,13 @@ class NMPlugin implements Plugin<Project> {
         configuration().schedule()
     }
 
-    String mindustryDependency(String version, String module = "core") {
-        return dependency("com.github.Anuken.Mindustry", module, version)
-    }
-
-    String arcDependency(String version, String module = "arc-core") {
-        return dependency("com.github.Anuken.Arc", module, version)
-    }
-
-    @SuppressWarnings("GrMethodMayBeStatic")
-    String dependency(String dep, String module, String version) {
-        return "$dep:$module:$version"
-    }
-
-    NMPluginCoreExtension core(Project project, String name) { new NMPluginCoreExtension(name, project, this) }
+    NMPluginCoreExtension core(Project project, String name, boolean publishable = false, String group = null) { new NMPluginCoreExtension(name, project, this, publishable, group) }
 
     NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) { new NMPluginAnnoExtension(name, project, this, core) }
 
     NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
 
-    NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginEntityAnnoExtension(name, project, this, core) }
+    NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core, boolean excludeComponents = true) { new NMPluginEntityAnnoExtension(name, project, this, core, excludeComponents) }
 
     NMPluginMMCAnnoExtension mmcAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginMMCAnnoExtension(name, project, this, core) }
 

@@ -10,26 +10,20 @@ allprojects.each { project ->
     }
 
     project.apply plugin: "java"
-
-    project.sourceSets.main.java.srcDirs = ["src"]
-    project.sourceSets.main.resources.srcDirs = ["res"]
 }
+
+group = modGroup
+var isLib = true
 
 apply plugin: NMPlugin
 apply plugin: "java-library"
 apply plugin: "maven-publish"
 
-nmp.core project, "core"
-nmp.entityAnno project, "eanno", core
-nmp.mmcAnno project, "mmcAnno", core
-
-group = modGroup
-
-var isLib = true
+nmp.core project, "core", isLib, group
+nmp.entityAnno project, "eanno", core, true
+// nmp.mmcAnno project, "mmcAnno", core
 
 core.with {
-    genericModInit(isLib, group)
-
     core.configureTasks {
         nmpGenerateModInfo { GenerateModInfoTask task ->
             task.set(
@@ -42,17 +36,12 @@ core.with {
     }
 
     nmp.setting {
-        modName.set name
-        modGroup.set group as String
         modVersion.set prop("modVersion") as String
         mindustryVersion.set prop("mindustryVersion") as String
-        generateModInfo.set true
     }
 }
 
 eanno.with {
-    genericInit()
-
     nmp.setting {
         genPackage.set "core.gen"
         entityAnnoVersion.set prop("entityAnnoVersion") as String
