@@ -24,12 +24,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
         genericInit()
     }
 
-    /**
-     * @param closure
-     * @return
-     * @deprecated
-     */
-    @Override
+    /*@Override
     NMPluginAnnoExtension settings(Closure closure) {
         settingsI closure
         return this
@@ -39,7 +34,7 @@ class NMPluginAnnoExtension extends NMPluginExtension {
     NMPluginAnnoExtension configure(Closure closure) {
         configureI closure
         return this
-    }
+    }*/
 
     void genericInit() {
         nmp.configuration {

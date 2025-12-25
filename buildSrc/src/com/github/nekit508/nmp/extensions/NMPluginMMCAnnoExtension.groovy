@@ -25,7 +25,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
         this.ext = ext
     }
 
-    @Override
+    /*@Override
     NMPluginMMCAnnoExtension settings(Closure closure) {
         settingsI closure
         return this
@@ -35,7 +35,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     NMPluginMMCAnnoExtension configure(Closure closure) {
         configureI closure
         return this
-    }
+    }*/
 
     @Override
     void apply() {

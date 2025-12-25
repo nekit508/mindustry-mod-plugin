@@ -1,5 +1,6 @@
 package com.github.nekit508.nmp
 
+import com.github.nekit508.nmp.extensions.Common
 import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
@@ -81,6 +82,18 @@ class NMPlugin implements Plugin<Project> {
         initialisation().schedule()
         setting().schedule()
         configuration().schedule()
+    }
+
+    static String mindustryDependency(String version, String module = "core") {
+        return Common.mindustryDependency(version, module)
+    }
+
+    static String arcDependency(String version, String module = "arc-core") {
+        return Common.arcDependency(version, module)
+    }
+
+    static String dependency(String dep, String module, String version) {
+        return Common.dependency(dep, module, version)
     }
 
     NMPluginCoreExtension core(Project project, String name, boolean publishable = false, String group = null) { new NMPluginCoreExtension(name, project, this, publishable, group) }

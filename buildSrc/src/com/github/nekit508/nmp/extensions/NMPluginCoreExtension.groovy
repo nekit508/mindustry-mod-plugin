@@ -29,7 +29,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
         genericInit(publishable, group)
     }
 
-    @Override
+    /*@Override
     NMPluginCoreExtension settings(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
         settingsI closure
         return this
@@ -39,7 +39,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
     NMPluginCoreExtension configure(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
         configureI closure
         return this
-    }
+    }*/
 
     @Override
     void apply() {

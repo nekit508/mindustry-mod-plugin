@@ -14,7 +14,8 @@ def configureProjectData(Project p) {
 
         println """$p info:\n    is jitpack build: $rootProject.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
     } else {
-        p.version = "dev"
+        var versionFile = file("version.local")
+        p.version = versionFile.exists() ? versionFile.text :  "dev"
         p.group = forcedGroup
     }
 }

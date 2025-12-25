@@ -34,7 +34,7 @@ abstract class NMPluginExtension {
         attachedProject
     }
 
-    @Deprecated(forRemoval = true)
+    /*@Deprecated(forRemoval = true)
     protected void settingsI(Closure cl) {
         ConfigureUtil.configureSelf cl, this
     }
@@ -48,7 +48,7 @@ abstract class NMPluginExtension {
     }
 
     @Deprecated(forRemoval = true)
-    abstract <T> T configure(Closure closure)
+    abstract <T> T configure(Closure closure)*/
 
     void configureTasks(@DelegatesTo(TaskContainer) Closure closure) {
         nmp.configuration { ConfigureUtil.configureSelf closure, attachedProject.tasks }

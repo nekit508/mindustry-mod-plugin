@@ -23,7 +23,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
         genericInit()
     }
 
-    @Override
+    /*@Override
     NMPluginToolsExtension settings(Closure closure) {
         settingsI closure
         return this
@@ -33,7 +33,7 @@ class NMPluginToolsExtension extends NMPluginExtension {
     NMPluginToolsExtension configure(Closure closure) {
         configureI closure
         return this
-    }
+    }*/
 
     void genericInit() {
         nmp.configuration {

@@ -4,8 +4,11 @@ import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import groovy.io.FileType
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.ConfigurableFileCollection
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.*
+import org.gradle.language.jvm.tasks.ProcessResources
 import org.gradle.work.NormalizeLineEndings
 
 import javax.inject.Inject
@@ -14,8 +17,8 @@ class GenerateProcessorsFileTask extends DefaultTask {
     @Internal
     NMPluginAnnoExtension ext
 
-    @OutputFile
-    final File outputFile
+    @OutputDirectory
+    final DirectoryProperty outputDirectory
 
     @Input
     final Property<String> triggerString
@@ -37,39 +40,35 @@ class GenerateProcessorsFileTask extends DefaultTask {
         triggerString = factory.property String
         sources = factory.fileCollection()
 
-        outputFile = new File(temporaryDir, "/META-INF/services/javax.annotation.processing.Processor")
+        outputDirectory = factory.directoryProperty()
 
         configure {
+            outputDirectory.set new File(temporaryDir, "")
             triggerString.set "// anno processor class"
 
             addSource project.sourceSets.main.java.srcDirs
 
-            project.tasks.processResources.dependsOn this
+            (project.tasks.processResources as ProcessResources).from(outputs)
         }
     }
 
     @TaskAction
     void generate() {
-        List<String> files = []
+        String text = ""
 
         sources.each { dir ->
             if (dir.exists())
                 dir.eachFileRecurse(FileType.FILES, { file ->
                     if (file.getText().find(triggerString.get())) {
                         var relativeFileName = dir.relativePath(file).replaceAll("[/\\\\]", ".")
-                        files += relativeFileName.substring(0, relativeFileName.lastIndexOf('.'))
+                        text += relativeFileName.substring(0, relativeFileName.lastIndexOf('.')) + '\n'
                     }
                 })
         }
 
-        String text = ""
-        files.each {file -> text += file + '\n'}
-        outputFile.setText(text)
-
-        project.copy {
-            from temporaryDir
-            into project.tasks.processResources.destinationDir
-        }
+        var dir = new File(outputDirectory.get().asFile,"META-INF/services")
+        dir.mkdirs()
+        new File(dir, "javax.annotation.processing.Processor").setText(text)
     }
 
     void addSource(Iterable<Object> files) {

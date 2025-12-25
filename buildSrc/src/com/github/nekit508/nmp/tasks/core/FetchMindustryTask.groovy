@@ -65,27 +65,30 @@ class FetchMindustryTask extends DefaultTask {
         if (tag.containsKey("status") && tag["status"] == 404)
             throw new GradleException("Release ${mindustryVersion} does not exists.")
 
-        var release_info = tag["assets"].find { it["name"] == "Mindustry.jar" }
-        if (release_info == null)
+        var releaseInfo = tag["assets"].find { it["name"] == "Mindustry.jar" } as Map<String, ?>
+        if (releaseInfo == null)
              throw new GradleException("Mindustry.jar wasn't founded in release ${mindustryVersion}.")
 
         if (jar.exists()) {
             logger.lifecycle("Computing Mindustry.jar digest.")
-            var local_digest = Hashing.sha256().hashStream(jar.newInputStream()).toString()
-            var remote_digest = release_info["digest"] as String
-            remote_digest = remote_digest.substring(remote_digest.indexOf(':')+1)
+            var localDigest = Hashing.sha256().hashStream(jar.newInputStream()).toString()
+            if (releaseInfo.containsKey("digest")) {
+                var remoteDigest = releaseInfo["digest"] as String
+                remoteDigest = remoteDigest.substring(remoteDigest.indexOf(':') + 1)
 
-            logger.lifecycle("Comparing remote and local digests.")
-            if (remote_digest == local_digest) {
-                logger.lifecycle("Identical - abort fetching.")
-                state.setDidWork false
-                return
+                logger.lifecycle("Comparing remote and local digests.")
+                if (remoteDigest == localDigest) {
+                    logger.lifecycle("Identical - abort fetching.")
+                    state.setDidWork false
+                    return
+                } else
+                    logger.lifecycle("Different - fetching mindustry.")
             } else
-                logger.lifecycle("Different - fetching mindustry.")
+                logger.lifecycle("Mindustry.jar file exists, but remote release has no digest - abort fetching. (delete ${jar.absolutePath}, if you want to re-download)")
         }
 
         logger.lifecycle("Fetching mindustry release ${mindustryVersion} into ${jar.absolutePath}.")
-        Utils.readFile release_info["browser_download_url"] as String, jar, 4096, new Consumer<Long>() {
+        Utils.readFile releaseInfo["browser_download_url"] as String, jar, 4096, new Consumer<Long>() {
             long prev_time = System.currentTimeMillis()
             long prev_count
             final bs = 4096 * 1024
