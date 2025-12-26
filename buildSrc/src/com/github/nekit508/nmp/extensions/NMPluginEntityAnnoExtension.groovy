@@ -4,7 +4,7 @@ import com.github.nekit508.nmp.NMPlugin
 import com.github.nekit508.nmp.lib.Utils
 import com.github.nekit508.nmp.tasks.core.BuildTask
 import com.github.nekit508.nmp.tasks.entityanno.FetchComponentsTask
-import com.github.nekit508.nmp.tasks.entityanno.ProcessComponentsTask
+
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.file.DirectoryProperty
@@ -73,12 +73,10 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
     void genericInit(boolean excludeComponents) {
         nmp.initialisation {
             attachedProject.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
-            attachedProject.tasks.register "nmpeaProcessComps", ProcessComponentsTask, this
         }
 
         nmp.configuration {
             attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaFetchComps
-            attachedProject.tasks.compileJava.dependsOn attachedProject.tasks.nmpeaProcessComps
 
             attachedProject.repositories {
                 maven { url "https://raw.githubusercontent.com/GglLfr/EntityAnnoMaven/main" }

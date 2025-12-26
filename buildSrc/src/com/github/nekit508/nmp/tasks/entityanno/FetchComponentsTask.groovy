@@ -21,6 +21,8 @@ class FetchComponentsTask extends DefaultTask {
     final DirectoryProperty fetchedCompsDir
 
     @Input
+    final Property<String> fetchedCompsPackage
+    @Input
     final Property<String> fetchCompsVersion
 
     @Inject
@@ -32,33 +34,43 @@ class FetchComponentsTask extends DefaultTask {
 
         fetchedCompsDir = factory.directoryProperty()
         fetchCompsVersion = factory.property String
+        fetchedCompsPackage = factory.property String
 
         configure {
             fetchCompsVersion.set ext.core.mindustryVersion
 
-            fetchedCompsDir.set temporaryDir
+            fetchedCompsDir.set ext.fetchedCompsDir
+            fetchedCompsPackage.set ext.fetchedCompsPackage
         }
     }
 
     @TaskAction
     void fetch() {
-        var data = (Utils.readJson "https://api.github.com/repos/Anuken/MIndustry/contents/core/src/mindustry/entities/comp?ref=${fetchCompsVersion.get()}") as Iterable<?>
+        var data = (Utils.readJson "https://api.github.com/repos/Anuken/Mindustry/contents/core/src/mindustry/entities/comp?ref=${fetchCompsVersion.get()}") as Iterable<?>
         var dir = fetchedCompsDir.get().asFile
         project.delete { DeleteSpec srec ->
             srec.delete project.fileTree(dir).files
         }
-
-        var files = new ArrayList<File>()
+        var packagee = fetchedCompsPackage.get()
+        var packageDir = new File(dir, packagee.replaceAll("\\.", "/"))
+        packageDir.mkdirs()
 
         logger.lifecycle "Fetching components"
         data.each { Map<String, ?> fileInfo ->
-            var file = new File(dir, fileInfo.name as String)
+            var file = new File(packageDir, fileInfo.name as String)
             var url = fileInfo.download_url as String
+            logger.lifecycle "Fetching $url into $file.absolutePath."
 
-            logger.lifecycle "Downloading $url into $file.absolutePath"
-
-            Utils.readFile url, file
-            files.add file
+            var text = Utils.readString url
+            file.write text
+                    .replace("mindustry.entities.comp", packagee)
+                    .replace("mindustry.annotations.Annotations.*", "ent.anno.Annotations.*")
+                    .replaceAll("@Component\\((base = true|.)+\\)\n*", "@EntityComponent(base = true, vanilla = true)\n")
+                    .replaceAll("@Component\n*", "@EntityComponent(vanilla = true)\n")
+                    .replaceAll("@BaseComponent\n*", "@EntityBaseComponent\n")
+                    .replaceAll("@CallSuper\n*", "")
+                    .replaceAll("@Final\n*", "")
+                    .replaceAll("@EntityDef\\(*.*\\)*\n*", "")
         }
         logger.lifecycle "Fetched components"
     }
