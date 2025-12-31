@@ -55,9 +55,9 @@ class NMPlugin implements Plugin<Project> {
         autoOfflineMode = project.objects.property Boolean.class
         autoOfflineModeTimeout = project.objects.property Integer.class
 
-        offlineMode.set false
-        autoOfflineMode.set true
-        autoOfflineModeTimeout.set 5000
+        offlineMode.set((local?.offlineMode ?: false) as Boolean)
+        autoOfflineMode.set((local?.autoOfflineMode ?: local?.offlineMode == null) as Boolean)
+        autoOfflineModeTimeout.set((local?.autoOfflineModeTimeout ?: 5000) as Integer)
 
         initialisations = new ScheduledActionsList()
         settings = new ScheduledActionsList()
@@ -67,8 +67,6 @@ class NMPlugin implements Plugin<Project> {
             autoOfflineMode.finalizeValue()
             if (autoOfflineMode.get()) {
                 project.logger.lifecycle "Automatically proving internet connection."
-
-
 
                 try {
                     InetAddress google = InetAddress.getByName("google.com"), github = InetAddress.getByName("github.com")
