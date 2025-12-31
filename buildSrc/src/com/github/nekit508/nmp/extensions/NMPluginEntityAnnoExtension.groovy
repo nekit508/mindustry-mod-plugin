@@ -35,18 +35,6 @@ class NMPluginEntityAnnoExtension extends NMPluginExtension {
         genericInit(excludeComponents)
     }
 
-    /*@Override
-    NMPluginEntityAnnoExtension settings(Closure closure) {
-        settingsI closure
-        return this
-    }
-
-    @Override
-    NMPluginEntityAnnoExtension configure(Closure closure) {
-        configureI closure
-        return this
-    }*/
-
     @Override
     void apply() {
         super.apply()

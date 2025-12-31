@@ -25,18 +25,6 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
         this.ext = ext
     }
 
-    /*@Override
-    NMPluginMMCAnnoExtension settings(Closure closure) {
-        settingsI closure
-        return this
-    }
-
-    @Override
-    NMPluginMMCAnnoExtension configure(Closure closure) {
-        configureI closure
-        return this
-    }*/
-
     @Override
     void apply() {
         super.apply()

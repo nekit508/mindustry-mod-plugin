@@ -29,18 +29,6 @@ class NMPluginCoreExtension extends NMPluginExtension {
         genericInit(publishable, group)
     }
 
-    /*@Override
-    NMPluginCoreExtension settings(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
-        settingsI closure
-        return this
-    }
-
-    @Override
-    NMPluginCoreExtension configure(@DelegatesTo(NMPluginCoreExtension) Closure closure) {
-        configureI closure
-        return this
-    }*/
-
     @Override
     void apply() {
         super.apply()
@@ -94,7 +82,6 @@ class NMPluginCoreExtension extends NMPluginExtension {
                 handler.add "compileOnly", Common.mindustryDependency(mindustryVersion.get())
                 handler.add "compileOnly", Common.arcDependency(mindustryVersion.get())
             }
-
         }
 
         nmp.initialisation {

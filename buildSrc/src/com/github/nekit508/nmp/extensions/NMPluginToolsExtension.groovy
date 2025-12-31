@@ -23,18 +23,6 @@ class NMPluginToolsExtension extends NMPluginExtension {
         genericInit()
     }
 
-    /*@Override
-    NMPluginToolsExtension settings(Closure closure) {
-        settingsI closure
-        return this
-    }
-
-    @Override
-    NMPluginToolsExtension configure(Closure closure) {
-        configureI closure
-        return this
-    }*/
-
     void genericInit() {
         nmp.configuration {
             Common.configureBuildTasks attachedProject, attachedProject.tasks.compileJava as JavaCompile, genDir

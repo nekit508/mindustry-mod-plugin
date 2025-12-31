@@ -24,18 +24,6 @@ class NMPluginAnnoExtension extends NMPluginExtension {
         genericInit()
     }
 
-    /*@Override
-    NMPluginAnnoExtension settings(Closure closure) {
-        settingsI closure
-        return this
-    }
-
-    @Override
-    NMPluginAnnoExtension configure(Closure closure) {
-        configureI closure
-        return this
-    }*/
-
     void genericInit() {
         nmp.configuration {
             Common.configureBuildTasks attachedProject, attachedProject.tasks.compileJava as JavaCompile, genDir
