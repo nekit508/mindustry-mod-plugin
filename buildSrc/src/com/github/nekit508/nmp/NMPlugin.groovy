@@ -14,9 +14,18 @@ import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.plugins.UnknownPluginException
+import org.gradle.api.provider.Property
 
+/**
+ * Initialisation - properties and tasks creation <br>
+ * Settings - properties configuration <br>
+ * Configuration - tasks configuration <br>
+ */
 class NMPlugin implements Plugin<Project> {
     final Set<Project> evaluatedProjects = new LinkedHashSet<>()
+    protected Property<Boolean> offlineMode
+    protected Property<Boolean> autoOfflineMode
+    protected Property<Integer> autoOfflineModeTimeout
 
     final List<NMPluginExtension> extensions = new LinkedList<>()
 
@@ -24,7 +33,7 @@ class NMPlugin implements Plugin<Project> {
 
     Map<String, Object> local = new LinkedHashMap<>()
 
-    protected ScheduledActionsList initialisation, adjustment, configuration
+    protected ScheduledActionsList initialisations, settings, configurations
 
     @Override
     void apply(Project target) {
@@ -38,37 +47,87 @@ class NMPlugin implements Plugin<Project> {
                 evaluatedProjects.add it
 
                 if (evaluatedProjects == this.project.allprojects)
-                    afterConfigure()
+                    afterEvaluate()
             }
         }
 
-        initialisation = new ScheduledActionsList()
-        adjustment = new ScheduledActionsList()
-        configuration = new ScheduledActionsList()
+        offlineMode = project.objects.property Boolean.class
+        autoOfflineMode = project.objects.property Boolean.class
+        autoOfflineModeTimeout = project.objects.property Integer.class
+
+        offlineMode.set false
+        autoOfflineMode.set true
+        autoOfflineModeTimeout.set 5000
+
+        initialisations = new ScheduledActionsList()
+        settings = new ScheduledActionsList()
+        configurations = new ScheduledActionsList()
+
+        configuration { // do it right after settings
+            autoOfflineMode.finalizeValue()
+            if (autoOfflineMode.get()) {
+                project.logger.lifecycle "Automatically proving internet connection."
+
+
+
+                try {
+                    InetAddress google = InetAddress.getByName("google.com"), github = InetAddress.getByName("github.com")
+                    autoOfflineModeTimeout.finalizeValue()
+                    int timeout = autoOfflineModeTimeout.get()
+
+                    if (google.isReachable(timeout) || github.isReachable(timeout))
+                        offlineMode.set false
+                    else offlineMode.set true
+                } catch (UnknownHostException ignored) {
+                    offlineMode.set true
+                } catch (IOException ignored) {
+                    offlineMode.set true
+                }
+
+                offlineMode.finalizeValue()
+            }
+            project.logger.lifecycle "Working in ${isOffline() ? "offline" : "online"}."
+        }
+    }
+
+    boolean isOffline() {
+        return offlineMode.get()
+    }
+
+    boolean isOnline() {
+        return !offlineMode.get()
+    }
+
+    Property<Boolean> autoOfflineMode() {
+        return autoOfflineMode
+    }
+
+    Property<Boolean> offlineMode() {
+        return offlineMode
     }
 
     ScheduledActionsList initialisation() {
-        initialisation
+        initialisations
     }
 
     ScheduledActionsList setting() {
-        adjustment
+        settings
     }
 
     ScheduledActionsList configuration() {
-        configuration
+        configurations
     }
 
     ScheduledActionsList initialisation(Closure closure) {
-        initialisation + closure
+        initialisations + closure
     }
 
     ScheduledActionsList setting(Closure closure) {
-        adjustment + closure
+        settings + closure
     }
 
     ScheduledActionsList configuration(Closure closure) {
-        configuration + closure
+        configurations + closure
     }
 
     void parseSettings() {
@@ -78,7 +137,7 @@ class NMPlugin implements Plugin<Project> {
             local += new JsonSlurper().parse(localFile)
     }
 
-    void afterConfigure() {
+    void afterEvaluate() {
         initialisation().schedule()
         setting().schedule()
         configuration().schedule()
