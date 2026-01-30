@@ -1,28 +1,45 @@
 var jitpack = Boolean.parseBoolean(System.getenv("JITPACK") ?: "false")
 ext.isJitpackBuild = jitpack
 
-def configureProjectData(Project p) {
+def configureProjectData(Project p, boolean isJitpackBuild) {
     // setup version and group for jitpack
     // otherwise configure it for local building and publishing
 
     var path = p.path
     var forcedGroup = path.length() == 1 ? property("group") : ("$p.parent.group.$p.parent.name")
 
-    if (rootProject.ext.isJitpackBuild) {
+    if (isJitpackBuild) {
         p.version = System.getenv("VERSION")
         p.group = forcedGroup
-
-        println """$p info:\n    is jitpack build: $rootProject.ext.isJitpackBuild\n    version: $p.version\n    group: $p.group"""
     } else {
-        var versionFile = file("version.local")
-        p.version = versionFile.exists() ? versionFile.text :  "dev"
+        // you can create version.local.ini to specify version of local publication
+        var versionFile = file("version.local.ini")
+        if (!versionFile.exists())
+            p.version = "dev"
+        else {
+            var versionFileText = versionFile.text
+            var data = new HashMap()
+
+            versionFileText.split("[\\n\\r]+").eachWithIndex { String line, int i ->
+                if (!line.startsWith("#")) {
+                    var parts = line.split(":", 2)
+                    if (parts.length != 2)
+                        throw new GradleException("Wrong formatting in file ${versionFile.absolutePath} at line $i:\n$line")
+                    data[parts[0].trim()] = parts[1].trim()
+                }
+            }
+
+            p.version = data["version"] ?: "dev"
+        }
         p.group = forcedGroup
     }
+
+    p.logger.lifecycle "'$isJitpackBuild' '$p.version' '$p.group' $p"
 }
 
-configureProjectData rootProject
+configureProjectData rootProject, isJitpackBuild
 subprojects.each { Project p ->
-    configureProjectData p
+    configureProjectData p, isJitpackBuild
 }
 
 allprojects.each {Project p ->

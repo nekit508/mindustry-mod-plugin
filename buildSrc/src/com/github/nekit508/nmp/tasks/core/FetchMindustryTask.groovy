@@ -85,7 +85,7 @@ class FetchMindustryTask extends DefaultTask {
                     } else
                         logger.lifecycle("Different - fetching mindustry.")
                 } else
-                    logger.lifecycle("Mindustry.jar file exists, but remote release has no digest - abort fetching. (delete ${jar.absolutePath}, if you want to re-download)")
+                    logger.lifecycle("Mindustry.jar file exists, but remote release has no digest - abort fetching. (delete ${jar.absolutePath}, if you need to re-download it)")
             }
 
             logger.lifecycle("Fetching mindustry release ${mindustryVersion} into ${jar.absolutePath}.")
@@ -112,7 +112,7 @@ class FetchMindustryTask extends DefaultTask {
         } else {
             if (!jar.exists())
                 state.addFailure(new TaskExecutionException(this, new Exception("Unable to fetch mindustry in offline mode.")))
-            else logger.warn "Mindustry jar exists, but working in offline mode - using it without integrity check."
+            else logger.warn "warning: Mindustry jar exists, but working in offline mode - using it without integrity check."
         }
     }
 }

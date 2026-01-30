@@ -3,4 +3,4 @@
 build
 .gradle
 
-version.local
+**.local*

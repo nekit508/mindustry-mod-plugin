@@ -10,7 +10,6 @@ import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectory
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.hash.Hashing
 
 import javax.inject.Inject
 
@@ -50,9 +49,9 @@ class FetchComponentsTask extends DefaultTask {
         if (ext.nmp().isOnline()) {
             var data = (Utils.readJson "https://api.github.com/repos/Anuken/Mindustry/contents/core/src/mindustry/entities/comp?ref=${fetchCompsVersion.get()}") as Iterable<?>
             var dir = fetchedCompsDir.get().asFile
-            /*project.delete { DeleteSpec srec ->
+            project.delete { DeleteSpec srec ->
                 srec.delete project.fileTree(dir).files
-            }*/
+            }
             var packagee = fetchedCompsPackage.get()
             var packageDir = new File(dir, packagee.replaceAll("\\.", "/"))
             packageDir.mkdirs()
@@ -76,7 +75,7 @@ class FetchComponentsTask extends DefaultTask {
             }
             logger.lifecycle "Fetched components"
         } else {
-            logger.warn "Working in offline mode, components files may be incomplete, which can cause compilation errors!"
+            logger.warn "warning: Working in offline mode, components files may be incomplete, which can cause compilation errors!"
             state.setDidWork false
         }
     }

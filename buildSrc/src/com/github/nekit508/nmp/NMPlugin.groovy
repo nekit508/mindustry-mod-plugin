@@ -9,10 +9,10 @@ import com.github.nekit508.nmp.extensions.NMPluginMMCAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import com.github.nekit508.nmp.lib.ScheduledActionsList
 import groovy.json.JsonSlurper
-
 import org.gradle.api.GradleException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
+import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.UnknownPluginException
 import org.gradle.api.provider.Property
 
@@ -27,6 +27,8 @@ class NMPlugin implements Plugin<Project> {
     protected Property<Boolean> autoOfflineMode
     protected Property<Integer> autoOfflineModeTimeout
 
+    Property<RegularFile> localSettingsFile
+
     final List<NMPluginExtension> extensions = new LinkedList<>()
 
     Project project
@@ -38,6 +40,10 @@ class NMPlugin implements Plugin<Project> {
     @Override
     void apply(Project target) {
         project = target
+
+        localSettingsFile = project.objects.fileProperty()
+        localSettingsFile.set project.file("settings/settings.local.json")
+        localSettingsFile.finalizeValue()
 
         project.allprojects.each { it.extensions.nmp = this }
         parseSettings()
@@ -68,18 +74,18 @@ class NMPlugin implements Plugin<Project> {
             if (autoOfflineMode.get()) {
                 project.logger.lifecycle "Automatically proving internet connection."
 
-                try {
-                    InetAddress google = InetAddress.getByName("google.com"), github = InetAddress.getByName("github.com")
-                    autoOfflineModeTimeout.finalizeValue()
-                    int timeout = autoOfflineModeTimeout.get()
+                var addresses = [InetAddress.getByName("google.com"), InetAddress.getByName("github.com")]
+                autoOfflineModeTimeout.finalizeValue()
+                int timeout = autoOfflineModeTimeout.get()
 
-                    if (google.isReachable(timeout) || github.isReachable(timeout))
-                        offlineMode.set false
-                    else offlineMode.set true
-                } catch (UnknownHostException ignored) {
-                    offlineMode.set true
-                } catch (IOException ignored) {
-                    offlineMode.set true
+                offlineMode.set !addresses.any {
+                    try {
+                        return it.isReachable(timeout)
+                    } catch (UnknownHostException ignored) {
+                        offlineMode.set true
+                    } catch (IOException ignored) {
+                        offlineMode.set true
+                    }
                 }
 
                 offlineMode.finalizeValue()
@@ -129,10 +135,17 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void parseSettings() {
-        var localFile = project.file("settings/local.json")
+        var localFile = localSettingsFile.get().asFile
 
         if (localFile.exists())
             local += new JsonSlurper().parse(localFile)
+        else {
+            var fallback = project.file("settings/local.json")
+            if (fallback.exists() ) {
+                local += new JsonSlurper().parse(fallback)
+                project.logger.warn "warning: Using fallback $fallback.absolutePath. Use $localFile.absolutePath instead."
+            }
+        }
     }
 
     void afterEvaluate() {
