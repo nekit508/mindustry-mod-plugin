@@ -11,8 +11,8 @@ import org.gradle.util.internal.ConfigureUtil
 
 abstract class NMPluginExtension {
     ObjectFactory factory
-    protected final NMPlugin nmp
-    protected final Project attachedProject
+    final NMPlugin nmp
+    final Project attachedProject
 
     NMPluginExtension(String name, Project project, NMPlugin plugin) {
         nmp = plugin

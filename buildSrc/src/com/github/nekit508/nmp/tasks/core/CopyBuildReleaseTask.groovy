@@ -6,6 +6,8 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
@@ -24,7 +26,7 @@ class CopyBuildReleaseTask extends DefaultTask {
     NMPluginCoreExtension ext
 
     @OutputDirectories
-    final ListProperty<File> copyPaths
+    final ListProperty<Provider<File>> copyPaths
 
     @InputFile
     final RegularFileProperty input
@@ -37,13 +39,20 @@ class CopyBuildReleaseTask extends DefaultTask {
         ObjectFactory objectFactory = getProject().getObjects()
 
         input = objectFactory.fileProperty()
-        copyPaths = objectFactory.listProperty(File.class)
+        copyPaths = objectFactory.listProperty(Provider<File>.class)
 
         configure {
             dependsOn project.tasks.nmpBuildRelease
 
             input.set project.tasks.nmpBuildRelease.archiveFile
-            copyPaths.addAll ext.nmp.local?.copy?.collect {String path -> new File(path)} ?: []
+
+            List<Provider<File>> paths = ext.nmp.local?.copy?.collect {String path -> project.provider { new File(path) } } ?: []
+            paths.add project.provider {
+                var prop = project.tasks.nmpRunMindustry.dataDirectory as Property<File>
+                prop.finalizeValue()
+                return new File(prop.get(), "Mindustry/mods")
+            }
+            copyPaths.addAll paths
         }
     }
 
