@@ -43,6 +43,7 @@ class GenerateProcessorsFileTask extends DefaultTask {
         outputDirectory = factory.directoryProperty()
 
         configure {
+            // TODO replace with provider
             outputDirectory.set new File(temporaryDir, "")
             triggerString.set "// anno processor class"
 
@@ -60,6 +61,7 @@ class GenerateProcessorsFileTask extends DefaultTask {
             if (dir.exists())
                 dir.eachFileRecurse(FileType.FILES, { file ->
                     if (file.getText().find(triggerString.get())) {
+                        // TODO resolve resulting string by package and class names instead of file path
                         var relativeFileName = dir.relativePath(file).replaceAll("[/\\\\]", ".")
                         text += relativeFileName.substring(0, relativeFileName.lastIndexOf('.')) + '\n'
                     }

@@ -66,7 +66,7 @@ class RunMindustry extends DefaultTask {
             mainClass = manifest.mainAttributes["Main-Class"] as String
             jar.close()
         } else
-            throw new GradleException("mindustryFile does not exists!")
+            throw new GradleException("mindustryJar does not exists!")
 
         workingDirectory.finalizeValue()
         var dir = workingDirectory.get()
