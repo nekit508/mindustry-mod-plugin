@@ -8,4 +8,4 @@ Plugin for building mindustry mods.
 
 # Temporary neurosloped documentation
 
-[there](/scrath.md)
+[there](scrath.md)
