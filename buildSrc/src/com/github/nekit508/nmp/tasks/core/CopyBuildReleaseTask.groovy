@@ -26,7 +26,7 @@ class CopyBuildReleaseTask extends DefaultTask {
     NMPluginCoreExtension ext
 
     @OutputDirectories
-    final ListProperty<Provider<File>> copyPaths
+    final ListProperty<File> copyPaths
 
     @InputFile
     final RegularFileProperty input
@@ -39,25 +39,21 @@ class CopyBuildReleaseTask extends DefaultTask {
         ObjectFactory objectFactory = getProject().getObjects()
 
         input = objectFactory.fileProperty()
-        copyPaths = objectFactory.listProperty(Provider<File>.class)
+        copyPaths = objectFactory.listProperty File
 
         configure {
             dependsOn project.tasks.nmpBuildRelease
 
             input.set project.tasks.nmpBuildRelease.archiveFile
 
-            List<Provider<File>> paths = ext.nmp.local?.copy?.collect {String path -> project.provider { new File(path) } } ?: []
-            paths.add project.provider {
-                var prop = project.tasks.nmpRunMindustry.dataDirectory as Property<File>
-                prop.finalizeValue()
-                return new File(prop.get(), "Mindustry/mods")
-            }
+            List<File> paths = ext.nmp.local?.copy?.collect {String path -> project.file path } ?: []
             copyPaths.addAll paths
         }
     }
 
     @TaskAction
     void copy() {
+        copyPaths.finalizeValue()
         copyPaths.get().each { p ->
             project.copy { CopySpec spec ->
                 spec.from input

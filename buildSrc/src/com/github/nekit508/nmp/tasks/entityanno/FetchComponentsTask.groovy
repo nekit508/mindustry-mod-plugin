@@ -46,7 +46,7 @@ class FetchComponentsTask extends DefaultTask {
 
     @TaskAction
     void fetch() {
-        if (ext.nmp().isOnline()) {
+        if (isOnlineMode()) {
             var data = (Utils.readJson "https://api.github.com/repos/Anuken/Mindustry/contents/core/src/mindustry/entities/comp?ref=${fetchCompsVersion.get()}") as Iterable<?>
             var dir = fetchedCompsDir.get().asFile
             project.delete { DeleteSpec srec ->
@@ -62,7 +62,7 @@ class FetchComponentsTask extends DefaultTask {
                 var url = fileInfo.download_url as String
                 logger.lifecycle "Fetching $url into $file.absolutePath."
 
-                var text = Utils.readString url
+                var text = Utils.readString url, 1, "Unable to fetch $url"
                 file.write text
                         .replace("mindustry.entities.comp", packagee)
                         .replace("mindustry.annotations.Annotations.*", "ent.anno.Annotations.*")
@@ -78,5 +78,11 @@ class FetchComponentsTask extends DefaultTask {
             logger.warn "warning: Working in offline mode, components files may be incomplete, which can cause compilation errors!"
             state.setDidWork false
         }
+    }
+
+    @Input
+    boolean isOnlineMode() {
+        ext.nmp().offlineMode().finalizeValue()
+        return ext.nmp().isOnline()
     }
 }

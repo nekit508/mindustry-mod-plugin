@@ -52,7 +52,7 @@ class FetchMindustryTask extends DefaultTask {
             }
         }
 
-        outputs.upToDateWhen { false }
+        //outputs.upToDateWhen { false }
     }
 
     @TaskAction

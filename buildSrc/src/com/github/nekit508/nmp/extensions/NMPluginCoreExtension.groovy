@@ -15,8 +15,8 @@ import org.gradle.api.tasks.compile.JavaCompile
 import com.github.nekit508.nmp.tasks.core.*
 
 class NMPluginCoreExtension extends NMPluginExtension {
-    Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion
-    Property<Boolean> generateModInfo
+    Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion, mindustryWorkingDirectory, mindustryDataDirectory
+    Property<Boolean> generateModInfo, mindustryCopyModInDataDir
     Property<JavaVersion> sourceCompatibility
     ListProperty<File> srcDirs, resDirs
     Property<File> genDir
@@ -38,8 +38,11 @@ class NMPluginCoreExtension extends NMPluginExtension {
         modVersion = factory.property String
         modGroup = factory.property String
         jabelVersion = factory.property String
+        mindustryWorkingDirectory = factory.property String
+        mindustryDataDirectory = factory.property String
 
         generateModInfo = factory.property Boolean
+        mindustryCopyModInDataDir = factory.property Boolean
 
         sourceCompatibility = factory.property JavaVersion
 
@@ -64,6 +67,10 @@ class NMPluginCoreExtension extends NMPluginExtension {
 
             mavenPublishPluginName.set "maven-publish"
             javaLibraryPluginName.set "java-library"
+
+            mindustryWorkingDirectory.set nmp.local?.mindustry?.workingDirectory
+            mindustryDataDirectory.set nmp.local?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
+            mindustryCopyModInDataDir.set nmp.local?.mindustry?.copyModInDataDir ?: true
         }
     }
 

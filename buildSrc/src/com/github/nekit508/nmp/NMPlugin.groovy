@@ -74,13 +74,13 @@ class NMPlugin implements Plugin<Project> {
             if (autoOfflineMode.get()) {
                 project.logger.lifecycle "Automatically proving internet connection."
 
-                var addresses = [InetAddress.getByName("google.com"), InetAddress.getByName("github.com")]
+                var addresses = ["google.com", "github.com"]
                 autoOfflineModeTimeout.finalizeValue()
                 int timeout = autoOfflineModeTimeout.get()
 
                 offlineMode.set !addresses.any {
                     try {
-                        return it.isReachable(timeout)
+                        return InetAddress.getByName(it).isReachable(timeout)
                     } catch (UnknownHostException ignored) {
                         offlineMode.set true
                     } catch (IOException ignored) {
