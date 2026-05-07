@@ -47,7 +47,6 @@ class Common {
 
             task.options.compilerArgs = [
                     "--release", "8",
-                    "--enable-preview",
                     "-Xlint:-options"
             ]
         }

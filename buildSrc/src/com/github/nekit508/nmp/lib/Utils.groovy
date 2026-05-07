@@ -1,7 +1,6 @@
 package com.github.nekit508.nmp.lib
 
 import groovy.json.JsonSlurper
-import org.gradle.api.GradleException
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
@@ -10,21 +9,8 @@ import java.util.function.Consumer
 class Utils {
     static var json = new JsonSlurper()
 
-    static String readString(String uri, int maxTries = 3, String message = "Connection error") {
-        int tryNum = 0
-        while (true) {
-            try {
-                tryNum++
-                var bytes = new ByteArrayOutputStream()
-                new URI(uri).toURL().withInputStream {
-                    bytes << it
-                }
-                return new String(bytes.toByteArray(), 0, bytes.size())
-            } catch (SocketException e) {
-                if (tryNum == maxTries)
-                    throw new GradleException(message, e)
-            }
-        }
+    static String readString(String uri) {
+        return new URI(uri).toURL().text
     }
 
     static Object readJson(String uri) {

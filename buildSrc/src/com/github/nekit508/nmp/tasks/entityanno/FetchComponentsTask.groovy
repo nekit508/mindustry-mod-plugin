@@ -62,7 +62,7 @@ class FetchComponentsTask extends DefaultTask {
                 var url = fileInfo.download_url as String
                 logger.lifecycle "Fetching $url into $file.absolutePath."
 
-                var text = Utils.readString url, 1, "Unable to fetch $url"
+                var text = Utils.readString url
                 file.write text
                         .replace("mindustry.entities.comp", packagee)
                         .replace("mindustry.annotations.Annotations.*", "ent.anno.Annotations.*")
