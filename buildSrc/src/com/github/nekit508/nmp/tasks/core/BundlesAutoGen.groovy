@@ -25,7 +25,7 @@ class BundlesAutoGen extends DefaultTask {
     final Property<Boolean> trace
 
     @Internal
-    var blockPattern = Pattern.compile "[\"']@(\\S+)*?[\"']\\s*?/\\*.*?\\*/", Pattern.DOTALL
+    var blockPattern = Pattern.compile "[\"']@([\\w_-]+)*?[\"']\\s*?/\\*.*?\\*/", Pattern.DOTALL
 
     @Internal
     var pairPattern = Pattern.compile "(\\w+):\\s*?\"([^\"]*)\""
