@@ -15,6 +15,6 @@ public class Mod extends mindustry.mod.Mod {
 
     @Override
     public void loadContent() {
-        Log.info("Loaded @.", getClass().getCanonicalName());
+        Log.info("@greet"/*ru:"здарова\nмой\nдрун" en:"hello"*/, getClass().getCanonicalName());
     }
 }

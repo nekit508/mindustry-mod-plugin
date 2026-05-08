@@ -102,6 +102,8 @@ class NMPluginCoreExtension extends NMPluginExtension {
             attachedProject.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
             attachedProject.tasks.register "nmpRunMindustry", RunMindustry, this
 
+            attachedProject.tasks.create "nmpBundlesAutoGen", BundlesAutoGen, this
+
             attachedProject.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
                     attachedProject.tasks.nmpCopyBuildRelease,
                     attachedProject.tasks.nmpRunMindustry
