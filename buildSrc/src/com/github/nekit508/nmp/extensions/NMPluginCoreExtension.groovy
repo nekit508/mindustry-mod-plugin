@@ -6,6 +6,7 @@ import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
@@ -15,7 +16,7 @@ import org.gradle.api.tasks.compile.JavaCompile
 import com.github.nekit508.nmp.tasks.core.*
 
 class NMPluginCoreExtension extends NMPluginExtension {
-    Property<String> mindustryVersion, modName, modVersion, modGroup, jabelVersion, mindustryWorkingDirectory, mindustryDataDirectory
+    Property<String> mindustryVersion, arcVersion, modName, modVersion, modGroup, jabelVersion, mindustryWorkingDirectory, mindustryDataDirectory
     Property<Boolean> generateModInfo, mindustryCopyModInDataDir
     Property<JavaVersion> sourceCompatibility
     ListProperty<File> srcDirs, resDirs
@@ -34,6 +35,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
         super.apply()
 
         mindustryVersion = factory.property String
+        arcVersion = factory.property String
         modName = factory.property String
         modVersion = factory.property String
         modGroup = factory.property String
@@ -61,6 +63,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
             generateModInfo.set true
             jabelVersion.set "1.0.1-1"
             mindustryVersion.set "v146"
+            arcVersion.set mindustryVersion
 
             modName.set attachedProject.name
             modGroup.set attachedProject.group.toString()
@@ -85,9 +88,24 @@ class NMPluginCoreExtension extends NMPluginExtension {
 
             Common.setupJabel attachedProject, sourceCompatibility, jabelVersion
 
+            attachedProject.allprojects.each { Project project ->
+                project.configurations.configureEach { configuration ->
+                    // force Arc version.
+                    configuration.resolutionStrategy.eachDependency { dep ->
+                        if(dep.requested.group == "com.github.Anuken.Arc" ){
+                            arcVersion.finalizeValue()
+                            dep.useVersion arcVersion.get()
+                        }
+                    }
+                }
+            }
+
             attachedProject.dependencies { DependencyHandler handler ->
+                mindustryVersion.finalizeValue()
+                arcVersion.finalizeValue()
+
                 handler.add "compileOnly", Common.mindustryDependency(mindustryVersion.get())
-                handler.add "compileOnly", Common.arcDependency(mindustryVersion.get())
+                handler.add "compileOnly", Common.arcDependency(arcVersion.get())
             }
         }
 
