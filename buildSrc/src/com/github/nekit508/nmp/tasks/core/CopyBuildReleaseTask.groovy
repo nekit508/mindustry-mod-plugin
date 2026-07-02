@@ -6,18 +6,10 @@ import org.gradle.api.file.CopySpec
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.ListProperty
-import org.gradle.api.provider.Property
-import org.gradle.api.provider.Provider
-import org.gradle.api.tasks.Copy
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.OutputDirectories
-import org.gradle.api.tasks.OutputFile
-import org.gradle.api.tasks.OutputFiles
 import org.gradle.api.tasks.TaskAction
-import org.gradle.internal.enterprise.test.FileProperty
 
 import javax.inject.Inject
 
@@ -46,7 +38,7 @@ class CopyBuildReleaseTask extends DefaultTask {
 
             input.set project.tasks.nmpBuildRelease.archiveFile
 
-            List<File> paths = ext.nmp.local?.copy?.collect {String path -> project.file path } ?: []
+            List<File> paths = ext.nmp.nmpSettings?.copy?.collect { String path -> project.file path } ?: []
             copyPaths.addAll paths
         }
     }

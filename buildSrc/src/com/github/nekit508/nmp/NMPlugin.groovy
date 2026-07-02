@@ -27,13 +27,13 @@ class NMPlugin implements Plugin<Project> {
     protected Property<Boolean> autoOfflineMode
     protected Property<Integer> autoOfflineModeTimeout
 
-    Property<RegularFile> localSettingsFile
+    Property<RegularFile> localSettingsFile, defaultSettingsFile
 
     final List<NMPluginExtension> extensions = new LinkedList<>()
 
     Project project
 
-    Map<String, Object> local = new LinkedHashMap<>()
+    Map<String, Object> nmpSettings = new LinkedHashMap<>()
 
     protected ScheduledActionsList initialisations, settings, configurations
 
@@ -44,6 +44,9 @@ class NMPlugin implements Plugin<Project> {
         localSettingsFile = project.objects.fileProperty()
         localSettingsFile.set project.file("settings/settings.local.json")
         localSettingsFile.finalizeValue()
+
+        defaultSettingsFile = project.objects.fileProperty()
+        defaultSettingsFile.set project.file("settings/settings.json")
 
         project.allprojects.each { it.extensions.nmp = this }
         parseSettings()
@@ -61,9 +64,9 @@ class NMPlugin implements Plugin<Project> {
         autoOfflineMode = project.objects.property Boolean.class
         autoOfflineModeTimeout = project.objects.property Integer.class
 
-        offlineMode.set((local?.offlineMode ?: false) as Boolean)
-        autoOfflineMode.set((local?.autoOfflineMode ?: local?.offlineMode == null) as Boolean)
-        autoOfflineModeTimeout.set((local?.autoOfflineModeTimeout ?: 5000) as Integer)
+        offlineMode.set((nmpSettings?.offlineMode ?: false) as Boolean)
+        autoOfflineMode.set((nmpSettings?.autoOfflineMode ?: nmpSettings?.offlineMode == null) as Boolean)
+        autoOfflineModeTimeout.set((nmpSettings?.autoOfflineModeTimeout ?: 5000) as Integer)
 
         initialisations = new ScheduledActionsList()
         settings = new ScheduledActionsList()
@@ -135,16 +138,44 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void parseSettings() {
+        var parser = new JsonSlurper();
+
+        defaultSettingsFile.finalizeValue()
+        localSettingsFile.finalizeValue()
+
         var localFile = localSettingsFile.get().asFile
+        var defaultFile = defaultSettingsFile.get().asFile
+
+        if (defaultFile.exists())
+            addMap nmpSettings, parser.parse(defaultFile) as Map<String, Object>
 
         if (localFile.exists())
-            local += new JsonSlurper().parse(localFile)
+            addMap nmpSettings, parser.parse(localFile) as Map<String, Object>
         else {
             var fallback = project.file("settings/local.json")
             if (fallback.exists() ) {
-                local += new JsonSlurper().parse(fallback)
+                addMap nmpSettings, parser.parse(fallback) as Map<String, Object>
                 project.logger.warn "warning: Using fallback $fallback.absolutePath. Use $localFile.absolutePath instead."
             }
+        }
+
+        project.logger.lifecycle("Source settings: ${nmpSettings}")
+    }
+
+    <T> void addMap(Map<String, T> a, Map<String, T> b) {
+        b.forEach { k, v ->
+            if (a.containsKey(k)) {
+                var av = a[k]
+
+                if (av instanceof Map && v instanceof Map) {
+                    addMap(av, v)
+                } else if (av instanceof List && v instanceof List) {
+                    av.addAll(v as Iterable)
+                } else {
+                    a[k] = v
+                }
+            } else
+                a[k] = v
         }
     }
 

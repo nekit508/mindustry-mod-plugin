@@ -3,8 +3,6 @@ package com.github.nekit508.nmp.tasks.core
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
-import org.gradle.api.Task
-import org.gradle.api.file.FileCollection
 import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.model.ObjectFactory
@@ -12,7 +10,6 @@ import org.gradle.api.provider.Property
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.InputFiles
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.OutputFile
@@ -58,13 +55,13 @@ class DexTask extends DefaultTask {
             dexFile.set project.layout.buildDirectory.file("libs/tmp/dex.jar")
             logger.debug("$name: dexFile: ${dexFile.getOrNull()?.asFile?.absolutePath}")
 
-            var raw = ext.nmp().local?.build?.useAndroid
+            var raw = ext.nmp().nmpSettings?.build?.useAndroid
             buildAndroid.set(raw != null ? raw : true)
             logger.debug("$name: buildAndroid: ${buildAndroid.get()}")
 
             inputJar.set project.tasks.nmpBuild.archiveFile as Provider<RegularFile>
 
-            var p = ext.nmp().local?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
+            var p = ext.nmp().nmpSettings?.build?.sdkRoot ?: System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT") ?: null
             if (p)
                 sdkRoot.set p
             else

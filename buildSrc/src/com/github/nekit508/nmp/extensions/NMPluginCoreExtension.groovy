@@ -6,7 +6,6 @@ import org.gradle.api.GradleException
 import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.ConfigurationContainer
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
@@ -71,9 +70,9 @@ class NMPluginCoreExtension extends NMPluginExtension {
             mavenPublishPluginName.set "maven-publish"
             javaLibraryPluginName.set "java-library"
 
-            mindustryWorkingDirectory.set nmp.local?.mindustry?.workingDirectory
-            mindustryDataDirectory.set nmp.local?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
-            mindustryCopyModInDataDir.set nmp.local?.mindustry?.copyModInDataDir ?: true
+            mindustryWorkingDirectory.set nmp.nmpSettings?.mindustry?.workingDirectory
+            mindustryDataDirectory.set nmp.nmpSettings?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
+            mindustryCopyModInDataDir.set nmp.nmpSettings?.mindustry?.copyModInDataDir ?: true
         }
     }
 

@@ -10,7 +10,6 @@ import org.gradle.api.tasks.*
 import org.gradle.internal.hash.Hashing
 
 import javax.inject.Inject
-import java.security.MessageDigest
 import java.util.function.Consumer
 
 class FetchMindustryTask extends DefaultTask {
@@ -44,7 +43,7 @@ class FetchMindustryTask extends DefaultTask {
 
         configure {
             mindustryVersion.set ext.mindustryVersion
-            outputDir.set project.layout.buildDirectory.file(ext.nmp().local?.mindustry?.downloadDir ?: "mindustry")
+            outputDir.set project.layout.buildDirectory.file(ext.nmp().nmpSettings?.mindustry?.downloadDir ?: "mindustry")
             fileName.set "Mindustry"
             extension.set "jar"
             outputFile.set project.provider {

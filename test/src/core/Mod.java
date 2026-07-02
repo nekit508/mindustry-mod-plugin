@@ -1,6 +1,5 @@
 package core;
 
-import arc.util.Log;
 import com.github.nekit508.mod.annotations.AnnotationProcessor;
 import core.gen.Newc;
 import ent.anno.Annotations;
@@ -12,9 +11,4 @@ import mindustry.type.UnitType;
 @AnnotationProcessor
 public class Mod extends mindustry.mod.Mod {
     public static @Annotations.EntityDef({Unitc.class, Builderc.class, Newc.class}) UnitType type;
-
-    @Override
-    public void loadContent() {
-        Log.info("@greet"/*ru:"здарова\nмой\nдрун" en:"hello"*/, getClass().getCanonicalName());
-    }
 }
