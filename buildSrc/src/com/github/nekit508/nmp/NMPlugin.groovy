@@ -158,8 +158,6 @@ class NMPlugin implements Plugin<Project> {
                 project.logger.warn "warning: Using fallback $fallback.absolutePath. Use $localFile.absolutePath instead."
             }
         }
-
-        project.logger.lifecycle("Source settings: ${nmpSettings}")
     }
 
     <T> void addMap(Map<String, T> a, Map<String, T> b) {
