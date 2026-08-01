@@ -49,3 +49,5 @@ allprojects.each {Project p ->
         mavenLocal()
     }
 }
+
+project.copy {}

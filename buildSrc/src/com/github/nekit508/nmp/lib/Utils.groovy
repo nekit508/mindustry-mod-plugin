@@ -17,22 +17,19 @@ class Utils {
         return json.parse(new URI(uri).toURL())
     }
 
-    static boolean readFile(String uri, File file, int blockSize = 4096, Consumer<Long> progressHandler = (_ -> {})) {
-        boolean ok = false
-        new URI(uri).toURL().withInputStream { input ->
-            file.withOutputStream { output ->
-                byte[] buf = new byte[blockSize]
-                long totalCount = 0
-                for (int count; (count = input.read(buf)) != -1;) {
-                    output.write(buf, 0, count)
-                    totalCount += count
-                    progressHandler.accept(totalCount)
-                }
-                output.flush()
-                ok = true
-            }
+    static void readFile(String uri, File file, int blockSize = 4096, Consumer<Long> progressHandler = (_ -> {})) {
+        readFile(new URI(uri).toURL().newInputStream(), file.newOutputStream(), blockSize, progressHandler)
+    }
+
+    static void readFile(InputStream input, OutputStream output, int blockSize = 4096, Consumer<Long> progressHandler = (_ -> {})) {
+        byte[] buf = new byte[blockSize]
+        long totalCount = 0
+        for (int count; (count = input.read(buf)) != -1;) {
+            output.write(buf, 0, count)
+            totalCount += count
+            progressHandler.accept(totalCount)
         }
-        ok
+        output.flush()
     }
 
     static void annotationProcessorArgs(TaskProvider<JavaCompile> provider, Map<String, String> args) {

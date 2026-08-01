@@ -1,71 +1,65 @@
 package com.github.nekit508.nmp.extensions
 
-import com.github.nekit508.nmp.NMPlugin
+
+import com.github.nekit508.nmp.extensions.components.Compiled
+import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.tasks.TasksQueue
+import com.github.nekit508.nmp.tasks.core.*
 import org.gradle.api.GradleException
-import org.gradle.api.JavaVersion
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
-import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.maven.MavenPublication
-import org.gradle.api.tasks.compile.JavaCompile
-import com.github.nekit508.nmp.tasks.core.*
 
-class NMPluginCoreExtension extends NMPluginExtension {
-    Property<String> mindustryVersion, arcVersion, modName, modVersion, modGroup, jabelVersion, mindustryWorkingDirectory, mindustryDataDirectory
+import javax.inject.Inject 
+
+abstract class NMPluginCoreExtension extends NMPluginExtension implements Compiled {
+    Property<String> mindustryVersion, arcVersion, modName, modVersion, modGroup, mindustryWorkingDirectory, mindustryDataDirectory
     Property<Boolean> generateModInfo, mindustryCopyModInDataDir
-    Property<JavaVersion> sourceCompatibility
-    ListProperty<File> srcDirs, resDirs
-    Property<File> genDir
 
     Property<String> mavenPublishPluginName, javaLibraryPluginName
 
-    NMPluginCoreExtension(String name, Project project, NMPlugin plugin, boolean publishable, String group) {
-        super(name, project, plugin)
+    protected boolean _publishable
+    protected String _group
 
-        genericInit(publishable, group)
+    @Inject
+    NMPluginCoreExtension(String name, Project project, boolean publishable, String group) {
+        super(name, project)
+
+        _publishable = publishable
+        _group = group
     }
 
     @Override
     void apply() {
         super.apply()
 
-        mindustryVersion = factory.property String
-        arcVersion = factory.property String
-        modName = factory.property String
-        modVersion = factory.property String
-        modGroup = factory.property String
-        jabelVersion = factory.property String
-        mindustryWorkingDirectory = factory.property String
-        mindustryDataDirectory = factory.property String
+        _Sourced()
+        _Compiled()
 
-        generateModInfo = factory.property Boolean
-        mindustryCopyModInDataDir = factory.property Boolean
+        mindustryVersion = objectFactory.property String
+        arcVersion = objectFactory.property String
+        modName = objectFactory.property String
+        modVersion = objectFactory.property String
+        modGroup = objectFactory.property String
+        mindustryWorkingDirectory = objectFactory.property String
+        mindustryDataDirectory = objectFactory.property String
 
-        sourceCompatibility = factory.property JavaVersion
+        generateModInfo = objectFactory.property Boolean
+        mindustryCopyModInDataDir = objectFactory.property Boolean
 
-        srcDirs = factory.listProperty File
-        resDirs = factory.listProperty File
-        genDir = factory.property File
-
-        mavenPublishPluginName = factory.property String
-        javaLibraryPluginName = factory.property String
+        mavenPublishPluginName = objectFactory.property String
+        javaLibraryPluginName = objectFactory.property String
 
         nmp.setting {
-            genDir.set attachedProject.file("gen")
-            resDirs.add attachedProject.file("res")
-            srcDirs.add attachedProject.file("src")
-            sourceCompatibility.set JavaVersion.VERSION_20
             generateModInfo.set true
-            jabelVersion.set "1.0.1-1"
             mindustryVersion.set "v146"
             arcVersion.set mindustryVersion
 
-            modName.set attachedProject.name
-            modGroup.set attachedProject.group.toString()
+            modName.set project.name
+            modGroup.set project.group.toString()
 
             mavenPublishPluginName.set "maven-publish"
             javaLibraryPluginName.set "java-library"
@@ -74,20 +68,9 @@ class NMPluginCoreExtension extends NMPluginExtension {
             mindustryDataDirectory.set nmp.nmpSettings?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
             mindustryCopyModInDataDir.set nmp.nmpSettings?.mindustry?.copyModInDataDir ?: true
         }
-    }
 
-    void genericInit(boolean publishable, String group) {
         nmp.configuration {
-            Common.configureBuildTasks attachedProject, attachedProject.tasks.compileJava as JavaCompile, genDir
-
-            srcDirs.finalizeValue()
-            resDirs.finalizeValue()
-            attachedProject.sourceSets.main.java.srcDirs += srcDirs
-            attachedProject.sourceSets.main.resources.srcDirs += resDirs
-
-            Common.setupJabel attachedProject, sourceCompatibility, jabelVersion
-
-            attachedProject.allprojects.each { Project project ->
+            project.allprojects.each { Project project ->
                 project.configurations.configureEach { configuration ->
                     // force Arc version.
                     configuration.resolutionStrategy.eachDependency { dep ->
@@ -99,7 +82,7 @@ class NMPluginCoreExtension extends NMPluginExtension {
                 }
             }
 
-            attachedProject.dependencies { DependencyHandler handler ->
+            project.dependencies { DependencyHandler handler ->
                 mindustryVersion.finalizeValue()
                 arcVersion.finalizeValue()
 
@@ -109,38 +92,38 @@ class NMPluginCoreExtension extends NMPluginExtension {
         }
 
         nmp.initialisation {
-            attachedProject.tasks.register "nmpBuild", BuildTask, this
-            attachedProject.tasks.register "nmpDex", DexTask, this
+            project.tasks.register "nmpBuild", BuildTask, this
+            project.tasks.register "nmpDex", DexTask, this
 
-            attachedProject.tasks.register "nmpBuildRelease", BuildReleaseTask, this
-            attachedProject.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-            attachedProject.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+            project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
+            project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
+            project.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
 
-            attachedProject.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
-            attachedProject.tasks.register "nmpRunMindustry", RunMindustry, this
+            project.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
+            project.tasks.register "nmpRunMindustry", RunMindustry, this
 
-            //attachedProject.tasks.create "nmpBundlesAutoGen", BundlesAutoGen, this
+            //project.tasks.create "nmpBundlesAutoGen", BundlesAutoGen, this
 
-            attachedProject.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
-                    attachedProject.tasks.nmpCopyBuildRelease,
-                    attachedProject.tasks.nmpRunMindustry
+            project.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
+                    project.tasks.nmpCopyBuildRelease,
+                    project.tasks.nmpRunMindustry
             }
         }
 
-        if (publishable) {
-            if (group == null)
+        if (_publishable) {
+            if (_group == null)
                 new GradleException("group must be specified with publishable = true.")
-            nmp.configureProjectDataForJitpackBuilding group
+            nmp.configureProjectDataForJitpackBuilding _group
 
             nmp.initialisation {
-                attachedProject.tasks.register "nmpBuildSources", BuildSourcesTask, this
-                attachedProject.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
+                project.tasks.register "nmpBuildSources", BuildSourcesTask, this
+                project.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
             }
 
             nmp.configuration() {
-                attachedProject.with {
-                    nmp.requirePlugin attachedProject, mavenPublishPluginName.get()
-                    nmp.requirePlugin attachedProject, javaLibraryPluginName.get()
+                project.with {
+                    nmp.requirePlugin project, mavenPublishPluginName.get()
+                    nmp.requirePlugin project, javaLibraryPluginName.get()
 
                     java {
                         withSourcesJar()

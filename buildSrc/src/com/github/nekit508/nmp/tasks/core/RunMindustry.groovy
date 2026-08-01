@@ -4,6 +4,7 @@ import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import org.gradle.api.DefaultTask
 import org.gradle.api.GradleException
 import org.gradle.api.file.Directory
+import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.Input
@@ -23,7 +24,7 @@ class RunMindustry extends DefaultTask {
     NMPluginCoreExtension ext
 
     @Input
-    final Property<File> mindustryJar
+    final RegularFileProperty mindustryJar
 
     @Input
     @Optional
@@ -46,7 +47,7 @@ class RunMindustry extends DefaultTask {
 
         var factory = project.objects
 
-        mindustryJar = factory.property File
+        mindustryJar = factory.fileProperty()
         dataDirectory = factory.property String
         workingDirectory = factory.property String
         arguments = factory.listProperty String

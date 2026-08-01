@@ -19,7 +19,7 @@ apply plugin: NMPlugin
 apply plugin: "java-library"
 apply plugin: "maven-publish"
 
-nmp.core project, "core", isLib, group
+nmp.core project, "core"
 nmp.entityAnno project, "eanno", core, true
 // nmp.mmcAnno project, "mmcAnno", core
 

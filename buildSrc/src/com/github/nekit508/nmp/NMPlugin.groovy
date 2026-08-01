@@ -1,10 +1,9 @@
 package com.github.nekit508.nmp
 
-import com.github.nekit508.nmp.extensions.Common
 import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
-import com.github.nekit508.nmp.extensions.NMPluginExtension
+import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.extensions.NMPluginMMCAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import com.github.nekit508.nmp.lib.ScheduledActionsList
@@ -29,8 +28,6 @@ class NMPlugin implements Plugin<Project> {
 
     Property<RegularFile> localSettingsFile, defaultSettingsFile
 
-    final List<NMPluginExtension> extensions = new LinkedList<>()
-
     Project project
 
     Map<String, Object> nmpSettings = new LinkedHashMap<>()
@@ -51,7 +48,7 @@ class NMPlugin implements Plugin<Project> {
         project.allprojects.each { it.extensions.nmp = this }
         parseSettings()
 
-        project.allprojects.each {
+        project.allprojects.each { Project it ->
             it.afterEvaluate {
                 evaluatedProjects.add it
 
@@ -94,6 +91,13 @@ class NMPlugin implements Plugin<Project> {
                 offlineMode.finalizeValue()
             }
             project.logger.lifecycle "Working in ${isOffline() ? "offline" : "online"}."
+        }
+    }
+
+    void finalizeProperty(Property<?>... props) {
+        props.each {
+            project.logger.debug("finalizing $it")
+            it.finalizeValue()
         }
     }
 
@@ -183,25 +187,44 @@ class NMPlugin implements Plugin<Project> {
         configuration().schedule()
     }
 
-    static String mindustryDependency(String version, String module = "core") {
-        return Common.mindustryDependency(version, module)
+    @SuppressWarnings('GrMethodMayBeStatic')
+    String mindustryDependency(String version, String module = "core") {
+        return dependency("com.github.Anuken.Mindustry", module, version)
     }
 
-    static String arcDependency(String version, String module = "arc-core") {
-        return Common.arcDependency(version, module)
+    @SuppressWarnings('GrMethodMayBeStatic')
+    String arcDependency(String version, String module = "arc-core") {
+        return dependency("com.github.Anuken.Arc", module, version)
     }
 
-    static String dependency(String dep, String module, String version) {
-        return Common.dependency(dep, module, version)
+    @SuppressWarnings('GrMethodMayBeStatic')
+    String dependency(String dep, String module, String version) {
+        return "$dep:$module:$version"
     }
 
-    NMPluginCoreExtension core(Project project, String name, boolean publishable = false, String group = null) { new NMPluginCoreExtension(name, project, this, publishable, group) }
+    @SuppressWarnings('GrMethodMayBeStatic')
+    NMPluginCoreExtension core(Project project, String name, boolean publishable = false, String group = "") {
+        //new NMPluginCoreExtension(name, project, this, publishable, group)
+        project.objects.newInstance(NMPluginCoreExtension, name, project, publishable, group)
+    }
 
-    NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) { new NMPluginAnnoExtension(name, project, this, core) }
+    @SuppressWarnings('GrMethodMayBeStatic')
+    NMPluginAnnoExtension anno(Project project, String name, NMPluginCoreExtension core) {
+        //new NMPluginAnnoExtension(name, project, this, core)
+        project.objects.newInstance(NMPluginAnnoExtension, name, project, core)
+    }
 
-    NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) { new NMPluginToolsExtension(name, project, this, core) }
+    @SuppressWarnings('GrMethodMayBeStatic')
+    NMPluginToolsExtension tools(Project project, String name, NMPluginCoreExtension core) {
+        //new NMPluginToolsExtension(name, project, this, core)
+        project.objects.newInstance(NMPluginToolsExtension, name, project, core)
+    }
 
-    NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core, boolean excludeComponents = true) { new NMPluginEntityAnnoExtension(name, project, this, core, excludeComponents) }
+    @SuppressWarnings('GrMethodMayBeStatic')
+    NMPluginEntityAnnoExtension entityAnno(Project project, String name, NMPluginCoreExtension core, boolean excludeComponents = true) {
+        //new NMPluginEntityAnnoExtension(name, project, this, core, excludeComponents)
+        project.objects.newInstance(NMPluginEntityAnnoExtension, name, project, core, excludeComponents)
+    }
 
     NMPluginMMCAnnoExtension mmcAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginMMCAnnoExtension(name, project, this, core) }
 
@@ -220,6 +243,7 @@ class NMPlugin implements Plugin<Project> {
         }
     }
 
+    @SuppressWarnings('GrMethodMayBeStatic')
     void requirePlugin(Project project, String pluginId) {
         try {
             project.plugins.getPlugin(pluginId)

@@ -1,6 +1,7 @@
 package com.github.nekit508.nmp.extensions
 
 import com.github.nekit508.nmp.NMPlugin
+import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.lib.Utils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
