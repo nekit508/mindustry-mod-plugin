@@ -17,6 +17,7 @@ class FetchMindustryTask extends FetchTask {
         nmp = this.ext.nmp
 
         configure {
+            repo.set "Anuken/Mindustry"
             version.set ext.mindustryVersion
             outputDir.set project.layout.buildDirectory.dir(ext.nmp.nmpSettings?.mindustry?.downloadDir ?: "mindustry")
             fileName.set "Mindustry"

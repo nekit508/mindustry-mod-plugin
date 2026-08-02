@@ -23,7 +23,7 @@ class RunMindustry extends DefaultTask {
     @Internal
     NMPluginCoreExtension ext
 
-    @Input
+    @InputFile
     final RegularFileProperty mindustryJar
 
     @Input
@@ -65,10 +65,10 @@ class RunMindustry extends DefaultTask {
             dataDirectory.finalizeValue()
             copyModInDataDir.finalizeValue()
 
-            logger.lifecycle("Patching nmpCopyBuildRelease for copy mod in data dir.")
-
-            if (copyModInDataDir.get() && dataDirectory.isPresent())
-                (project.tasks.nmpCopyBuildRelease.copyPaths as ListProperty<File>).add new File(project.file(dataDirectory.get()), "Mindustry/mods")
+            if (copyModInDataDir.get() && dataDirectory.isPresent()) {
+                logger.lifecycle("Patching nmpCopyBuildRelease for copy mod in data dir.")
+                (project.tasks.nmpCopyBuildRelease.copyPaths as ListProperty<File>).add project.provider({ new File(project.file(dataDirectory.get()), "Mindustry/mods") })
+            }
         }
 
         outputs.upToDateWhen { false }
@@ -113,8 +113,6 @@ class RunMindustry extends DefaultTask {
 
             if (overrideWDir)
                 spec.workingDir(wDir)
-
-            project.logger.lifecycle "Mindustry user data $dDir.absolutePath"
 
             if (overrideDDir) {
                 var os = OperatingSystem.current()
