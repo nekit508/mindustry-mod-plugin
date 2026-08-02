@@ -18,7 +18,7 @@ class FetchMindustryTask extends FetchTask {
 
         configure {
             version.set ext.mindustryVersion
-            outputDir.set project.layout.buildDirectory.dir(ext.nmp().nmpSettings?.mindustry?.downloadDir ?: "mindustry")
+            outputDir.set project.layout.buildDirectory.dir(ext.nmp.nmpSettings?.mindustry?.downloadDir ?: "mindustry")
             fileName.set "Mindustry"
             extension.set "jar"
         }

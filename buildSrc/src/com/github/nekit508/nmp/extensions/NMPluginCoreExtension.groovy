@@ -64,6 +64,8 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
             mavenPublishPluginName.set "maven-publish"
             javaLibraryPluginName.set "java-library"
 
+            project.logger.lifecycle "Idono $nmp.nmpSettings"
+
             mindustryWorkingDirectory.set nmp.nmpSettings?.mindustry?.workingDirectory
             mindustryDataDirectory.set nmp.nmpSettings?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
             mindustryCopyModInDataDir.set nmp.nmpSettings?.mindustry?.copyModInDataDir ?: true
@@ -86,8 +88,8 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
                 mindustryVersion.finalizeValue()
                 arcVersion.finalizeValue()
 
-                handler.add "compileOnly", Common.mindustryDependency(mindustryVersion.get())
-                handler.add "compileOnly", Common.arcDependency(arcVersion.get())
+                handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
+                handler.add "compileOnly", nmp.arcDependency(arcVersion.get())
             }
         }
 

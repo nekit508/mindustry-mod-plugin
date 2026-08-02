@@ -39,4 +39,8 @@ interface Default {
             ConfigureUtil.configureSelf closure, project.tasks
         }
     }
+
+    default String prop(String name) {
+        return project."$name"
+    }
 }

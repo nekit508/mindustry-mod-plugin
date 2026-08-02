@@ -49,12 +49,11 @@ interface Compiled extends Sourced, Default {
                         "--add-opens=java.base/sun.reflect.annotation=ALL-UNNAMED"
                 ]
 
-                task.doFirst {
-
-                    task.sourceCompatibility = sourceCompatibility.get().getMajorVersion()
-                    task.targetCompatibility = targetCompatibility.get().getMajorVersion()
+                task.doFirst { i ->
+                    task.sourceCompatibility = this.sourceCompatibility.get().getMajorVersion()
+                    task.targetCompatibility = this.targetCompatibility.get().getMajorVersion()
                     // TODO is javac so stupid, that I need to delete generated stuff at every compilation?
-                    project.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
+                    this.project.delete task.options.generatedSourceOutputDirectory.get().asFile.listFiles()
 
                     // TODO do we really need ts?
                     task.options.compilerArgs = task.options.compilerArgs.findAll {

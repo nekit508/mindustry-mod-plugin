@@ -61,15 +61,21 @@ class NMPlugin implements Plugin<Project> {
         autoOfflineMode = project.objects.property Boolean.class
         autoOfflineModeTimeout = project.objects.property Integer.class
 
-        offlineMode.set((nmpSettings?.offlineMode ?: false) as Boolean)
-        autoOfflineMode.set((nmpSettings?.autoOfflineMode ?: nmpSettings?.offlineMode == null) as Boolean)
-        autoOfflineModeTimeout.set((nmpSettings?.autoOfflineModeTimeout ?: 5000) as Integer)
+        if (nmpSettings?.offlineMode != null && nmpSettings?.autoOfflineMode)
+            project.logger.warn "warning: probably misconfiguration: offlineMode is set when autoOfflineMode is true"
+
+        if (nmpSettings?.autoOfflineMode != true && nmpSettings?.autoOfflineModeTimeout != null)
+            project.logger.warn "warning: probably misconfiguration: autoOfflineModeTimeout is set when autoOfflineMode is false"
 
         initialisations = new ScheduledActionsList()
         settings = new ScheduledActionsList()
         configurations = new ScheduledActionsList()
 
         configuration { // do it right after settings
+            offlineMode.set((nmpSettings?.offlineMode ?: false) as Boolean)
+            autoOfflineMode.set((nmpSettings?.autoOfflineMode ?: nmpSettings?.offlineMode == null) as Boolean)
+            autoOfflineModeTimeout.set((nmpSettings?.autoOfflineModeTimeout ?: 5000) as Integer)
+
             autoOfflineMode.finalizeValue()
             if (autoOfflineMode.get()) {
                 project.logger.lifecycle "Automatically proving internet connection."

@@ -1,5 +1,3 @@
-import com.github.nekit508.nmp.extensions.Common
-
 nmp.tools project, "tools", nmp.project.core
 
 tools.with {
@@ -12,6 +10,6 @@ tools.with {
 
 nmp.configuration {
     dependencies {
-        implementation Common.arcDependency(tools.core.mindustryVersion.get(), "arc-core")
+        implementation nmp.arcDependency(tools.core.mindustryVersion.get(), "arc-core")
     }
 }

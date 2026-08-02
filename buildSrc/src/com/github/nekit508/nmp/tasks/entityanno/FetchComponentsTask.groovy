@@ -82,7 +82,7 @@ class FetchComponentsTask extends DefaultTask {
 
     @Input
     boolean isOnlineMode() {
-        ext.nmp().offlineMode().finalizeValue()
-        return ext.nmp().isOnline()
+        ext.nmp.offlineMode().finalizeValue()
+        return ext.nmp.isOnline()
     }
 }

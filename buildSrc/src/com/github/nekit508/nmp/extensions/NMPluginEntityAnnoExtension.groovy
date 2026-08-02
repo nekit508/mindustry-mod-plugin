@@ -14,6 +14,8 @@ import org.gradle.api.provider.Property
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
+import javax.inject.Inject
+
 abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements Default {
     // TODO why is kapt here?
     //Property<String> kotlinKaptPluginName
@@ -26,6 +28,7 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
 
     final NMPluginCoreExtension core
 
+    @Inject
     NMPluginEntityAnnoExtension(String name, Project project, NMPluginCoreExtension core, boolean excludeComponents) {
         super(name, project)
         this.core = core
@@ -90,8 +93,8 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
 
             //nmp.requirePlugin project, kotlinKaptPluginName.get() // TODO use kapt
 
-            project.tasks.named("compileJava").configure {
-                doFirst {
+            project.tasks.named("compileJava").configure { JavaCompile task ->
+                task.doFirst {
                     Utils.annotationProcessorArgs project.tasks.named("compileJava") as TaskProvider<JavaCompile>,
                             [
                                     "modName"     : core.modName.get(),

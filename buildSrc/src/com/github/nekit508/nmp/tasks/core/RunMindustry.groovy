@@ -61,7 +61,7 @@ class RunMindustry extends DefaultTask {
             copyModInDataDir.set ext.mindustryCopyModInDataDir
         }
 
-        ext.nmp().configuration {
+        ext.nmp.configuration {
             dataDirectory.finalizeValue()
             copyModInDataDir.finalizeValue()
 
@@ -77,7 +77,7 @@ class RunMindustry extends DefaultTask {
     @TaskAction
     void run() {
         mindustryJar.finalizeValue()
-        var file = mindustryJar.get()
+        var file = mindustryJar.get().asFile
 
         String mainClass
         if (file.exists()) {
@@ -113,6 +113,8 @@ class RunMindustry extends DefaultTask {
 
             if (overrideWDir)
                 spec.workingDir(wDir)
+
+            project.logger.lifecycle "Mindustry user data $dDir.absolutePath"
 
             if (overrideDDir) {
                 var os = OperatingSystem.current()
