@@ -1,4 +1,4 @@
-# Документация плагина NMPlugin для разработки модов Mindustry
+# Документация плагина [NMPlugin](https://github.com/nekit508/mindustry-mod-plugin) для разработки модов Mindustry
 
 Плагин предназначен для упрощения сборки, аннотационной обработки, запуска и публикации модов для игры Mindustry. Поддерживает Java 20+ с обратной совместимостью через Jabel. Публикуется на JitPack: `com.github.nekit508.mindustry-mod-plugin`.
 
@@ -317,7 +317,7 @@ test/
 | При автоофлайн режиме `InetAddress.getByName` может работать медленно или нестабильно | `NMPlugin.groovy` | Рекомендуется явно задавать `offlineMode` |
 | `GenerateProcessorsFileTask` – поиск триггера по тексту всего файла, а не по аннотации | `GenerateProcessorsFileTask.groovy` | Неэффективно |
 | `DexTask` – не кэшируется (`@DisableCachingByDefault`) | | Всегда выполняется заново |
-| `RunMindustry` – всегда не up-to-date (`outputs.upToDateWhen { false }`) | | Всегда запускает игру |
+| `RunMindustryTask` – всегда не up-to-date (`outputs.upToDateWhen { false }`) | | Всегда запускает игру |
 
 ### 5.2 Особенности
 

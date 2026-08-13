@@ -32,7 +32,7 @@ abstract class NMPluginAnnoExtension extends NMPluginExtension implements Compil
         }
 
         nmp.initialisation {
-            project.tasks.register "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
+            project.tasks.create "nmpaGenerateProcessorsFile", GenerateProcessorsFileTask, this
         }
     }
 }

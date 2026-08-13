@@ -188,9 +188,18 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void afterEvaluate() {
-        initialisation().schedule()
+        project.logger.lifecycle "[NMPlugin] Scheduling post evaluation actions (${setting().size}:${initialisation().size}:${configuration().size})"
+
+        project.logger.lifecycle "[NMPlugin] Settings (${setting().size})"
         setting().schedule()
+
+        project.logger.lifecycle "[NMPlugin] Initalization (${initialisation().size})"
+        initialisation().schedule()
+
+        project.logger.lifecycle "[NMPlugin] Configuaration (${configuration().size})"
         configuration().schedule()
+
+        project.logger.lifecycle "[NMPlugin] Post evaluation actions are scheduled (${setting().size}:${initialisation().size}:${configuration().size})"
     }
 
     @SuppressWarnings('GrMethodMayBeStatic')

@@ -92,32 +92,38 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
         }
 
         nmp.initialisation {
-            project.tasks.register "nmpBuild", BuildTask, this
-            project.tasks.register "nmpDex", DexTask, this
+            project.tasks.create "nmpBuild", BuildTask, this
+            project.tasks.create "nmpDex", DexTask, this
 
-            project.tasks.register "nmpBuildRelease", BuildReleaseTask, this
-            project.tasks.register "nmpCopyBuildRelease", CopyBuildReleaseTask, this
-            project.tasks.register "nmpGenerateModInfo", GenerateModInfoTask, this
+            project.tasks.create "nmpBuildRelease", BuildReleaseTask, this
+            project.tasks.create "nmpCopyBuildRelease", CopyBuildReleaseTask, this
+            project.tasks.create "nmpGenerateModInfo", GenerateModInfoTask, this
 
-            project.tasks.register "nmpFetchMindustry", FetchMindustryTask, this
-            project.tasks.register "nmpRunMindustry", RunMindustry, this
+            project.tasks.create "nmpFetchServer", FetchServerTask, this
+            project.tasks.create "nmpRunServer", RunServerTask, this
+            project.tasks.create "nmpCopyBuildReleaseRunServer", TasksQueue, "nmp", new Task[]{
+                    project.tasks.nmpCopyBuildRelease,
+                    project.tasks.nmpRunServer
+            }
 
-            //project.tasks.create "nmpBundlesAutoGen", BundlesAutoGen, this
-
-            project.tasks.register "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
+            project.tasks.create "nmpFetchMindustry", FetchMindustryTask, this
+            project.tasks.create "nmpRunMindustry", RunMindustryTask, this
+            project.tasks.create "nmpCopyBuildReleaseRunMindustry", TasksQueue, "nmp", new Task[]{
                     project.tasks.nmpCopyBuildRelease,
                     project.tasks.nmpRunMindustry
             }
+
+            //project.tasks.create "nmpBundlesAutoGen", BundlesAutoGen, this
         }
 
         if (_publishable) {
             if (_group == null)
-                new GradleException("group must be specified with publishable = true.")
+                new GradleException("group must be specified when publishable = true.")
             nmp.configureProjectDataForJitpackBuilding _group
 
             nmp.initialisation {
-                project.tasks.register "nmpBuildSources", BuildSourcesTask, this
-                project.tasks.register "nmpBuildLibrary", BuildLibraryTask, this
+                project.tasks.create "nmpBuildSources", BuildSourcesTask, this
+                project.tasks.create "nmpBuildLibrary", BuildLibraryTask, this
             }
 
             nmp.configuration() {

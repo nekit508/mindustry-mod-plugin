@@ -64,7 +64,7 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
 
     void genericInit(boolean excludeComponents) {
         nmp.initialisation {
-            project.tasks.register "nmpeaFetchComps", FetchComponentsTask, this
+            project.tasks.create "nmpeaFetchComps", FetchComponentsTask, this
         }
 
         nmp.configuration {

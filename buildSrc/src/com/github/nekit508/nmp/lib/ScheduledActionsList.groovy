@@ -9,16 +9,24 @@ class ScheduledActionsList {
     public var finalizeAfterSchedule = true
     protected StackTraceElement[] finalizedAt
 
+    protected int actionsNum = 0
+
     ScheduledActionsList() {
         actions = new ArrayList<>()
+    }
+
+    int getSize() {
+        return actionsNum
     }
 
     ScheduledActionsList plus(Runnable runnable) {
         checkFinalization()
 
+        actionsNum += 1
         if (scheduling)
             runnable.run()
         else actions.add runnable
+
         this
     }
 
@@ -41,6 +49,6 @@ class ScheduledActionsList {
 
         var cause = new Exception()
         cause.setStackTrace finalizedAt
-        throw new RuntimeException("Actions list is finalized.", cause)
+        throw new RuntimeException("Actions list is finalized.\n", cause)
     }
 }

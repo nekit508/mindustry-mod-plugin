@@ -33,7 +33,7 @@ abstract class NMPluginToolsExtension extends NMPluginExtension implements Compi
         }
 
         nmp.initialisation {
-            project.tasks.register "nmptRunTools", RunToolsTask, this
+            project.tasks.create "nmptRunTools", RunToolsTask, this
         }
     }
 }
