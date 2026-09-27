@@ -1,13 +1,13 @@
 package com.github.nekit508.nmp.extensions
 
-import com.github.nekit508.nmp.extensions.components.Compiled
-import com.github.nekit508.nmp.extensions.components.NMPluginExtension
+
+import com.github.nekit508.nmp.extensions.packs.ProjectRoot
+import com.github.nekit508.nmp.tasks.tools.RunToolsTask
 import org.gradle.api.Project
-import com.github.nekit508.nmp.tasks.tools.*
 
 import javax.inject.Inject
 
-abstract class NMPluginToolsExtension extends NMPluginExtension implements Compiled {
+abstract class NMPluginToolsExtension extends NMPluginExtension implements ProjectRoot {
     final NMPluginCoreExtension core
 
     @Inject
@@ -19,9 +19,6 @@ abstract class NMPluginToolsExtension extends NMPluginExtension implements Compi
     @Override
     void apply() {
         super.apply()
-
-        _Sourced()
-        _Compiled()
 
         nmp.setting {
             sourceCompatibility.set core.sourceCompatibility

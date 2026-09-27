@@ -1,8 +1,6 @@
 package com.github.nekit508.nmp.extensions
 
 
-import com.github.nekit508.nmp.extensions.components.Default
-import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.lib.Utils
 import com.github.nekit508.nmp.tasks.core.BuildTask
 import com.github.nekit508.nmp.tasks.entityanno.FetchComponentsTask
@@ -16,13 +14,13 @@ import org.gradle.api.tasks.compile.JavaCompile
 
 import javax.inject.Inject
 
-abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements Default {
+abstract class NMPluginEntityAnnoExtension extends NMPluginExtension {
     // TODO why is kapt here?
     //Property<String> kotlinKaptPluginName
 
     Property<String> genPackage, fetchedCompsPackage, modCompsPackage
     DirectoryProperty revisionsDir
-    DirectoryProperty fetchedCompsDir
+    DirectoryProperty fetchedCompsDir, cacheDir
 
     Property<String> entityAnnoVersion
 
@@ -43,13 +41,14 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
     void apply() {
         super.apply()
 
-        //kotlinKaptPluginName = objectFactory.property String
+        //kotlinKaptPluginName = objectFactory.property String // kapt
 
         genPackage = objectFactory.property String
         revisionsDir = objectFactory.directoryProperty()
         fetchedCompsPackage = objectFactory.property String
         entityAnnoVersion = objectFactory.property String
         fetchedCompsDir = objectFactory.directoryProperty()
+        cacheDir = objectFactory.directoryProperty()
         modCompsPackage = objectFactory.property String
 
         nmp.setting {
@@ -58,6 +57,7 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
             fetchedCompsPackage.set project.provider { "${genPackage.get()}.comps.fetched" }
             revisionsDir.set project.layout.projectDirectory.dir("revisions")
             fetchedCompsDir.set project.layout.projectDirectory.dir("fetchedComps")
+            cacheDir.set project.layout.projectDirectory.dir("cacheDir")
             modCompsPackage.set project.provider { "${genPackage.get()}.comps" }
         }
     }
@@ -100,7 +100,8 @@ abstract class NMPluginEntityAnnoExtension extends NMPluginExtension implements 
                                     "modName"     : core.modName.get(),
                                     "genPackage"  : genPackage.get(),
                                     "fetchPackage": fetchedCompsPackage.get(),
-                                    "revisionDir" : revisionsDir.get().asFile.absolutePath
+                                    "revisionDir" : revisionsDir.get().asFile.absolutePath,
+                                    "cacheDir": cacheDir.get().asFile.absolutePath
                             ]
                 }
             }

@@ -3,7 +3,6 @@ package com.github.nekit508.nmp
 import com.github.nekit508.nmp.extensions.NMPluginAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginCoreExtension
 import com.github.nekit508.nmp.extensions.NMPluginEntityAnnoExtension
-import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.extensions.NMPluginMMCAnnoExtension
 import com.github.nekit508.nmp.extensions.NMPluginToolsExtension
 import com.github.nekit508.nmp.lib.ScheduledActionsList
@@ -84,13 +83,15 @@ class NMPlugin implements Plugin<Project> {
                 autoOfflineModeTimeout.finalizeValue()
                 int timeout = autoOfflineModeTimeout.get()
 
-                offlineMode.set !addresses.any {
+                offlineMode.set addresses.every {
                     try {
                         return InetAddress.getByName(it).isReachable(timeout)
                     } catch (UnknownHostException ignored) {
                         offlineMode.set true
+                        project.logger.lifecycle "failed $it - unknown host exception"
                     } catch (IOException ignored) {
                         offlineMode.set true
+                        project.logger.lifecycle "failed $it - io exception"
                     }
                 }
 
@@ -241,7 +242,11 @@ class NMPlugin implements Plugin<Project> {
         project.objects.newInstance(NMPluginEntityAnnoExtension, name, project, core, excludeComponents)
     }
 
-    NMPluginMMCAnnoExtension mmcAnno(Project project, String name, NMPluginCoreExtension core) { new NMPluginMMCAnnoExtension(name, project, this, core) }
+    @SuppressWarnings('GrMethodMayBeStatic')
+    NMPluginMMCAnnoExtension mmcAnno(Project project, String name, NMPluginCoreExtension core) {
+        //new NMPluginMMCAnnoExtension(name, project, this, core)
+        project.objects.newInstance(NMPluginMMCAnnoExtension, name, project, core)
+    }
 
     void configureProjectDataForJitpackBuilding(String group) {
         project.allprojects { Project p ->

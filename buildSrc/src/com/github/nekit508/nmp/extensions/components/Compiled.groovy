@@ -6,6 +6,7 @@ import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.provider.Property
 import org.gradle.api.tasks.compile.JavaCompile
 
+@Component
 interface Compiled extends Sourced, Default {
     DirectoryProperty getGen();
     Property<JavaVersion> getTargetCompatibility();
@@ -14,6 +15,7 @@ interface Compiled extends Sourced, Default {
     Property<String> getJabelVersion();
     Property<String> getJabelRepo();
 
+    @SuppressWarnings('unused')
     default void _Compiled() {
         nmp.setting {
             gen.set fileFactory.dir(

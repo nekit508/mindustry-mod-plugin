@@ -1,25 +1,27 @@
 package com.github.nekit508.nmp.extensions
 
 
-import com.github.nekit508.nmp.extensions.components.Compiled
-import com.github.nekit508.nmp.extensions.components.NMPluginExtension
+import com.github.nekit508.nmp.extensions.packs.ProjectRoot
 import com.github.nekit508.nmp.tasks.TasksQueue
 import com.github.nekit508.nmp.tasks.core.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
 import org.gradle.api.publish.maven.MavenPublication
 
-import javax.inject.Inject 
+import javax.inject.Inject
 
-abstract class NMPluginCoreExtension extends NMPluginExtension implements Compiled {
+abstract class NMPluginCoreExtension extends NMPluginExtension implements ProjectRoot {
     Property<String> mindustryVersion, arcVersion, modName, modVersion, modGroup, mindustryWorkingDirectory, mindustryDataDirectory
     Property<Boolean> generateModInfo, mindustryCopyModInDataDir
 
     Property<String> mavenPublishPluginName, javaLibraryPluginName
+
+    Property<Boolean> overrideNewIvyMindustryGroup
 
     protected boolean _publishable
     protected String _group
@@ -36,9 +38,6 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
     void apply() {
         super.apply()
 
-        _Sourced()
-        _Compiled()
-
         mindustryVersion = objectFactory.property String
         arcVersion = objectFactory.property String
         modName = objectFactory.property String
@@ -47,6 +46,7 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
         mindustryWorkingDirectory = objectFactory.property String
         mindustryDataDirectory = objectFactory.property String
 
+        overrideNewIvyMindustryGroup = objectFactory.property Boolean
         generateModInfo = objectFactory.property Boolean
         mindustryCopyModInDataDir = objectFactory.property Boolean
 
@@ -67,6 +67,8 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
             mindustryWorkingDirectory.set nmp.nmpSettings?.mindustry?.workingDirectory
             mindustryDataDirectory.set nmp.nmpSettings?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
             mindustryCopyModInDataDir.set nmp.nmpSettings?.mindustry?.copyModInDataDir ?: true
+
+            overrideNewIvyMindustryGroup.set true
         }
 
         nmp.configuration {
@@ -88,6 +90,20 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Compil
 
                 handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
                 handler.add "compileOnly", nmp.arcDependency(arcVersion.get())
+            }
+
+            if (overrideNewIvyMindustryGroup.get()) {
+                project.allprojects {
+                    configurations.all {
+                        it.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
+                            if (details.requested.group == "Anuken") {
+                                var prev = details.target
+                                details.useTarget "com.github.Anuken:${details.requested.name}:${details.requested.version}"
+                                logger.lifecycle "[IvyMindstryGroupHandler] $prev -> $details.target"
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -12,6 +12,7 @@ import org.gradle.util.internal.ConfigureUtil
 
 import javax.inject.Inject
 
+@Component
 interface Default {
     @Inject
     FileFactory getFileFactory();
@@ -27,7 +28,7 @@ interface Default {
     Project getProject();
 
     default Map<String, ?> getSettings() {
-        return nmp.nmpSettings;
+        return nmp.nmpSettings
     }
 
     default NMPlugin getNmp() {

@@ -5,10 +5,12 @@ import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.ListProperty
 import org.gradle.language.jvm.tasks.ProcessResources
 
+@Component
 interface Sourced extends Default {
     ListProperty<Directory> getSrc();
     ListProperty<Directory> getRes();
 
+    @SuppressWarnings('unused')
     default void _Sourced() {
         nmp.setting {
             src.add fileFactory.dir(project.file("src"))

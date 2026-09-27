@@ -3,5 +3,6 @@
 .idea/
 .gradle/
 /fetchedComps/*
+/cacheDir/*
 
 **.local*

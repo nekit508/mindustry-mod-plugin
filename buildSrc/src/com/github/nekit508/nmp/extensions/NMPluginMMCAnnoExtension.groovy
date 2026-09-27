@@ -1,28 +1,29 @@
 package com.github.nekit508.nmp.extensions
 
 import com.github.nekit508.nmp.NMPlugin
-import com.github.nekit508.nmp.extensions.components.NMPluginExtension
 import com.github.nekit508.nmp.lib.Utils
 import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DirectoryProperty
+import org.gradle.api.file.RegularFile
 import org.gradle.api.file.RegularFileProperty
 import org.gradle.api.provider.ListProperty
 import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.compile.JavaCompile
 
 // TODO Pull request settings via compiler arguments
-class NMPluginMMCAnnoExtension extends NMPluginExtension {
+abstract class NMPluginMMCAnnoExtension extends NMPluginExtension {
     RegularFileProperty modInfoPath
     DirectoryProperty rootDirectory, genRes, rawRes, revisionsPath
     ListProperty<String> modules
-    Property<String> mmcVersion, classPrefix;
+    Property<String> mmcVersion, classPrefix
 
     final NMPluginCoreExtension ext
 
-    NMPluginMMCAnnoExtension(String name, Project project, NMPlugin plugin, NMPluginCoreExtension ext) {
-        super(name, project, plugin)
+    NMPluginMMCAnnoExtension(String name, Project project, NMPluginCoreExtension ext) {
+        super(name, project)
         this.ext = ext
     }
 
@@ -30,24 +31,24 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
     void apply() {
         super.apply()
 
-        mmcVersion = factory.property String
-        modules = factory.listProperty String
+        mmcVersion = objectFactory.property String
+        modules = objectFactory.listProperty String
 
-        rootDirectory = factory.directoryProperty()
-        genRes = factory.directoryProperty()
-        rawRes = factory.directoryProperty()
-        modInfoPath = factory.fileProperty()
-        revisionsPath = factory.directoryProperty()
+        rootDirectory = objectFactory.directoryProperty()
+        genRes = objectFactory.directoryProperty()
+        rawRes = objectFactory.directoryProperty()
+        modInfoPath = objectFactory.fileProperty()
+        revisionsPath = objectFactory.directoryProperty()
 
-        classPrefix = factory.property String
+        classPrefix = objectFactory.property String
 
         nmp.setting {
-            rootDirectory.set attachedProject.projectDir
+            rootDirectory.set project.projectDir
 
-            genRes.set attachedProject.layout.projectDirectory.file("genRes").asFile
-            rawRes.set attachedProject.layout.projectDirectory.file("rawRes").asFile
-            modInfoPath.set(attachedProject.provider { attachedProject.tasks.named("nmpGenerateModInfo").get().outputFile.get() })
-            revisionsPath.set attachedProject.layout.projectDirectory.file("mmcRevisions").asFile
+            genRes.set project.layout.projectDirectory.file("genRes").asFile
+            rawRes.set project.layout.projectDirectory.file("rawRes").asFile
+            modInfoPath.set(project.provider { project.tasks.named("nmpGenerateModInfo").get().outputFile.get() } as Provider<? extends RegularFile>)
+            revisionsPath.set project.layout.projectDirectory.file("mmcRevisions").asFile
         }
     }
 
@@ -61,7 +62,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
 
     void addMMCRepo() {
         nmp.configuration {
-            attachedProject.repositories {
+            project.repositories {
                 maven { url "https://raw.githubusercontent.com/Zelaux/Repo/master/repository" }
             }
         }
@@ -71,7 +72,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
         nmp.configuration {
             var version = mmcVersion.get()
 
-            attachedProject.dependencies { DependencyHandler handler ->
+            project.dependencies { DependencyHandler handler ->
                 this.modules.get().each { module ->
                     var moduleDependency = "com.github.Zelaux.MindustryModCore:annotations-$module:$version"
                     handler.compileOnly moduleDependency
@@ -83,12 +84,12 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
 
     void setupCompileJava() {
         nmp.configuration {
-            attachedProject.tasks.named("compileJava").configure { task ->
+            project.tasks.named("compileJava").configure { task ->
                 task.doFirst {
-                    attachedProject.delete genRes.get().asFileTree.files
+                    project.delete genRes.get().asFileTree.files
 
                     var rootPath = rootDirectory.get().asFile.absolutePath
-                    Utils.annotationProcessorArgs attachedProject.tasks.named("compileJava") as TaskProvider<JavaCompile>,
+                    Utils.annotationProcessorArgs project.tasks.named("compileJava") as TaskProvider<JavaCompile>,
                             [
                                     "rootDirectory": rootPath,
                                     "assetsPath"   : Utils.subpath(rootPath, genRes.get().asFile.absolutePath),
@@ -105,7 +106,7 @@ class NMPluginMMCAnnoExtension extends NMPluginExtension {
 
     void setupSourceSets() {
         nmp.configuration {
-            attachedProject.sourceSets.main.resources.srcDirs += genRes
+            project.sourceSets.main.resources.srcDirs += genRes
         }
     }
 

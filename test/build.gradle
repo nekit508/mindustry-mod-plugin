@@ -1,4 +1,5 @@
 import com.github.nekit508.nmp.NMPlugin
+import com.github.nekit508.nmp.tasks.GenerateLombokConfigTask
 import com.github.nekit508.nmp.tasks.core.GenerateModInfoTask
 
 allprojects.each { project ->
@@ -20,7 +21,7 @@ apply plugin: "java-library"
 apply plugin: "maven-publish"
 
 nmp.core project, "core"
-nmp.entityAnno project, "eanno", core, true
+nmp.entityAnno project, "eanno", core, false
 // nmp.mmcAnno project, "mmcAnno", core
 
 core.with {
@@ -33,11 +34,17 @@ core.with {
                     "main": "core.Mod"
             )
         }
+        nmpGenerateLombokConfig { GenerateLombokConfigTask task ->
+            task.lombok(
+                    "lombok.accessors.fluent": "true"
+            )
+        }
     }
 
     nmp.setting {
         modVersion.set prop("modVersion") as String
         mindustryVersion.set prop("mindustryVersion") as String
+        useLombok.set true
     }
 }
 
