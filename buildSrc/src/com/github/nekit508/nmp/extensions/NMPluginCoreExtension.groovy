@@ -100,7 +100,7 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
                             if (details.requested.group == "Anuken" && details.target.module.name == "Mindustry") {
                                 // generally, if we are trying to fetch Anuken:Mindustry - we are need com.github.Anuken.Mindustry:core
                                 var prev = details.target
-                                details.useTarget "com.github.Anuken.Midustry:core:${details.requested.version}"
+                                details.useTarget "com.github.Anuken.Midustry:core:${mindustryVersion.get()}"
                                 logger.lifecycle "[IvyMindstryGroupHandler] $prev -> $details.target"
                             }
                         }
