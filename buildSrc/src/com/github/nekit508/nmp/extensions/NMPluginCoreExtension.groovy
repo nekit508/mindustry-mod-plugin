@@ -92,13 +92,15 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
                 handler.add "compileOnly", nmp.arcDependency(arcVersion.get())
             }
 
+            // TODO maybe add more robust way to reconfigure incompatible dependencies
             if (overrideNewIvyMindustryGroup.get()) {
                 project.allprojects {
                     configurations.all {
                         it.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                            if (details.requested.group == "Anuken") {
+                            if (details.requested.group == "Anuken" && details.target.module.name == "Mindustry") {
+                                // generally, if we are trying to fetch Anuken:Mindustry - we are need com.github.Anuken.Mindustry:core
                                 var prev = details.target
-                                details.useTarget "com.github.Anuken:${details.requested.name}:${details.requested.version}"
+                                details.useTarget "com.github.Anuken.Midustry:core:${details.requested.version}"
                                 logger.lifecycle "[IvyMindstryGroupHandler] $prev -> $details.target"
                             }
                         }
