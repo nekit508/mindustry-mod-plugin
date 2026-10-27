@@ -1,13 +1,11 @@
 package com.github.nekit508.nmp.extensions
 
-
 import com.github.nekit508.nmp.extensions.packs.ProjectRoot
 import com.github.nekit508.nmp.tasks.TasksQueue
 import com.github.nekit508.nmp.tasks.core.*
 import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.artifacts.DependencyResolveDetails
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.file.DuplicatesStrategy
 import org.gradle.api.provider.Property
@@ -20,8 +18,6 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
     Property<Boolean> generateModInfo, mindustryCopyModInDataDir
 
     Property<String> mavenPublishPluginName, javaLibraryPluginName
-
-    Property<Boolean> overrideNewIvyMindustryGroup
 
     protected boolean _publishable
     protected String _group
@@ -46,7 +42,6 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
         mindustryWorkingDirectory = objectFactory.property String
         mindustryDataDirectory = objectFactory.property String
 
-        overrideNewIvyMindustryGroup = objectFactory.property Boolean
         generateModInfo = objectFactory.property Boolean
         mindustryCopyModInDataDir = objectFactory.property Boolean
 
@@ -67,21 +62,12 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
             mindustryWorkingDirectory.set nmp.nmpSettings?.mindustry?.workingDirectory
             mindustryDataDirectory.set nmp.nmpSettings?.mindustry?.dataDirectory ?: mindustryWorkingDirectory.getOrNull()
             mindustryCopyModInDataDir.set nmp.nmpSettings?.mindustry?.copyModInDataDir ?: true
-
-            overrideNewIvyMindustryGroup.set true
         }
 
         nmp.configuration {
-            project.allprojects.each { Project project ->
-                project.configurations.configureEach { configuration ->
-                    // force Arc version.
-                    configuration.resolutionStrategy.eachDependency { dep ->
-                        if(dep.requested.group == "com.github.Anuken.Arc" ){
-                            arcVersion.finalizeValue()
-                            dep.useVersion arcVersion.get()
-                        }
-                    }
-                }
+            project.allprojects.each {
+                nmp.addIvyMindustryRepo it
+                nmp.deduplicateDependenciesVersions it
             }
 
             project.dependencies { DependencyHandler handler ->
@@ -89,23 +75,6 @@ abstract class NMPluginCoreExtension extends NMPluginExtension implements Projec
                 arcVersion.finalizeValue()
 
                 handler.add "compileOnly", nmp.mindustryDependency(mindustryVersion.get())
-                handler.add "compileOnly", nmp.arcDependency(arcVersion.get())
-            }
-
-            // TODO maybe add more robust way to reconfigure incompatible dependencies
-            if (overrideNewIvyMindustryGroup.get()) {
-                project.allprojects {
-                    configurations.all {
-                        it.resolutionStrategy.eachDependency { DependencyResolveDetails details ->
-                            if (details.requested.group == "Anuken" && details.target.module.name == "Mindustry") {
-                                // generally, if we are trying to fetch Anuken:Mindustry - we are need com.github.Anuken.Mindustry:core
-                                var prev = details.target
-                                details.useTarget "com.github.Anuken.Midustry:core:${mindustryVersion.get()}"
-                                logger.lifecycle "[IvyMindstryGroupHandler] $prev -> $details.target"
-                            }
-                        }
-                    }
-                }
             }
         }
 

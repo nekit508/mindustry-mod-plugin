@@ -14,6 +14,8 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.plugins.UnknownPluginException
 import org.gradle.api.provider.Property
 
+import java.util.concurrent.ConcurrentHashMap
+
 /**
  * Initialisation - properties and tasks creation <br>
  * Settings - properties configuration <br>
@@ -32,6 +34,8 @@ class NMPlugin implements Plugin<Project> {
     Map<String, Object> nmpSettings = new LinkedHashMap<>()
 
     protected ScheduledActionsList initialisations, settings, configurations
+
+    protected ConcurrentHashMap<String, String> knownDependenciesVersions = new ConcurrentHashMap<>()
 
     @Override
     void apply(Project target) {
@@ -101,6 +105,45 @@ class NMPlugin implements Plugin<Project> {
         }
     }
 
+    // https://github.com/Anuken/Mindustry/releases/download/v160.7/dependencies.jar
+    // https://github.com/Anuken/Mindustry/releases/download/v160.4/dependencies.jar
+
+    void addIvyMindustryRepo(Project project) {
+        project.with {
+            repositories.with {
+                ivy {
+                    url = uri("https://github.com/")
+                    patternLayout {
+                        artifact("[organisation]/[module]/releases/download/[revision]/dependencies(-[classifier]).jar")
+                    }
+                    metadataSources { artifact() }
+
+                    content {
+                        includeModule("Anuken", "Mindustry")
+                    }
+                }
+            }
+        }
+    }
+
+    void deduplicateDependenciesVersions(Project project) {
+        project.logger.lifecycle "[NMPlugin.DepDeDup] Activated on $project.name"
+        project.with {
+            configurations.configureEach {
+                it.resolutionStrategy.eachDependency { details ->
+                    var req = details.requested
+                    var dep = "$req.group:$req.name"
+                    var version = knownDependenciesVersions.putIfAbsent(dep, req.version) ?: req.version
+
+                    if (req.version != version) {
+                        project.logger.lifecycle "[NMPlugin.DepDeDup] $dep: $req.version -> $version"
+                        details.useVersion version
+                    }
+                }
+            }
+        }
+    }
+
     void finalizeProperty(Property<?>... props) {
         props.each {
             project.logger.debug("finalizing $it")
@@ -149,7 +192,7 @@ class NMPlugin implements Plugin<Project> {
     }
 
     void parseSettings() {
-        var parser = new JsonSlurper();
+        var parser = new JsonSlurper()
 
         defaultSettingsFile.finalizeValue()
         localSettingsFile.finalizeValue()
@@ -204,8 +247,8 @@ class NMPlugin implements Plugin<Project> {
     }
 
     @SuppressWarnings('GrMethodMayBeStatic')
-    String mindustryDependency(String version, String module = "core") {
-        return dependency("com.github.Anuken.Mindustry", module, version)
+    String mindustryDependency(String version) {
+        return dependency("Anuken", "Mindustry", version)
     }
 
     @SuppressWarnings('GrMethodMayBeStatic')
