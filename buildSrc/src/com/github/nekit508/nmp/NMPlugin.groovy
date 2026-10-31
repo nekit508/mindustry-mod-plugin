@@ -105,16 +105,13 @@ class NMPlugin implements Plugin<Project> {
         }
     }
 
-    // https://github.com/Anuken/Mindustry/releases/download/v160.7/dependencies.jar
-    // https://github.com/Anuken/Mindustry/releases/download/v160.4/dependencies.jar
-
     void addIvyMindustryRepo(Project project) {
         project.with {
             repositories.with {
                 ivy {
                     url = uri("https://github.com/")
                     patternLayout {
-                        artifact("[organisation]/[module]/releases/download/[revision]/dependencies(-[classifier]).jar")
+                        artifact("[organisation]/[module]/releases/download/[revision]/dependencies.jar")
                     }
                     metadataSources { artifact() }
 
