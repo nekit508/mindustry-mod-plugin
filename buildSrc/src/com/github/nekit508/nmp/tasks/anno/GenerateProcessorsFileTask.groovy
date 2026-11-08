@@ -47,7 +47,9 @@ class GenerateProcessorsFileTask extends DefaultTask {
             outputDirectory.set new File(temporaryDir, "")
             triggerString.set "// anno processor class"
 
-            addSource project.sourceSets.main.java.srcDirs
+            ext.nmp.configuration {
+                addSource project.sourceSets.main.java.srcDirs
+            }
 
             (project.tasks.processResources as ProcessResources).from(outputs)
         }
